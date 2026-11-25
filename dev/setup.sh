@@ -16,7 +16,7 @@ adb shell pm install -r -i com.zone.hmi.appstore /sdcard/Download/dash.apk
 echo "==> 悬浮窗权限（车机删了授权界面，只能 appops）"
 adb shell appops set $PKG SYSTEM_ALERT_WINDOW allow
 
-echo "==> 使用情况访问（onlyOnLauncher 检测前台应用用）"
+echo "==> 使用情况访问（onlyOnDesktop 检测前台应用用）"
 adb shell appops set $PKG GET_USAGE_STATS allow
 
 echo "==> 定位权限（海拔数据用）"

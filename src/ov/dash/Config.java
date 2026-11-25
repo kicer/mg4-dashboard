@@ -33,7 +33,7 @@ final class Config {
         int height = 0;
         boolean enabled = true;
         /** true = 只在 launcherPkg 位于前台时显示，切到别的 app 就隐藏。 */
-        boolean onlyOnLauncher = false;
+        boolean onlyOnDesktop = false;
         String launcherPkg = "com.zone.hmi.launcher";
     }
 
@@ -88,7 +88,7 @@ final class Config {
                 s.name = so.has("name") ? so.optString("name", null) : null;
                 s.height = so.optInt("height", 0);
                 s.enabled = so.optBoolean("enabled", true);
-                s.onlyOnLauncher = so.optBoolean("onlyOnLauncher", false);
+                s.onlyOnDesktop = so.optBoolean("onlyOnDesktop", false);
                 s.launcherPkg = so.optString("launcherPkg", "com.zone.hmi.launcher");
                 c.screens.add(s);
             }
@@ -118,8 +118,8 @@ final class Config {
                     so.put("height", s.height);
                 }
                 so.put("enabled", s.enabled);
-                if (s.onlyOnLauncher) {
-                    so.put("onlyOnLauncher", true);
+                if (s.onlyOnDesktop) {
+                    so.put("onlyOnDesktop", true);
                     so.put("launcherPkg", s.launcherPkg);
                 }
                 arr.put(so);

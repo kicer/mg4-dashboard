@@ -9,7 +9,7 @@
       "html": "ui-debug.html",
       "name": "main",
       "enabled": true,
-      "onlyOnLauncher": true,
+      "onlyOnDesktop": true,
       "launcherPkg": "com.zone.hmi.launcher"
     },
     {

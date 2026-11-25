@@ -337,8 +337,8 @@ public class DashService extends Service {
         c.disp = d;
         c.lp = makeLp(s.height);
         buildWeb(c);
-        // onlyOnLauncher 的屏由 topChecker 决定何时挂上去，先加载不显示
-        if (!s.onlyOnLauncher || s.launcherPkg.equals(currentTop())) {
+        // onlyOnDesktop 的屏由 topChecker 决定何时挂上去，先加载不显示
+        if (!s.onlyOnDesktop || s.launcherPkg.equals(currentTop())) {
             try {
                 c.wm.addView(c.web, c.lp);
                 c.attached = true;
@@ -516,14 +516,14 @@ public class DashService extends Service {
     private String topPkg;
     private long topCheckedAt;
 
-    /** 当前是否在桌面。取配置里第一个 onlyOnLauncher 屏的 launcherPkg 作为基准。 */
+    /** 当前是否在桌面。取配置里第一个 onlyOnDesktop 屏的 launcherPkg 作为基准。 */
     private boolean isOnDesktop() {
         String top = topPkg;
         if (top == null) {
             return false;
         }
         for (Config.Screen s : cfg.screens) {
-            if (s.onlyOnLauncher && s.launcherPkg != null) {
+            if (s.onlyOnDesktop && s.launcherPkg != null) {
                 return s.launcherPkg.equals(top);
             }
         }
@@ -568,7 +568,7 @@ public class DashService extends Service {
         return topPkg;
     }
 
-    /** 有主屏就必须知道前台状态：onlyOnLauncher 要用，onDesktop 字段也要用。 */
+    /** 有主屏就必须知道前台状态：onlyOnDesktop 要用，onDesktop 字段也要用。 */
     private boolean needTopCheck() {
         for (Config.Screen s : cfg.screens) {
             if (s.enabled && s.display == 0) {
@@ -578,7 +578,7 @@ public class DashService extends Service {
         return false;
     }
 
-    /** 按 topCheckMs 对 onlyOnLauncher 的屏做显示/隐藏判断。 */
+    /** 按 topCheckMs 对 onlyOnDesktop 的屏做显示/隐藏判断。 */
     private final Runnable topChecker = new Runnable() {
         @Override
         public void run() {
@@ -586,7 +586,7 @@ public class DashService extends Service {
             try {
                 String top = currentTop();
                 for (ScreenCtx c : screens) {
-                    if (!c.cfg.onlyOnLauncher) {
+                    if (!c.cfg.onlyOnDesktop) {
                         continue;
                     }
                     setScreenVisible(c, c.cfg.launcherPkg.equals(top));

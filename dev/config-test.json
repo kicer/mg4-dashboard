@@ -8,7 +8,7 @@
       "display": 0,
       "html": "ui-frame.html",
       "enabled": true,
-      "onlyOnLauncher": true,
+      "onlyOnDesktop": true,
       "launcherPkg": "com.zone.hmi.launcher"
     },
     {
