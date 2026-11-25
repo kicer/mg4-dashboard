@@ -1,0 +1,769 @@
+ACTIVITY MANAGER ACTIVITIES (dumpsys activity activities)
+Display #0 (activities from top to bottom):
+  Stack #1: type=home mode=fullscreen
+  isSleeping=false
+  mBounds=Rect(0, 0 - 0, 0)
+    mResumedActivity: ActivityRecord{1388cce u0 com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity t2}
+    * Task{1540618 #2 visible=false type=home mode=fullscreen translucent=true A=10036:com.zone.hmi.launcher U=0 StackId=1 sz=1}
+      mBounds=Rect(0, 0 - 0, 0)
+      mMinWidth=-1 mMinHeight=-1
+      userId=0 effectiveUid=u0a36 mCallingUid=0 mUserSetupComplete=true mCallingPackage=null mCallingFeatureId=null
+      affinity=10036:com.zone.hmi.launcher
+      intent={act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10800100 cmp=com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity}
+      mActivityComponent=com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity
+      autoRemoveRecents=false isPersistable=false activityType=2
+      rootWasReset=false mNeverRelinquishIdentity=true mReuseTask=false mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
+      Activities=[ActivityRecord{1388cce u0 com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity t2}]
+      askedCompatMode=false inRecents=true isAvailable=true
+      taskId=2 stackId=1
+      mHasBeenVisible=true
+      mResizeMode=RESIZE_MODE_UNRESIZEABLE mSupportsPictureInPicture=false isResizeable=false
+      lastActiveTime=1527618 (inactive for 107s)
+      * Hist #0: ActivityRecord{1388cce u0 com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity t2}
+          packageName=com.zone.hmi.launcher processName=com.zone.hmi.launcher
+          launchedFromUid=0 launchedFromPackage=null launchedFromFeature=null userId=0
+          app=ProcessRecord{3ae8a2e 2564:com.zone.hmi.launcher/u0a36}
+          Intent { act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10800100 cmp=com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity }
+          rootOfTask=true task=Task{1540618 #2 visible=false type=home mode=fullscreen translucent=true A=10036:com.zone.hmi.launcher U=0 StackId=1 sz=1}
+          taskAffinity=10036:com.zone.hmi.launcher
+          mActivityComponent=com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity
+          baseDir=/vendor/app/Main_Launcher/Main_Launcher.apk
+          dataDir=/data/user_de/0/com.zone.hmi.launcher
+          stateNotNeeded=false componentSpecified=false mActivityType=home
+          compat={180dpi always-compat} labelRes=0x7f10002b icon=0x7f0d000e theme=0x7f11011e
+          mLastReportedConfigurations:
+            mGlobalConfig={1.0 ?mcc?mnc [zh_CN] ldltr sw960dp w1706dp h822dp 180dpi xlrg long land car night finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1920, 1080) mAppBounds=Rect(0, 0 - 1920, 990) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.38}
+            mOverrideConfig={1.0 ?mcc?mnc [zh_CN] ldltr sw960dp w1706dp h822dp 180dpi xlrg long land car night finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1920, 1080) mAppBounds=Rect(0, 0 - 1920, 990) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=home mAlwaysOnTop=undefined mRotation=ROTATION_0} s.5}
+          CurrentConfiguration={1.0 ?mcc?mnc [zh_CN] ldltr sw960dp w1706dp h822dp 180dpi xlrg long land car night finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1920, 1080) mAppBounds=Rect(0, 0 - 1920, 990) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=home mAlwaysOnTop=undefined mRotation=ROTATION_0} s.8}
+          RequestedOverrideConfiguration={0.0 ?mcc?mnc ?localeList ?layoutDir ?swdp ?wdp ?hdp ?density ?lsize ?long ?ldr ?wideColorGamut ?orien ?uimode ?night ?touch ?keyb/?/? ?nav/? winConfig={ mBounds=Rect(0, 0 - 0, 0) mAppBounds=null mWindowingMode=undefined mDisplayWindowingMode=undefined mActivityType=home mAlwaysOnTop=undefined mRotation=undefined}}
+          taskDescription: label="null" icon=null iconResource=/0 iconFilename=null primaryColor=ff6200ee
+            backgroundColor=fffafafa statusBarColor=0 navigationBarColor=ff000000
+          launchFailed=false launchCount=0 lastLaunchTime=-27m1s68ms
+          mHaveState=false mIcicle=null
+          state=RESUMED stopped=false delayedResume=false finishing=false
+          keysPaused=false inHistory=true setToSleep=false idle=true mStartingWindowState=STARTING_WINDOW_NOT_SHOWN
+          occludesParent=true noDisplay=false immersive=false launchMode=3
+          frozenBeforeDestroy=false forceNewConfig=false
+          mActivityType=home
+          windows=[Window{58bbdcb u0 com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity}]
+          windowType=2 hasVisible=true
+          mOccludesParent=true mOrientation=-1
+          mVisibleRequested=true mVisible=true mClientVisible=true reportedDrawn=true reportedVisible=true
+          mNumInterestingWindows=1 mNumDrawnWindows=1 allDrawn=true lastAllDrawn=true)
+          startingData=null firstWindowDrawn=true mIsExiting=false
+          nowVisible=true lastVisibleTime=-1m45s209ms
+          resizeMode=RESIZE_MODE_UNRESIZEABLE
+          mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
+
+  Stack #5636: type=standard mode=fullscreen
+  isSleeping=false
+  mBounds=Rect(0, 0 - 0, 0)
+    mLastPausedActivity: ActivityRecord{d4bf67b u0 com.desay.xadb/.MainActivity t5636}
+    * Task{28a1462 #5636 visible=false type=standard mode=fullscreen translucent=true A=12919:com.desay.xadb U=0 StackId=5636 sz=1}
+      mBounds=Rect(0, 0 - 0, 0)
+      mMinWidth=-1 mMinHeight=-1
+      userId=0 effectiveUid=u0a2919 mCallingUid=u0a36 mUserSetupComplete=true mCallingPackage=com.zone.hmi.launcher mCallingFeatureId=null
+      affinity=12919:com.desay.xadb
+      intent={act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 pkg=com.desay.xadb cmp=com.desay.xadb/.MainActivity}
+      mActivityComponent=com.desay.xadb/.MainActivity
+      autoRemoveRecents=false isPersistable=true activityType=1
+      rootWasReset=false mNeverRelinquishIdentity=true mReuseTask=false mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
+      Activities=[ActivityRecord{d4bf67b u0 com.desay.xadb/.MainActivity t5636}]
+      askedCompatMode=false inRecents=true isAvailable=true
+      mRootProcess=ProcessRecord{479a72d 8671:com.desay.xadb/u0a2919}
+      taskId=5636 stackId=5636
+      mHasBeenVisible=true
+      mResizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION mSupportsPictureInPicture=false isResizeable=true
+      lastActiveTime=1530014 (inactive for 105s)
+      * Hist #0: ActivityRecord{d4bf67b u0 com.desay.xadb/.MainActivity t5636}
+          packageName=com.desay.xadb processName=com.desay.xadb
+          launchedFromUid=10036 launchedFromPackage=com.zone.hmi.launcher launchedFromFeature=null userId=0
+          app=ProcessRecord{479a72d 8671:com.desay.xadb/u0a2919}
+          Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 pkg=com.desay.xadb cmp=com.desay.xadb/.MainActivity }
+          rootOfTask=true task=Task{28a1462 #5636 visible=false type=standard mode=fullscreen translucent=true A=12919:com.desay.xadb U=0 StackId=5636 sz=1}
+          taskAffinity=12919:com.desay.xadb
+          mActivityComponent=com.desay.xadb/.MainActivity
+          baseDir=/data/app/~~VsaZyUywdn1CnES-PVqKCA==/com.desay.xadb-9RjeQedwO6CLKmydN6oy5g==/base.apk
+          dataDir=/data/user/0/com.desay.xadb
+          stateNotNeeded=false componentSpecified=false mActivityType=standard
+          compat={180dpi always-compat} labelRes=0x7f050000 icon=0x7f020002 theme=0x7f060000
+          mLastReportedConfigurations:
+            mGlobalConfig={1.0 ?mcc?mnc [zh_CN] ldltr sw960dp w1706dp h822dp 180dpi xlrg long land car night finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1920, 1080) mAppBounds=Rect(0, 0 - 1920, 990) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.8}
+            mOverrideConfig={1.0 ?mcc?mnc [zh_CN] ldltr sw960dp w1706dp h822dp 180dpi xlrg long land car night finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1920, 1080) mAppBounds=Rect(0, 0 - 1920, 990) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.2}
+          CurrentConfiguration={1.0 ?mcc?mnc [zh_CN] ldltr sw960dp w1706dp h822dp 180dpi xlrg long land car night finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1920, 1080) mAppBounds=Rect(0, 0 - 1920, 990) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.3}
+          taskDescription: label="null" icon=null iconResource=/0 iconFilename=null primaryColor=ff3ddc84
+            backgroundColor=ff000000 statusBarColor=ff0e1013 navigationBarColor=ff000000
+          launchFailed=false launchCount=0 lastLaunchTime=-19m1s177ms
+          mHaveState=true mIcicle=Bundle[mParcelledData.dataSize=1320]
+          state=STOPPED stopped=true delayedResume=false finishing=false
+          keysPaused=false inHistory=true setToSleep=false idle=true mStartingWindowState=STARTING_WINDOW_REMOVED
+          occludesParent=true noDisplay=false immersive=false launchMode=0
+          frozenBeforeDestroy=false forceNewConfig=false
+          mActivityType=standard
+          windows=[Window{fd6b11a u0 com.desay.xadb/com.desay.xadb.MainActivity}]
+          windowType=2 hasVisible=true
+          mOccludesParent=true mOrientation=0
+          mVisibleRequested=false mVisible=false mClientVisible=false reportedDrawn=false reportedVisible=false
+          mAppStopped=true
+          mNumInterestingWindows=1 mNumDrawnWindows=1 allDrawn=true lastAllDrawn=true)
+          startingData=null firstWindowDrawn=true mIsExiting=false
+          nowVisible=false lastVisibleTime=-1m47s643ms
+          resizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION
+          mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
+
+  Resumed activities in task display areas (from top to bottom):
+    Resumed: ActivityRecord{1388cce u0 com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity t2}
+
+Display #1 (activities from top to bottom):
+
+  Stack #5635: type=standard mode=fullscreen
+  isSleeping=false
+  mBounds=Rect(0, 0 - 0, 0)
+    mResumedActivity: ActivityRecord{b5d6abd u0 com.zone.hmi.navi/.dashboard.activity.DashBoardActivity t5635}
+    * Task{87a38b2 #5635 visible=true type=standard mode=fullscreen translucent=false A=10038:com.zone.hmi.navi.dashboard.activity.DashBoardActivity U=0 StackId=5635 sz=1}
+      mBounds=Rect(0, 0 - 0, 0)
+      mMinWidth=-1 mMinHeight=-1
+      userId=0 effectiveUid=u0a38 mCallingUid=u0a38 mUserSetupComplete=true mCallingPackage=com.zone.hmi.navi mCallingFeatureId=null
+      affinity=10038:com.zone.hmi.navi.dashboard.activity.DashBoardActivity
+      intent={flg=0x30000000 cmp=com.zone.hmi.navi/.dashboard.activity.DashBoardActivity}
+      mActivityComponent=com.zone.hmi.navi/.dashboard.activity.DashBoardActivity
+      autoRemoveRecents=false isPersistable=true activityType=1
+      rootWasReset=false mNeverRelinquishIdentity=true mReuseTask=false mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
+      Activities=[ActivityRecord{b5d6abd u0 com.zone.hmi.navi/.dashboard.activity.DashBoardActivity t5635}]
+      askedCompatMode=false inRecents=true isAvailable=true
+      mRootProcess=ProcessRecord{c8c2a98 6722:com.zone.hmi.navi:dashboard/u0a38}
+      taskId=5635 stackId=5635
+      mHasBeenVisible=true
+      mResizeMode=RESIZE_MODE_UNRESIZEABLE mSupportsPictureInPicture=false isResizeable=false
+      lastActiveTime=34830 (inactive for 1600s)
+      * Hist #0: ActivityRecord{b5d6abd u0 com.zone.hmi.navi/.dashboard.activity.DashBoardActivity t5635}
+          packageName=com.zone.hmi.navi processName=com.zone.hmi.navi:dashboard
+          launchedFromUid=10038 launchedFromPackage=com.zone.hmi.navi launchedFromFeature=null userId=0
+          app=ProcessRecord{c8c2a98 6722:com.zone.hmi.navi:dashboard/u0a38}
+          Intent { flg=0x30000000 cmp=com.zone.hmi.navi/.dashboard.activity.DashBoardActivity }
+          rootOfTask=true task=Task{87a38b2 #5635 visible=true type=standard mode=fullscreen translucent=false A=10038:com.zone.hmi.navi.dashboard.activity.DashBoardActivity U=0 StackId=5635 sz=1}
+          taskAffinity=10038:com.zone.hmi.navi.dashboard.activity.DashBoardActivity
+          mActivityComponent=com.zone.hmi.navi/.dashboard.activity.DashBoardActivity
+          baseDir=/vendor/app/SaicMapApp/SaicMapApp.apk
+          dataDir=/data/user/0/com.zone.hmi.navi
+          stateNotNeeded=false componentSpecified=false mActivityType=standard
+          compat={180dpi always-compat} labelRes=0x7f11002b icon=0x7f0804c0 theme=0x7f1201c3
+          mLastReportedConfigurations:
+            mGlobalConfig={1.0 ?mcc?mnc [zh_CN] ldltr sw768dp w1280dp h768dp 160dpi xlrg long land car night -touch qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1280, 768) mAppBounds=Rect(0, 0 - 1280, 768) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.40}
+            mOverrideConfig={0.0 ?mcc?mnc ?localeList ?layoutDir sw768dp w1280dp h768dp 160dpi xlrg long land ?uimode ?night -touch qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1280, 768) mAppBounds=Rect(0, 0 - 1280, 768) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.3}
+          CurrentConfiguration={1.0 ?mcc?mnc [zh_CN] ldltr sw768dp w1280dp h768dp 160dpi xlrg long land car night -touch qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1280, 768) mAppBounds=Rect(0, 0 - 1280, 768) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.3}
+          taskDescription: label="null" icon=null iconResource=/0 iconFilename=null primaryColor=fff5f5f5
+            backgroundColor=fffafafa statusBarColor=0 navigationBarColor=0
+          launchFailed=false launchCount=1 lastLaunchTime=-26m40s507ms
+          mHaveState=false mIcicle=null
+          state=RESUMED stopped=false delayedResume=false finishing=false
+          keysPaused=false inHistory=true setToSleep=false idle=true mStartingWindowState=STARTING_WINDOW_SHOWN
+          occludesParent=true noDisplay=false immersive=false launchMode=3
+          frozenBeforeDestroy=false forceNewConfig=false
+          mActivityType=standard
+          windows=[Window{1af84ea u0 com.zone.hmi.navi/com.zone.hmi.navi.dashboard.activity.DashBoardActivity}]
+          windowType=2 hasVisible=true
+          mOccludesParent=true mOrientation=-1
+          mVisibleRequested=true mVisible=true mClientVisible=true reportedDrawn=true reportedVisible=true
+          mNumInterestingWindows=1 mNumDrawnWindows=1 allDrawn=true lastAllDrawn=true)
+          startingData=null firstWindowDrawn=true mIsExiting=false
+          nowVisible=true lastVisibleTime=-26m39s108ms
+          resizeMode=RESIZE_MODE_UNRESIZEABLE
+          mLastReportedMultiWindowMode=false mLastReportedPictureInPictureMode=false
+
+  Resumed activities in task display areas (from top to bottom):
+    Resumed: ActivityRecord{b5d6abd u0 com.zone.hmi.navi/.dashboard.activity.DashBoardActivity t5635}
+
+Display #2 (activities from top to bottom):
+
+  ResumedActivity: ActivityRecord{1388cce u0 com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity t2}
+
+ActivityStackSupervisor state:
+  topDisplayFocusedStack=Task{258ba11 #1 visible=false type=home mode=fullscreen translucent=true ?? U=0 StackId=1 sz=1}
+  mLastOrientationSource=ActivityRecord{1388cce u0 com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity t2}
+  deepestLastOrientationSource=ActivityRecord{1388cce u0 com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity t2}
+  Display: mDisplayId=0 stacks=2
+    init=1920x1080 180dpi cur=1920x1080 app=1920x990 rng=1080x925-1920x1765
+    deferred=false mLayoutNeeded=true mTouchExcludeRegion=SkRegion((0,0,1920,1080))
+
+  mLayoutSeq=280
+  mCurrentFocus=Window{58bbdcb u0 com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity}
+  mFocusedApp=ActivityRecord{1388cce u0 com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity t2}
+  mLastStatusBarVisibility=0x8308
+
+  displayId=0
+  mWallpaperTarget=null
+  mLastWallpaperX=-1.0 mLastWallpaperY=-1.0
+
+  Task display areas in top down Z order:
+    TaskDisplayArea DefaultTaskDisplayArea
+      mPreferredTopFocusableStack=Task{258ba11 #1 visible=false type=home mode=fullscreen translucent=true ?? U=0 StackId=1 sz=1}
+      mLastFocusedStack=Task{258ba11 #1 visible=false type=home mode=fullscreen translucent=true ?? U=0 StackId=1 sz=1}
+      Application tokens in top down Z order:
+      * Task{258ba11 #1 visible=false type=home mode=fullscreen translucent=true ?? U=0 StackId=1 sz=1}
+        bounds=[0,0][1920,1080]
+        * Task{1540618 #2 visible=false type=home mode=fullscreen translucent=true A=10036:com.zone.hmi.launcher U=0 StackId=1 sz=1}
+          bounds=[0,0][1920,1080]
+          * ActivityRecord{1388cce u0 com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity t2}
+      * Task{28a1462 #5636 visible=false type=standard mode=fullscreen translucent=true A=12919:com.desay.xadb U=0 StackId=5636 sz=1}
+        bounds=[0,0][1920,1080]
+        * ActivityRecord{d4bf67b u0 com.desay.xadb/.MainActivity t5636}
+
+  no ScreenRotationAnimation 
+
+  homeStack=Task=1
+
+  PinnedStackController
+    mIsImeShowing=false
+    mImeHeight=0
+    mAspectRatio=-1.0
+    mMinAspectRatio=0.41841003
+    mMaxAspectRatio=2.39
+    mActions=[]
+    mDisplayInfo=DisplayInfo{"内置屏幕", displayId 0, FLAG_SECURE, FLAG_SUPPORTS_PROTECTED_BUFFERS, FLAG_TRUSTED, real 1920 x 1080, largest app 1920 x 1765, smallest app 1080 x 925, appVsyncOff 1000000, presDeadline 16666666, mode 1, defaultMode 1, modes [{id=1, width=1920, height=1080, fps=60.000004}], hdrCapabilities HdrCapabilities{mSupportedHdrTypes=[], mMaxLuminance=500.0, mMaxAverageLuminance=500.0, mMinLuminance=0.0}, minimalPostProcessingSupported false, rotation 0, state ON, type INTERNAL, uniqueId "local:129", app 1920 x 990, density 180 (320.842 x 318.976) dpi, layerStack 0, colorMode 0, supportedColorModes [0], address {port=129}, deviceProductInfo null, removeMode 0}
+
+  DisplayFrames w=1920 h=1080 r=0
+    mStable=[0,65][1920,990]
+    mStableFullscreen=[0,0][1920,990]
+    mDock=[0,65][1920,990]
+    mCurrent=[0,65][1920,990]
+    mSystem=[0,0][1920,1080]
+    mContent=[0,65][1920,990]
+    mVoiceContent=[0,65][1920,990]
+    mRestricted=[0,0][1920,990]
+    mUnrestricted=[0,0][1920,1080]
+    mDisplayCutout=WmDisplayCutout{DisplayCutout{insets=Rect(0, 0 - 0, 0) waterfall=Insets{left=0, top=0, right=0, bottom=0} boundingRect={Bounds=[Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0)]}}, mFrameSize=null}
+
+  DisplayPolicy
+    mCarDockEnablesAccelerometer=true mDeskDockEnablesAccelerometer=true
+    mDockMode=EXTRA_DOCK_STATE_UNDOCKED mLidState=LID_ABSENT
+    mAwake=true mScreenOnEarly=true mScreenOnFully=true
+    mKeyguardDrawComplete=true mWindowManagerDrawComplete=true
+    mHdmiPlugged=false
+    mLastSystemUiFlags=0x8308 mResettingSystemUiFlags=0x0 mForceClearedSystemUiFlags=0x0
+    mShowingDream=false mDreamingLockscreen=false    mStatusBar=Window{1622268 u0 StatusBar} isKeyguardShowing=false
+    mNavigationBar=Window{66ce32d u0 DockBar}
+    mNavBarOpacityMode=0
+    mNavigationBarCanMove=false
+    mNavigationBarPosition=4
+    mFocusedWindow=Window{58bbdcb u0 com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity}
+    mTopFullscreenOpaqueWindowState=Window{58bbdcb u0 com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity}
+    mTopFullscreenOpaqueOrDimmingWindowState=Window{58bbdcb u0 com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity}
+    mTopIsFullscreen=false
+    mForceStatusBar=false    mRemoteInsetsControllerControlsSystemBarsfalse mAllowLockscreenWhenOn=false
+    Looper state:
+      Looper (android.ui, tid 19) {99981a0}
+        (Total messages: 0, polling=true, quitting=false)
+
+  DisplayRotation
+    mCurrentAppOrientation=SCREEN_ORIENTATION_UNSPECIFIED
+    mLastOrientation=-1
+    mRotation=0 mDeferredRotationPauseCount=0
+    mLandscapeRotation=ROTATION_0 mSeascapeRotation=ROTATION_180
+    mPortraitRotation=ROTATION_270 mUpsideDownRotation=ROTATION_90
+    mSupportAutoRotation=true
+    WindowOrientationListener
+      mEnabled=false
+      mCurrentRotation=ROTATION_0
+      mSensorType=null
+      mSensor={Sensor name="SOA IMU Accelerometer", vendor="zone", version=1, type=1, maxRange=78.4532, resolution=0.0023942017, power=0.4, minDelay=5000}
+      mRate=2
+      AccelSensorJudge
+        mProposedRotation=0
+        mPredictedRotation=0
+        mLastFilteredX=0.0
+        mLastFilteredY=0.0
+        mLastFilteredZ=0.0
+        mLastFilteredTimestampNanos=0 (1635501.6ms ago)
+        mTiltHistory={last: 0.0}
+        mFlat=false
+        mSwinging=false
+        mAccelerating=false
+        mOverhead=false
+        mTouched=false
+        mTiltToleranceConfig=[[-25, 70], [-25, 65], [-25, 60], [-25, 65]]
+
+    mCarDockRotation=-1 mDeskDockRotation=-1
+    mUserRotationMode=USER_ROTATION_LOCKED mUserRotation=ROTATION_0 mAllowAllRotations=unknown
+    mDemoHdmiRotation=ROTATION_0 mDemoHdmiRotationLock=false mUndockedHdmiRotation=-1
+    mLidOpenRotation=-1
+    mFixedToUserRotation=true
+
+
+  WindowInsetsStateController
+    InsetsState
+      InsetsSource type=ITYPE_STATUS_BAR frame=[0,0][1920,65] visible=true
+      InsetsSource type=ITYPE_NAVIGATION_BAR frame=[0,990][1920,1080] visible=true
+      InsetsSource type=ITYPE_TOP_GESTURES frame=[0,0][1920,65] visible=true
+      InsetsSource type=ITYPE_BOTTOM_GESTURES frame=[0,990][1920,1080] visible=true
+      InsetsSource type=ITYPE_LEFT_GESTURES frame=[0,0][0,1080] visible=true
+      InsetsSource type=ITYPE_RIGHT_GESTURES frame=[1920,0][1920,1080] visible=true
+      InsetsSource type=ITYPE_TOP_TAPPABLE_ELEMENT frame=[0,0][1920,65] visible=true
+      InsetsSource type=ITYPE_BOTTOM_TAPPABLE_ELEMENT frame=[0,990][1920,1080] visible=true
+      InsetsSource type=ITYPE_IME frame=[0,0][0,0] visible=false
+    Control map:
+    ITYPE_IME -> Window{58bbdcb u0 com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity}
+    ITYPE_NAVIGATION_BAR -> Window{58bbdcb u0 com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity}
+    ITYPE_STATUS_BAR -> Window{58bbdcb u0 com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity}
+    InsetsSourceProviders map:
+    ITYPE_IME -> 
+  InsetsSourceProvider
+   mSource=    InsetsSource type=ITYPE_IME frame=[0,0][0,0] visible=false
+   mControl=    InsetsSourceControl type=ITYPE_IME mLeash=Surface(name=Surface(name=3997c59 com.zone.hmi.ime.mainscreen)/@0x5c8515 - animation-leash)/@0x103428b mSurfacePosition=Point(0, 900)
+   mFakeControl=    InsetsSourceControl type=ITYPE_IME mLeash=null mSurfacePosition=Point(0, 0)
+ mIsLeashReadyForDispatching=true mImeOverrideFrame=Rect(0, 0 - 0, 0)   mWin=    mDisplayId=0 rootTaskId=1 mSession=Session{2684d1 6950:u0a10066} mClient=android.os.BinderProxy@77c68a0
+    mOwnerUid=10066 showForAllUsers=false package=com.zone.hmi.ime.mainscreen appop=NONE
+    mAttrs={(0,90)(fillxwrap) gr=BOTTOM CENTER_VERTICAL sim={adjust=pan forwardNavigation} ty=INPUT_METHOD fmt=TRANSLUCENT wanim=0x1030056
+      fl=NOT_FOCUSABLE LAYOUT_IN_SCREEN SPLIT_TOUCH HARDWARE_ACCELERATED DRAWS_SYSTEM_BAR_BACKGROUNDS
+      pfl=FIT_INSETS_CONTROLLED
+      fitTypes=STATUS_BARS NAVIGATION_BARS
+      fitSides=LEFT TOP RIGHT}
+    Requested w=1920 h=90 mLayoutSeq=159
+    mIsImWindow=true mIsWallpaper=false mIsFloatingLayer=true mWallpaperVisible=false
+    mHasSurface=false isReadyForDisplay()=false mWindowRemovalAllowed=false
+    ContainerAnimator:
+      mLeash=Surface(name=Surface(name=3997c59 com.zone.hmi.ime.mainscreen)/@0x5c8515 - animation-leash)/@0x103428b mAnimationType=32
+      Animation: com.android.server.wm.InsetsSourceProvider$ControlAdapter@f2bdf68
+        ControlAdapter
+         mCapturedLeash=Surface(name=Surface(name=3997c59 com.zone.hmi.ime.mainscreen)/@0x5c8515 - animation-leash)/@0x103428b    WindowStateAnimator{1d08f9c }:
+      mShownAlpha=0.0 mAlpha=1.0 mLastAlpha=0.0
+    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
+    isOnScreen=false
+    isVisible=false
+   mAdapter=    ControlAdapter
+     mCapturedLeash=Surface(name=Surface(name=3997c59 com.zone.hmi.ime.mainscreen)/@0x5c8515 - animation-leash)/@0x103428b   mControlTarget=    mDisplayId=0 rootTaskId=1 mSession=Session{4e85e4f 2564:u0a10036} mClient=android.os.BinderProxy@585e09a
+    mOwnerUid=10036 showForAllUsers=false package=com.zone.hmi.launcher appop=NONE
+    mAttrs={(0,0)(fillxfill) sim={adjust=resize forwardNavigation} ty=BASE_APPLICATION wanim=0x10302fe
+      fl=LAYOUT_IN_SCREEN LAYOUT_INSET_DECOR SPLIT_TOUCH HARDWARE_ACCELERATED TRANSLUCENT_NAVIGATION DRAWS_SYSTEM_BAR_BACKGROUNDS
+      pfl=FORCE_DRAW_STATUS_BAR_BACKGROUND FIT_INSETS_CONTROLLED
+      vsysui=LAYOUT_STABLE LAYOUT_HIDE_NAVIGATION
+      fitSides=}
+    Requested w=1920 h=1080 mLayoutSeq=280
+    mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
+    WindowStateAnimator{81c412b com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity}:
+      Surface: shown=true layer=0 alpha=1.0 rect=(0.0,0.0) 1920 x 1080 transform=(1.0, 0.0, 1.0, 0.0)
+    mLastFreezeDuration=+18s354ms
+    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
+    isOnScreen=true
+    isVisible=true
+  mImeShowing=false
+    ITYPE_BOTTOM_TAPPABLE_ELEMENT -> 
+  InsetsSourceProvider
+   mSource=    InsetsSource type=ITYPE_BOTTOM_TAPPABLE_ELEMENT frame=[0,990][1920,1080] visible=true
+   mFakeControl=    InsetsSourceControl type=ITYPE_BOTTOM_TAPPABLE_ELEMENT mLeash=null mSurfacePosition=Point(0, 0)
+ mIsLeashReadyForDispatching=true mImeOverrideFrame=Rect(0, 0 - 0, 0)   mWin=    mDisplayId=0 rootTaskId=1 mSession=Session{d66a3aa 2054:1000} mClient=android.os.BinderProxy@1b35b57
+    mOwnerUid=1000 showForAllUsers=true package=com.android.systemui appop=NONE
+    mAttrs={(0,0)(fillxfill) sim={adjust=resize} ty=NAVIGATION_BAR fmt=TRANSLUCENT
+      fl=NOT_FOCUSABLE NOT_TOUCH_MODAL WATCH_OUTSIDE_TOUCH SPLIT_TOUCH HARDWARE_ACCELERATED
+      pfl=
+      fitTypes=STATUS_BARS NAVIGATION_BARS CAPTION_BAR IME  blurCornerRadius=0}
+    Requested w=1920 h=90 mLayoutSeq=280
+    mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
+    ContainerAnimator:
+      mLeash=Surface(name=Surface(name=66ce32d DockBar)/@0xe06a98b - animation-leash)/@0x92bc77c mAnimationType=32
+      Animation: com.android.server.wm.InsetsSourceProvider$ControlAdapter@453e805
+        ControlAdapter
+         mCapturedLeash=Surface(name=Surface(name=66ce32d DockBar)/@0xe06a98b - animation-leash)/@0x92bc77c    WindowStateAnimator{bb4e422 DockBar}:
+       mAnimationIsEntrance=true      Surface: shown=true layer=0 alpha=1.0 rect=(0.0,0.0) 1920 x 90 transform=(1.0, 0.0, 1.0, 0.0)
+    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
+    isOnScreen=true
+    isVisible=true
+    ITYPE_TOP_TAPPABLE_ELEMENT -> 
+  InsetsSourceProvider
+   mSource=    InsetsSource type=ITYPE_TOP_TAPPABLE_ELEMENT frame=[0,0][1920,65] visible=true
+   mFakeControl=    InsetsSourceControl type=ITYPE_TOP_TAPPABLE_ELEMENT mLeash=null mSurfacePosition=Point(0, 0)
+ mIsLeashReadyForDispatching=true mImeOverrideFrame=Rect(0, 0 - 0, 0)   mWin=    mDisplayId=0 rootTaskId=1 mSession=Session{d66a3aa 2054:1000} mClient=android.os.BinderProxy@a474b5a
+    mOwnerUid=1000 showForAllUsers=true package=com.android.systemui appop=NONE
+    mAttrs={(0,0)(fillx66) gr=TOP CENTER_VERTICAL sim={adjust=resize} layoutInDisplayCutoutMode=always ty=STATUS_BAR fmt=TRANSPARENT
+      fl=NOT_FOCUSABLE TOUCHABLE_WHEN_WAKING WATCH_OUTSIDE_TOUCH SPLIT_TOUCH HARDWARE_ACCELERATED DRAWS_SYSTEM_BAR_BACKGROUNDS
+      pfl=
+      fitTypes=STATUS_BARS NAVIGATION_BARS CAPTION_BAR IME}
+    Requested w=1920 h=66 mLayoutSeq=280
+    mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
+    ContainerAnimator:
+      mLeash=Surface(name=Surface(name=1622268 StatusBar)/@0x22e235a - animation-leash)/@0x5b8dd4e mAnimationType=32
+      Animation: com.android.server.wm.InsetsSourceProvider$ControlAdapter@b782e6f
+        ControlAdapter
+         mCapturedLeash=Surface(name=Surface(name=1622268 StatusBar)/@0x22e235a - animation-leash)/@0x5b8dd4e    WindowStateAnimator{2ef77b1 StatusBar}:
+       mAnimationIsEntrance=true      Surface: shown=true layer=0 alpha=1.0 rect=(0.0,0.0) 1920 x 66 transform=(1.0, 0.0, 1.0, 0.0)
+    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
+    isOnScreen=true
+    isVisible=true
+    ITYPE_RIGHT_GESTURES -> 
+  InsetsSourceProvider
+   mSource=    InsetsSource type=ITYPE_RIGHT_GESTURES frame=[1920,0][1920,1080] visible=true
+   mFakeControl=    InsetsSourceControl type=ITYPE_RIGHT_GESTURES mLeash=null mSurfacePosition=Point(0, 0)
+ mIsLeashReadyForDispatching=true mImeOverrideFrame=Rect(0, 0 - 0, 0)   mWin=    mDisplayId=0 rootTaskId=1 mSession=Session{d66a3aa 2054:1000} mClient=android.os.BinderProxy@1b35b57
+    mOwnerUid=1000 showForAllUsers=true package=com.android.systemui appop=NONE
+    mAttrs={(0,0)(fillxfill) sim={adjust=resize} ty=NAVIGATION_BAR fmt=TRANSLUCENT
+      fl=NOT_FOCUSABLE NOT_TOUCH_MODAL WATCH_OUTSIDE_TOUCH SPLIT_TOUCH HARDWARE_ACCELERATED
+      pfl=
+      fitTypes=STATUS_BARS NAVIGATION_BARS CAPTION_BAR IME  blurCornerRadius=0}
+    Requested w=1920 h=90 mLayoutSeq=280
+    mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
+    ContainerAnimator:
+      mLeash=Surface(name=Surface(name=66ce32d DockBar)/@0xe06a98b - animation-leash)/@0x92bc77c mAnimationType=32
+      Animation: com.android.server.wm.InsetsSourceProvider$ControlAdapter@453e805
+        ControlAdapter
+         mCapturedLeash=Surface(name=Surface(name=66ce32d DockBar)/@0xe06a98b - animation-leash)/@0x92bc77c    WindowStateAnimator{bb4e422 DockBar}:
+       mAnimationIsEntrance=true      Surface: shown=true layer=0 alpha=1.0 rect=(0.0,0.0) 1920 x 90 transform=(1.0, 0.0, 1.0, 0.0)
+    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
+    isOnScreen=true
+    isVisible=true
+    ITYPE_LEFT_GESTURES -> 
+  InsetsSourceProvider
+   mSource=    InsetsSource type=ITYPE_LEFT_GESTURES frame=[0,0][0,1080] visible=true
+   mFakeControl=    InsetsSourceControl type=ITYPE_LEFT_GESTURES mLeash=null mSurfacePosition=Point(0, 0)
+ mIsLeashReadyForDispatching=true mImeOverrideFrame=Rect(0, 0 - 0, 0)   mWin=    mDisplayId=0 rootTaskId=1 mSession=Session{d66a3aa 2054:1000} mClient=android.os.BinderProxy@1b35b57
+    mOwnerUid=1000 showForAllUsers=true package=com.android.systemui appop=NONE
+    mAttrs={(0,0)(fillxfill) sim={adjust=resize} ty=NAVIGATION_BAR fmt=TRANSLUCENT
+      fl=NOT_FOCUSABLE NOT_TOUCH_MODAL WATCH_OUTSIDE_TOUCH SPLIT_TOUCH HARDWARE_ACCELERATED
+      pfl=
+      fitTypes=STATUS_BARS NAVIGATION_BARS CAPTION_BAR IME  blurCornerRadius=0}
+    Requested w=1920 h=90 mLayoutSeq=280
+    mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
+    ContainerAnimator:
+      mLeash=Surface(name=Surface(name=66ce32d DockBar)/@0xe06a98b - animation-leash)/@0x92bc77c mAnimationType=32
+      Animation: com.android.server.wm.InsetsSourceProvider$ControlAdapter@453e805
+        ControlAdapter
+         mCapturedLeash=Surface(name=Surface(name=66ce32d DockBar)/@0xe06a98b - animation-leash)/@0x92bc77c    WindowStateAnimator{bb4e422 DockBar}:
+       mAnimationIsEntrance=true      Surface: shown=true layer=0 alpha=1.0 rect=(0.0,0.0) 1920 x 90 transform=(1.0, 0.0, 1.0, 0.0)
+    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
+    isOnScreen=true
+    isVisible=true
+    ITYPE_BOTTOM_GESTURES -> 
+  InsetsSourceProvider
+   mSource=    InsetsSource type=ITYPE_BOTTOM_GESTURES frame=[0,990][1920,1080] visible=true
+   mFakeControl=    InsetsSourceControl type=ITYPE_BOTTOM_GESTURES mLeash=null mSurfacePosition=Point(0, 0)
+ mIsLeashReadyForDispatching=true mImeOverrideFrame=Rect(0, 0 - 0, 0)   mWin=    mDisplayId=0 rootTaskId=1 mSession=Session{d66a3aa 2054:1000} mClient=android.os.BinderProxy@1b35b57
+    mOwnerUid=1000 showForAllUsers=true package=com.android.systemui appop=NONE
+    mAttrs={(0,0)(fillxfill) sim={adjust=resize} ty=NAVIGATION_BAR fmt=TRANSLUCENT
+      fl=NOT_FOCUSABLE NOT_TOUCH_MODAL WATCH_OUTSIDE_TOUCH SPLIT_TOUCH HARDWARE_ACCELERATED
+      pfl=
+      fitTypes=STATUS_BARS NAVIGATION_BARS CAPTION_BAR IME  blurCornerRadius=0}
+    Requested w=1920 h=90 mLayoutSeq=280
+    mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
+    ContainerAnimator:
+      mLeash=Surface(name=Surface(name=66ce32d DockBar)/@0xe06a98b - animation-leash)/@0x92bc77c mAnimationType=32
+      Animation: com.android.server.wm.InsetsSourceProvider$ControlAdapter@453e805
+        ControlAdapter
+         mCapturedLeash=Surface(name=Surface(name=66ce32d DockBar)/@0xe06a98b - animation-leash)/@0x92bc77c    WindowStateAnimator{bb4e422 DockBar}:
+       mAnimationIsEntrance=true      Surface: shown=true layer=0 alpha=1.0 rect=(0.0,0.0) 1920 x 90 transform=(1.0, 0.0, 1.0, 0.0)
+    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
+    isOnScreen=true
+    isVisible=true
+    ITYPE_TOP_GESTURES -> 
+  InsetsSourceProvider
+   mSource=    InsetsSource type=ITYPE_TOP_GESTURES frame=[0,0][1920,65] visible=true
+   mFakeControl=    InsetsSourceControl type=ITYPE_TOP_GESTURES mLeash=null mSurfacePosition=Point(0, 0)
+ mIsLeashReadyForDispatching=true mImeOverrideFrame=Rect(0, 0 - 0, 0)   mWin=    mDisplayId=0 rootTaskId=1 mSession=Session{d66a3aa 2054:1000} mClient=android.os.BinderProxy@a474b5a
+    mOwnerUid=1000 showForAllUsers=true package=com.android.systemui appop=NONE
+    mAttrs={(0,0)(fillx66) gr=TOP CENTER_VERTICAL sim={adjust=resize} layoutInDisplayCutoutMode=always ty=STATUS_BAR fmt=TRANSPARENT
+      fl=NOT_FOCUSABLE TOUCHABLE_WHEN_WAKING WATCH_OUTSIDE_TOUCH SPLIT_TOUCH HARDWARE_ACCELERATED DRAWS_SYSTEM_BAR_BACKGROUNDS
+      pfl=
+      fitTypes=STATUS_BARS NAVIGATION_BARS CAPTION_BAR IME}
+    Requested w=1920 h=66 mLayoutSeq=280
+    mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
+    ContainerAnimator:
+      mLeash=Surface(name=Surface(name=1622268 StatusBar)/@0x22e235a - animation-leash)/@0x5b8dd4e mAnimationType=32
+      Animation: com.android.server.wm.InsetsSourceProvider$ControlAdapter@b782e6f
+        ControlAdapter
+         mCapturedLeash=Surface(name=Surface(name=1622268 StatusBar)/@0x22e235a - animation-leash)/@0x5b8dd4e    WindowStateAnimator{2ef77b1 StatusBar}:
+       mAnimationIsEntrance=true      Surface: shown=true layer=0 alpha=1.0 rect=(0.0,0.0) 1920 x 66 transform=(1.0, 0.0, 1.0, 0.0)
+    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
+    isOnScreen=true
+    isVisible=true
+    ITYPE_NAVIGATION_BAR -> 
+  InsetsSourceProvider
+   mSource=    InsetsSource type=ITYPE_NAVIGATION_BAR frame=[0,990][1920,1080] visible=true
+   mControl=    InsetsSourceControl type=ITYPE_NAVIGATION_BAR mLeash=Surface(name=Surface(name=66ce32d DockBar)/@0xe06a98b - animation-leash)/@0x92bc77c mSurfacePosition=Point(0, 990)
+   mFakeControl=    InsetsSourceControl type=ITYPE_NAVIGATION_BAR mLeash=null mSurfacePosition=Point(0, 0)
+ mIsLeashReadyForDispatching=true mImeOverrideFrame=Rect(0, 990 - 1920, 1080)   mWin=    mDisplayId=0 rootTaskId=1 mSession=Session{d66a3aa 2054:1000} mClient=android.os.BinderProxy@1b35b57
+    mOwnerUid=1000 showForAllUsers=true package=com.android.systemui appop=NONE
+    mAttrs={(0,0)(fillxfill) sim={adjust=resize} ty=NAVIGATION_BAR fmt=TRANSLUCENT
+      fl=NOT_FOCUSABLE NOT_TOUCH_MODAL WATCH_OUTSIDE_TOUCH SPLIT_TOUCH HARDWARE_ACCELERATED
+      pfl=
+      fitTypes=STATUS_BARS NAVIGATION_BARS CAPTION_BAR IME  blurCornerRadius=0}
+    Requested w=1920 h=90 mLayoutSeq=280
+    mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
+    ContainerAnimator:
+      mLeash=Surface(name=Surface(name=66ce32d DockBar)/@0xe06a98b - animation-leash)/@0x92bc77c mAnimationType=32
+      Animation: com.android.server.wm.InsetsSourceProvider$ControlAdapter@453e805
+        ControlAdapter
+         mCapturedLeash=Surface(name=Surface(name=66ce32d DockBar)/@0xe06a98b - animation-leash)/@0x92bc77c    WindowStateAnimator{bb4e422 DockBar}:
+       mAnimationIsEntrance=true      Surface: shown=true layer=0 alpha=1.0 rect=(0.0,0.0) 1920 x 90 transform=(1.0, 0.0, 1.0, 0.0)
+    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
+    isOnScreen=true
+    isVisible=true
+   mAdapter=    ControlAdapter
+     mCapturedLeash=Surface(name=Surface(name=66ce32d DockBar)/@0xe06a98b - animation-leash)/@0x92bc77c   mControlTarget=    mDisplayId=0 rootTaskId=1 mSession=Session{4e85e4f 2564:u0a10036} mClient=android.os.BinderProxy@585e09a
+    mOwnerUid=10036 showForAllUsers=false package=com.zone.hmi.launcher appop=NONE
+    mAttrs={(0,0)(fillxfill) sim={adjust=resize forwardNavigation} ty=BASE_APPLICATION wanim=0x10302fe
+      fl=LAYOUT_IN_SCREEN LAYOUT_INSET_DECOR SPLIT_TOUCH HARDWARE_ACCELERATED TRANSLUCENT_NAVIGATION DRAWS_SYSTEM_BAR_BACKGROUNDS
+      pfl=FORCE_DRAW_STATUS_BAR_BACKGROUND FIT_INSETS_CONTROLLED
+      vsysui=LAYOUT_STABLE LAYOUT_HIDE_NAVIGATION
+      fitSides=}
+    Requested w=1920 h=1080 mLayoutSeq=280
+    mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
+    WindowStateAnimator{81c412b com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity}:
+      Surface: shown=true layer=0 alpha=1.0 rect=(0.0,0.0) 1920 x 1080 transform=(1.0, 0.0, 1.0, 0.0)
+    mLastFreezeDuration=+18s354ms
+    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
+    isOnScreen=true
+    isVisible=true
+    ITYPE_STATUS_BAR -> 
+  InsetsSourceProvider
+   mSource=    InsetsSource type=ITYPE_STATUS_BAR frame=[0,0][1920,65] visible=true
+   mControl=    InsetsSourceControl type=ITYPE_STATUS_BAR mLeash=Surface(name=Surface(name=1622268 StatusBar)/@0x22e235a - animation-leash)/@0x5b8dd4e mSurfacePosition=Point(0, 0)
+   mFakeControl=    InsetsSourceControl type=ITYPE_STATUS_BAR mLeash=null mSurfacePosition=Point(0, 0)
+ mIsLeashReadyForDispatching=true mImeOverrideFrame=Rect(0, 0 - 0, 0)   mWin=    mDisplayId=0 rootTaskId=1 mSession=Session{d66a3aa 2054:1000} mClient=android.os.BinderProxy@a474b5a
+    mOwnerUid=1000 showForAllUsers=true package=com.android.systemui appop=NONE
+    mAttrs={(0,0)(fillx66) gr=TOP CENTER_VERTICAL sim={adjust=resize} layoutInDisplayCutoutMode=always ty=STATUS_BAR fmt=TRANSPARENT
+      fl=NOT_FOCUSABLE TOUCHABLE_WHEN_WAKING WATCH_OUTSIDE_TOUCH SPLIT_TOUCH HARDWARE_ACCELERATED DRAWS_SYSTEM_BAR_BACKGROUNDS
+      pfl=
+      fitTypes=STATUS_BARS NAVIGATION_BARS CAPTION_BAR IME}
+    Requested w=1920 h=66 mLayoutSeq=280
+    mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
+    ContainerAnimator:
+      mLeash=Surface(name=Surface(name=1622268 StatusBar)/@0x22e235a - animation-leash)/@0x5b8dd4e mAnimationType=32
+      Animation: com.android.server.wm.InsetsSourceProvider$ControlAdapter@b782e6f
+        ControlAdapter
+         mCapturedLeash=Surface(name=Surface(name=1622268 StatusBar)/@0x22e235a - animation-leash)/@0x5b8dd4e    WindowStateAnimator{2ef77b1 StatusBar}:
+       mAnimationIsEntrance=true      Surface: shown=true layer=0 alpha=1.0 rect=(0.0,0.0) 1920 x 66 transform=(1.0, 0.0, 1.0, 0.0)
+    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
+    isOnScreen=true
+    isVisible=true
+   mAdapter=    ControlAdapter
+     mCapturedLeash=Surface(name=Surface(name=1622268 StatusBar)/@0x22e235a - animation-leash)/@0x5b8dd4e   mControlTarget=    mDisplayId=0 rootTaskId=1 mSession=Session{4e85e4f 2564:u0a10036} mClient=android.os.BinderProxy@585e09a
+    mOwnerUid=10036 showForAllUsers=false package=com.zone.hmi.launcher appop=NONE
+    mAttrs={(0,0)(fillxfill) sim={adjust=resize forwardNavigation} ty=BASE_APPLICATION wanim=0x10302fe
+      fl=LAYOUT_IN_SCREEN LAYOUT_INSET_DECOR SPLIT_TOUCH HARDWARE_ACCELERATED TRANSLUCENT_NAVIGATION DRAWS_SYSTEM_BAR_BACKGROUNDS
+      pfl=FORCE_DRAW_STATUS_BAR_BACKGROUND FIT_INSETS_CONTROLLED
+      vsysui=LAYOUT_STABLE LAYOUT_HIDE_NAVIGATION
+      fitSides=}
+    Requested w=1920 h=1080 mLayoutSeq=280
+    mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
+    WindowStateAnimator{81c412b com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity}:
+      Surface: shown=true layer=0 alpha=1.0 rect=(0.0,0.0) 1920 x 1080 transform=(1.0, 0.0, 1.0, 0.0)
+    mLastFreezeDuration=+18s354ms
+    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
+    isOnScreen=true
+    isVisible=true
+  mLastOrientationSource=ActivityRecord{b5d6abd u0 com.zone.hmi.navi/.dashboard.activity.DashBoardActivity t5635}
+  deepestLastOrientationSource=ActivityRecord{b5d6abd u0 com.zone.hmi.navi/.dashboard.activity.DashBoardActivity t5635}
+  Display: mDisplayId=1 stacks=1
+    init=1280x768 160dpi cur=1280x768 app=1280x768 rng=768x768-1280x1280
+    deferred=false mLayoutNeeded=false mTouchExcludeRegion=SkRegion((0,0,1280,768))
+
+  mLayoutSeq=60
+  mCurrentFocus=Window{1af84ea u0 com.zone.hmi.navi/com.zone.hmi.navi.dashboard.activity.DashBoardActivity}
+  mFocusedApp=ActivityRecord{b5d6abd u0 com.zone.hmi.navi/.dashboard.activity.DashBoardActivity t5635}
+  mLastStatusBarVisibility=0x8708
+
+  displayId=1
+  mWallpaperTarget=Window{1af84ea u0 com.zone.hmi.navi/com.zone.hmi.navi.dashboard.activity.DashBoardActivity}
+  mLastWallpaperX=-1.0 mLastWallpaperY=-1.0
+
+  Task display areas in top down Z order:
+    TaskDisplayArea DefaultTaskDisplayArea
+      mPreferredTopFocusableStack=Task{87a38b2 #5635 visible=true type=standard mode=fullscreen translucent=false A=10038:com.zone.hmi.navi.dashboard.activity.DashBoardActivity U=0 StackId=5635 sz=1}
+      mLastFocusedStack=Task{87a38b2 #5635 visible=true type=standard mode=fullscreen translucent=false A=10038:com.zone.hmi.navi.dashboard.activity.DashBoardActivity U=0 StackId=5635 sz=1}
+      Application tokens in top down Z order:
+      * Task{87a38b2 #5635 visible=true type=standard mode=fullscreen translucent=false A=10038:com.zone.hmi.navi.dashboard.activity.DashBoardActivity U=0 StackId=5635 sz=1}
+        bounds=[0,0][1280,768]
+        * ActivityRecord{b5d6abd u0 com.zone.hmi.navi/.dashboard.activity.DashBoardActivity t5635}
+
+  no ScreenRotationAnimation 
+
+
+  PinnedStackController
+    mIsImeShowing=false
+    mImeHeight=0
+    mAspectRatio=-1.0
+    mMinAspectRatio=0.41841003
+    mMaxAspectRatio=2.39
+    mActions=[]
+    mDisplayInfo=DisplayInfo{"HDMI 屏幕", displayId 1, FLAG_SECURE, FLAG_SUPPORTS_PROTECTED_BUFFERS, FLAG_PRESENTATION, FLAG_TRUSTED, real 1280 x 768, largest app 1280 x 1280, smallest app 768 x 768, appVsyncOff 1000000, presDeadline 16666666, mode 2, defaultMode 2, modes [{id=2, width=1280, height=768, fps=60.000004}], hdrCapabilities HdrCapabilities{mSupportedHdrTypes=[], mMaxLuminance=500.0, mMaxAverageLuminance=500.0, mMinLuminance=0.0}, minimalPostProcessingSupported false, rotation 0, state ON, type EXTERNAL, uniqueId "local:3", app 1280 x 768, density 160 (318.745 x 319.79) dpi, layerStack 1, colorMode 0, supportedColorModes [0], address {port=3}, deviceProductInfo null, removeMode 0}
+
+  DisplayFrames w=1280 h=768 r=0
+    mStable=[0,0][1280,768]
+    mStableFullscreen=[0,0][1280,768]
+    mDock=[0,0][1280,768]
+    mCurrent=[0,0][1280,768]
+    mSystem=[0,0][1280,768]
+    mContent=[0,0][1280,768]
+    mVoiceContent=[0,0][1280,768]
+    mRestricted=[0,0][1280,768]
+    mUnrestricted=[0,0][1280,768]
+    mDisplayCutout=WmDisplayCutout{DisplayCutout{insets=Rect(0, 0 - 0, 0) waterfall=Insets{left=0, top=0, right=0, bottom=0} boundingRect={Bounds=[Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0)]}}, mFrameSize=null}
+
+  DisplayPolicy
+    mCarDockEnablesAccelerometer=true mDeskDockEnablesAccelerometer=true
+    mDockMode=EXTRA_DOCK_STATE_UNDOCKED mLidState=LID_ABSENT
+    mAwake=true mScreenOnEarly=true mScreenOnFully=true
+    mKeyguardDrawComplete=false mWindowManagerDrawComplete=false
+    mHdmiPlugged=false
+    mLastSystemUiFlags=0x8708 mResettingSystemUiFlags=0x0 mForceClearedSystemUiFlags=0x0
+    mShowingDream=false mDreamingLockscreen=false isKeyguardShowing=false
+    mFocusedWindow=Window{1af84ea u0 com.zone.hmi.navi/com.zone.hmi.navi.dashboard.activity.DashBoardActivity}
+    mTopFullscreenOpaqueWindowState=Window{1af84ea u0 com.zone.hmi.navi/com.zone.hmi.navi.dashboard.activity.DashBoardActivity}
+    mTopFullscreenOpaqueOrDimmingWindowState=Window{1af84ea u0 com.zone.hmi.navi/com.zone.hmi.navi.dashboard.activity.DashBoardActivity}
+    mTopIsFullscreen=false
+    mForceStatusBar=false    mRemoteInsetsControllerControlsSystemBarsfalse mAllowLockscreenWhenOn=false
+    Looper state:
+      Looper (android.ui, tid 19) {99981a0}
+        (Total messages: 0, polling=true, quitting=false)
+
+  DisplayRotation
+    mCurrentAppOrientation=SCREEN_ORIENTATION_UNSPECIFIED
+    mLastOrientation=-1
+    mRotation=0 mDeferredRotationPauseCount=0
+    mLandscapeRotation=ROTATION_0 mSeascapeRotation=ROTATION_180
+    mPortraitRotation=ROTATION_270 mUpsideDownRotation=ROTATION_90
+    mSupportAutoRotation=true
+
+    mCarDockRotation=-1 mDeskDockRotation=-1
+    mUserRotationMode=USER_ROTATION_FREE mUserRotation=ROTATION_0 mAllowAllRotations=unknown
+    mDemoHdmiRotation=ROTATION_0 mDemoHdmiRotationLock=false mUndockedHdmiRotation=-1
+    mLidOpenRotation=-1
+    mFixedToUserRotation=true
+
+
+  WindowInsetsStateController
+    InsetsState
+      InsetsSource type=ITYPE_IME frame=[0,0][0,0] visible=false
+    Control map:
+    InsetsSourceProviders map:
+    ITYPE_IME -> 
+  InsetsSourceProvider
+   mSource=    InsetsSource type=ITYPE_IME frame=[0,0][0,0] visible=false
+   mFakeControl=    InsetsSourceControl type=ITYPE_IME mLeash=null mSurfacePosition=Point(0, 0)
+ mIsLeashReadyForDispatching=true mImeOverrideFrame=Rect(0, 0 - 0, 0)   mPendingControlTarget=    mDisplayId=1 rootTaskId=5635 mSession=Session{b22d592 6722:u0a10038} mClient=android.os.BinderProxy@ed3e4d5
+    mOwnerUid=10038 showForAllUsers=false package=com.zone.hmi.navi appop=NONE
+    mAttrs={(0,0)(fillxfill) sim={adjust=pan forwardNavigation} ty=BASE_APPLICATION fmt=TRANSLUCENT wanim=0x10302fe
+      fl=LAYOUT_IN_SCREEN LAYOUT_INSET_DECOR SHOW_WALLPAPER SPLIT_TOUCH HARDWARE_ACCELERATED TRANSLUCENT_NAVIGATION DRAWS_SYSTEM_BAR_BACKGROUNDS
+      pfl=FORCE_DRAW_STATUS_BAR_BACKGROUND FIT_INSETS_CONTROLLED
+      vsysui=LAYOUT_STABLE LAYOUT_HIDE_NAVIGATION LAYOUT_FULLSCREEN
+      fitSides=}
+    Requested w=1280 h=768 mLayoutSeq=60
+    mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
+    WindowStateAnimator{59bc507 com.zone.hmi.navi/com.zone.hmi.navi.dashboard.activity.DashBoardActivity}:
+      Surface: shown=true layer=0 alpha=1.0 rect=(0.0,0.0) 1280 x 768 transform=(1.0, 0.0, 1.0, 0.0)
+    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null finishedFrameNumber=0
+    isOnScreen=true
+    isVisible=true
+  mImeShowing=false
+  mLastOrientationSource=DefaultTaskDisplayArea@255349916
+  deepestLastOrientationSource=DefaultTaskDisplayArea@255349916
+  Display: mDisplayId=2 stacks=0
+    init=2560x1440 160dpi cur=2560x1440 app=2560x1440 rng=1440x1440-2560x2560
+    deferred=false mLayoutNeeded=false mTouchExcludeRegion=SkRegion()
+
+  mLayoutSeq=2
+  mCurrentFocus=null
+  mFocusedApp=null
+
+  displayId=2
+  mWallpaperTarget=null
+  mLastWallpaperX=-1.0 mLastWallpaperY=-1.0
+
+  Task display areas in top down Z order:
+    TaskDisplayArea DefaultTaskDisplayArea
+      Application tokens in top down Z order:
+
+  mScreenRotationAnimation:
+    mSurface=null mWidth=2560 mHeight=1440
+    mEnteringBlackFrame=null
+    mCurRotation=0 mOriginalRotation=0
+    mOriginalWidth=2560 mOriginalHeight=1440
+    mStarted=true mAnimRunning=false mFinishAnimReady=true mFinishAnimStartTime=-1
+    mRotateExitAnimation=null {alpha=1.0 matrix=[1.0, 0.0, 0.0][0.0, 1.0, 0.0][0.0, 0.0, 1.0]}
+    mRotateEnterAnimation=null {alpha=1.0 matrix=[1.0, 0.0, 0.0][0.0, 1.0, 0.0][0.0, 0.0, 1.0]}
+    mEnterTransformation={alpha=1.0 matrix=[1.0, 0.0, 0.0][0.0, 1.0, 0.0][0.0, 0.0, 1.0]}
+    mSnapshotInitialMatrix=[1.0, 0.0, 0.0][0.0, 1.0, 0.0][0.0, 0.0, 1.0]
+    mForceDefaultOrientation=true mOriginalDisplayRect=[0,0][2560,1440] mCurrentDisplayRect=[0,0][2560,1440]
+
+
+  PinnedStackController
+    mIsImeShowing=false
+    mImeHeight=0
+    mAspectRatio=-1.0
+    mMinAspectRatio=0.41841003
+    mMaxAspectRatio=2.39
+    mActions=[]
+    mDisplayInfo=DisplayInfo{"HDMI 屏幕", displayId 2, FLAG_SECURE, FLAG_SUPPORTS_PROTECTED_BUFFERS, FLAG_PRESENTATION, FLAG_TRUSTED, real 2560 x 1440, largest app 2560 x 2560, smallest app 1440 x 1440, appVsyncOff 1000000, presDeadline 16666666, mode 3, defaultMode 3, modes [{id=3, width=2560, height=1440, fps=60.000004}], hdrCapabilities HdrCapabilities{mSupportedHdrTypes=[], mMaxLuminance=500.0, mMaxAverageLuminance=500.0, mMinLuminance=0.0}, minimalPostProcessingSupported false, rotation 0, state ON, type EXTERNAL, uniqueId "local:4", app 2560 x 1440, density 160 (320.315 x 320.842) dpi, layerStack 2, colorMode 0, supportedColorModes [0], address {port=4}, deviceProductInfo null, removeMode 0}
+
+  DisplayFrames w=2560 h=1440 r=0
+    mStable=[0,0][2560,1440]
+    mStableFullscreen=[0,0][2560,1440]
+    mDock=[0,0][2560,1440]
+    mCurrent=[0,0][2560,1440]
+    mSystem=[0,0][2560,1440]
+    mContent=[0,0][2560,1440]
+    mVoiceContent=[0,0][2560,1440]
+    mRestricted=[0,0][2560,1440]
+    mUnrestricted=[0,0][2560,1440]
+    mDisplayCutout=WmDisplayCutout{DisplayCutout{insets=Rect(0, 0 - 0, 0) waterfall=Insets{left=0, top=0, right=0, bottom=0} boundingRect={Bounds=[Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0)]}}, mFrameSize=null}
+
+  DisplayPolicy
+    mCarDockEnablesAccelerometer=true mDeskDockEnablesAccelerometer=true
+    mDockMode=EXTRA_DOCK_STATE_UNDOCKED mLidState=LID_ABSENT
+    mAwake=true mScreenOnEarly=true mScreenOnFully=true
+    mKeyguardDrawComplete=false mWindowManagerDrawComplete=false
+    mHdmiPlugged=false
+    mShowingDream=false mDreamingLockscreen=false isKeyguardShowing=false
+    mTopIsFullscreen=false
+    mForceStatusBar=false    mRemoteInsetsControllerControlsSystemBarsfalse mAllowLockscreenWhenOn=false
+    Looper state:
+      Looper (android.ui, tid 19) {99981a0}
+        (Total messages: 0, polling=true, quitting=false)
+
+  DisplayRotation
+    mCurrentAppOrientation=SCREEN_ORIENTATION_UNSPECIFIED
+    mLastOrientation=-1
+    mRotation=0 mDeferredRotationPauseCount=0
+    mLandscapeRotation=ROTATION_0 mSeascapeRotation=ROTATION_180
+    mPortraitRotation=ROTATION_270 mUpsideDownRotation=ROTATION_90
+    mSupportAutoRotation=true
+
+    mCarDockRotation=-1 mDeskDockRotation=-1
+    mUserRotationMode=USER_ROTATION_FREE mUserRotation=ROTATION_0 mAllowAllRotations=unknown
+    mDemoHdmiRotation=ROTATION_0 mDemoHdmiRotationLock=false mUndockedHdmiRotation=-1
+    mLidOpenRotation=-1
+    mFixedToUserRotation=true
+
+
+  WindowInsetsStateController
+    InsetsState
+      InsetsSource type=ITYPE_IME frame=[0,0][0,0] visible=false
+    Control map:
+    InsetsSourceProviders map:
+    ITYPE_IME -> 
+  InsetsSourceProvider
+   mSource=    InsetsSource type=ITYPE_IME frame=[0,0][0,0] visible=false
+   mFakeControl=    InsetsSourceControl type=ITYPE_IME mLeash=null mSurfacePosition=Point(0, 0)
+ mIsLeashReadyForDispatching=false mImeOverrideFrame=Rect(0, 0 - 0, 0)  mImeShowing=false
+
+  KeyguardController:
+    mKeyguardShowing=false
+    mAodShowing=false
+    mKeyguardGoingAway=false
+    Occluded=false DismissingKeyguardActivity=null at display=0
+    Occluded=false DismissingKeyguardActivity=null at display=1
+    Occluded=false DismissingKeyguardActivity=null at display=2
+    mDismissalRequested=false
+
+  LockTaskController:
+    mLockTaskModeState=NONE
+    mLockTaskModeTasks=
+    mLockTaskPackages (userId:packages)=
+      u0:[]
+
+  mCurTaskIdForUser={0=5637}
+  mUserStackInFront={}
+  mVisibilityTransactionDepth=0
+  isHomeRecentsComponent=false
+
+  TaskOrganizerController:
+    Per windowing mode:
+

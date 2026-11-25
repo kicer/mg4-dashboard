@@ -62,7 +62,9 @@
     n++;
     last = 'soc ' + (d.soc == null ? '-' : d.soc.toFixed(1)) +
            '  speed ' + (d.speed == null ? '-' : d.speed) +
-           '  tick=' + (d._tick == null ? '-' : d._tick);
+           '  HUD_SW ' + (d.HUD_SW_STS == null ? '-' : d.HUD_SW_STS) +
+           '  SEAT ' + (d.SEAT_RECLINE_ANGLE == null ? '-' : d.SEAT_RECLINE_ANGLE) +
+           '  field ' + Object.keys(d).length + '  tick=' + (d._tick == null ? '-' : d._tick);
     paint();
   };
   window.addEventListener('resize', function(){ bars(); paint(); });

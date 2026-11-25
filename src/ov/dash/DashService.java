@@ -61,6 +61,8 @@ public class DashService extends Service {
     private static final String TAG = "OVDASH";
     static final String ACTION_STOP = "ov.dash.stop";
     static final String ACTION_RELOAD = "ov.dash.reload";
+    static final String ACTION_PROBE = "ov.dash.probe";
+    static final String ACTION_SCAN = "ov.dash.scan";
     private static final long WATCHDOG_MS = 120_000L;
     private static final int TYPE_OVERLAY = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
 
@@ -121,6 +123,21 @@ public class DashService extends Service {
                 stopSelf();
             } else if (ACTION_RELOAD.equals(a)) {
                 reloadAll();
+            } else if (ACTION_PROBE.equals(a)) {
+                // binder 扫描不能跑主线程
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        signals.probePool(getPackageName());
+                    }
+                }).start();
+            } else if (ACTION_SCAN.equals(a)) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        doScan();
+                    }
+                }).start();
             }
         }
     };
@@ -138,6 +155,7 @@ public class DashService extends Service {
         copyMissingAssets();
         boolean ok = signals.bind(getPackageName());
         Log.e(TAG, "signals bind=" + ok);
+        signals.loadExtra(baseDir);
 
         startWatchdog();
         startObserver();
@@ -186,6 +204,8 @@ public class DashService extends Service {
     private IntentFilter filter() {
         IntentFilter f = new IntentFilter(ACTION_STOP);
         f.addAction(ACTION_RELOAD);
+        f.addAction(ACTION_PROBE);
+        f.addAction(ACTION_SCAN);
         return f;
     }
 
@@ -375,6 +395,39 @@ public class DashService extends Service {
             if (!f.exists()) {
                 copyAsset(s.html, f);
             }
+        }
+        File kf = new File(baseDir, "keys.txt");
+        if (!kf.exists()) {
+            copyAsset("keys.txt", kf);
+        }
+    }
+
+    /** 调试：读取 files/keys.txt 里的候选 key，遍历全部子服务扫描一遍。 */
+    private void doScan() {
+        try {
+            File kf = new File(baseDir, "keys.txt");
+            if (!kf.exists()) {
+                copyAsset("keys.txt", kf);
+            }
+            java.util.List<String> ks = new java.util.ArrayList<>();
+            java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(kf));
+            try {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    line = line.trim();
+                    if (line.length() > 0 && !line.startsWith("#")) {
+                        int p = line.indexOf('|');
+                        ks.add(p > 0 ? line.substring(0, p).trim() : line);
+                    }
+                }
+            } finally {
+                br.close();
+            }
+            File out = new File(baseDir, "scan.txt");
+            signals.scanKeys(getPackageName(), ks.toArray(new String[0]), out);
+            Log.e(TAG, "scan finished -> " + out);
+        } catch (Throwable t) {
+            Log.e(TAG, "doScan fail: " + t);
         }
     }
 

@@ -1,0 +1,119 @@
+Root#0
+mWindowContainers#0
+DisplayArea.Root#0
+Leaf:0:1#0
+WallpaperWindowToken{d92bb47 token=android.os.Binder@194b686}#0
+da99491 com.android.saicsystemui.wallpaper.ZoneWallpaperService#0
+com.android.saicsystemui.wallpaper.ZoneWallpaperService#0
+Leaf:2:2#0
+DefaultTaskDisplayArea#0
+Task=1#0
+Task=2#0
+5e64dc9 ActivityRecordInputSink com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity#0
+ActivityRecord{1388cce u0 com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity#0
+58bbdcb com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity#0
+com.zone.hmi.launcher/com.zone.hmi.mod.wallpaper.ui.activity.MainWallpaperActivity#0
+ImeContainer#0
+WindowToken{bf6aa21 android.os.Binder@2ce1088}#0
+Surface(name=3997c59 com.zone.hmi.ime.mainscreen)/@0x5c8515 - animation-leash#0
+3997c59 com.zone.hmi.ime.mainscreen#0
+homeAnimationLayer#0
+splitScreenDividerAnchor#0
+animationLayer#0
+Task=5636#0
+2633fb9 ActivityRecordInputSink com.desay.xadb/.MainActivity#0
+ActivityRecord{d4bf67b u0 com.desay.xadb/.MainActivity#0
+fd6b11a com.desay.xadb/com.desay.xadb.MainActivity#0
+boostedAnimationLayer#0
+Leaf:3:14#0
+Leaf:17:48#0
+WindowToken{5d43968 android.os.BinderProxy@60cc48b}#0
+34a5181 ov.dash#0
+#1
+WindowToken{b7c9644 android.os.BinderProxy@1b35b57}#0
+Surface(name=66ce32d DockBar)/@0xe06a98b - animation-leash#0
+66ce32d DockBar#0
+DockBar#0
+WindowToken{2090a99 android.os.BinderProxy@d5447e0}#0
+a6a515e com.zone.hmi.launcher#0
+WindowToken{aecb18b android.os.BinderProxy@ccdff05}#0
+Surface(name=1622268 StatusBar)/@0x22e235a - animation-leash#0
+1622268 StatusBar#0
+StatusBar#0
+WindowToken{e817593 android.os.BinderProxy@f60d1cd}#0
+4b5bdc9 SmartDock#0
+WindowToken{bf8b030 android.os.BinderProxy@4cae1e2}#0
+3b1d4a9 BlowLevBar#0
+WindowToken{27636f2 android.os.BinderProxy@6790654}#0
+23f5143 MainMediaBar#0
+WindowToken{689d71b android.os.BinderProxy@49fa615}#0
+21d00b8 ControlCenter#0
+WindowToken{a004071 android.os.BinderProxy@795fdfb}#0
+e240e56 MessagePanel#0
+WindowToken{21127e1 android.os.BinderProxy@7de5beb}#0
+47ab906 AccountPanel#0
+WindowToken{b5c2ac1 android.os.BinderProxy@7a02bcb}#0
+d8b3266 NetflowPanel#0
+WindowToken{9a91cee android.os.BinderProxy@6c9a4f0}#0
+1e6058f BtPanel#0
+WindowToken{4cc1b8b android.os.BinderProxy@be0d905}#0
+3ce4468 WifiPanel#0
+WindowToken{9edbe86 android.os.BinderProxy@f2416c8}#0
+7c7d774 DriveModePanel#0
+WindowToken{773343f android.os.BinderProxy@8d58d99}#0
+770d55b BMSPanel#0
+WindowToken{6ca05a4 android.os.BinderProxy@3e8d536}#0
+2948f0d PermissionPanel#0
+WindowToken{43fd6d3 android.os.BinderProxy@c5618c2}#0
+cd4f210 com.zone.service.imate#0
+Background for -SurfaceView - #0
+#0
+Bounds for - #0
+SurfaceView - #0
+WindowToken{1ae7148 android.os.BinderProxy@2f1362e}#0
+37a5be1 DockHAVC#0
+WindowToken{544750a android.os.BinderProxy@38fa0ac}#0
+98b117b DockEditPanel#0
+WindowToken{a61f681 android.os.Binder@39f5268}#0
+mOverlayContainers#0
+Root#1
+mWindowContainers#1
+DisplayArea.Root#1
+Leaf:0:1#1
+Leaf:2:2#1
+DefaultTaskDisplayArea#1
+homeAnimationLayer#1
+splitScreenDividerAnchor#1
+animationLayer#1
+Task=5635#0
+1e34214 ActivityRecordInputSink com.zone.hmi.navi/.dashboard.activity.DashBoardActivity#0
+ActivityRecord{b5d6abd u0 com.zone.hmi.navi/.dashboard.activity.DashBoardActivity#0
+1af84ea com.zone.hmi.navi/com.zone.hmi.navi.dashboard.activity.DashBoardActivity#0
+Background for -SurfaceView - com.zone.hmi.navi/com.zone.hmi.navi.dashboard.activity.DashBoardActivity#1
+SurfaceView - com.zone.hmi.navi/com.zone.hmi.navi.dashboard.activity.DashBoardActivity#1
+com.zone.hmi.navi/com.zone.hmi.navi.dashboard.activity.DashBoardActivity#0
+Bounds for - com.zone.hmi.navi/com.zone.hmi.navi.dashboard.activity.DashBoardActivity#0
+boostedAnimationLayer#1
+Leaf:3:14#1
+ImeContainer#1
+Leaf:17:48#1
+WindowToken{2ef7e0a android.os.BinderProxy@ee18e75}#0
+e1be67b ov.dash#0
+#2
+WindowToken{3f5cb67 android.os.Binder@d977326}#0
+mOverlayContainers#1
+Root#2
+mWindowContainers#2
+DisplayArea.Root#2
+Leaf:0:1#2
+Leaf:2:2#2
+DefaultTaskDisplayArea#2
+homeAnimationLayer#2
+splitScreenDividerAnchor#2
+animationLayer#2
+boostedAnimationLayer#2
+Leaf:3:14#2
+ImeContainer#2
+Leaf:17:48#2
+WindowToken{18646ff android.os.Binder@9e4be1e}#0
+mOverlayContainers#2
