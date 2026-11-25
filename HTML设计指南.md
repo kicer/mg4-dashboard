@@ -325,12 +325,22 @@ adb shell am broadcast -a ov.dash.reload
 | `launcherPkg` | `com.zone.hmi.launcher` | 判定「桌面」的包名 |
 | `height` | 0 | 窗口高度（物理像素），`0` = 全屏。**当前方案不用** |
 
-**两种隐藏方式，别混用：**
+**两种隐藏方式，效果完全不同：**
 
-| 方式 | 配置 | 效果 |
-|---|---|---|
-| **窗口级** | `onlyOnLauncher: true` | 不在桌面就 `destroy()` WebView，回桌面重新创建（约 60ms 白屏） |
-| **页面级**（推荐） | `onlyOnLauncher: false` + HTML 里判 `onDesktop` | 窗口常驻，HTML 自己 `visibility:hidden`，无延迟、无重建、只有一个 WebView |
+| 方式 | 配置 | 进 app 后 | `onDesktop` 有用吗 |
+|---|---|---|---|
+| **窗口级** | `onlyOnLauncher: true` | WebView 被 `destroy()`，**页面完全不存在** | ❌ 没用。页面在 app 里不渲染，`onDesktop` 永远是 `true` |
+| **页面级**（推荐） | `onlyOnLauncher: false` | WebView 常驻，页面继续运行 | ✅ 有用。HTML 自己根据它切换 `visibility` |
+
+**关键分岐**：
+
+- 窗口级 = 把“显不显示”交给 app 层决定。开销最小（进 app 零内存），
+  但 HTML 无法参与——在 app 里它就是一具尸体，写什么逻辑都不执行。
+- 页面级 = 把“显不显示”交给 HTML。窗口不销毁，进 app 时靠
+  `body.visibility:hidden` 整页隐藏，窗口透明，app 内容自然透出。
+
+**当前用的是页面级。** 如果你希望进 app 后完全释放那个 WebView 的内存，
+才用窗口级。
 
 ### 6.4 看日志
 
