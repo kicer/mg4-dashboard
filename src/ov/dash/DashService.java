@@ -169,6 +169,16 @@ public class DashService extends Service {
         boolean ok = signals.bind(getPackageName());
         Log.e(TAG, "signals bind=" + ok);
         signals.loadExtra(baseDir);
+        if (ok) {
+            // 订阅 + 首次填充都放后台：几百个 key 全量读一遍要几秒
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.e(TAG, "subscribe=" + signals.subscribeAll());
+                    signals.primeCache();
+                }
+            }, "ovdash-subscribe").start();
+        }
 
         startWatchdog();
         startObserver();

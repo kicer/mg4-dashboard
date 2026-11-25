@@ -2,7 +2,9 @@ package ov.dash;
 
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Binder;
 import android.os.IBinder;
+import android.os.Parcel;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -115,6 +117,137 @@ final class Signals {
     private String[] extraKeys = new String[0];
     private String[] extraSvcs = new String[0];
 
+    /** 服务端推送过来的最新值，回调线程写、采集线程读。 */
+    private final java.util.concurrent.ConcurrentHashMap<String, Object> cache =
+            new java.util.concurrent.ConcurrentHashMap<>();
+    /** 保住监听器引用，否则会被 GC 回收导致回调断掉。 */
+    private final java.util.List<Binder> listeners = new java.util.ArrayList<>();
+    private volatile boolean subscribed;
+
+    private static final String DESC_LISTENER = "com.zone.api.vehicle.common.listener.IDataChangeListener";
+    private static final int TX_REGISTER = 1;
+    private static final int TX_UNREGISTER = 2;
+    private static final int TX_ON_DATA_CHANGED = 1;
+
+    /** 服务端数据变化回调。oneway 调用，不阻塞服务端。 */
+    private final class DataListener extends Binder {
+        @Override
+        protected boolean onTransact(int code, Parcel data, Parcel reply, int flags) {
+            if (code != TX_ON_DATA_CHANGED) {
+                return false;
+            }
+            try {
+                data.enforceInterface(DESC_LISTENER);
+                String flag = data.readString();
+                if (data.readInt() != 0) {
+                    data.readInt();                 // mCode
+                    data.readString();              // mMessage
+                    data.readString();              // className
+                    Object val = data.readValue(null);
+                    data.readValue(null);           // mExtra
+                    if (flag != null && val != null) {
+                        cache.put(flag, val);
+                    }
+                }
+            } catch (Throwable t) {
+                Log.e(TAG, "onDataChanged fail: " + t);
+            }
+            return true;
+        }
+    }
+
+    /** MAP 的短名 + keys.txt 的动态字段，全部按服务分组订阅。 */
+    boolean subscribeAll() {
+        java.util.Map<String, java.util.ArrayList<String>> bySvc = new java.util.HashMap<>();
+        for (String[] m : MAP) {
+            addFlag(bySvc, m[1], m[2]);
+        }
+        for (int i = 0; i < extraKeys.length; i++) {
+            addFlag(bySvc, extraSvcs[i], extraKeys[i]);
+        }
+        boolean any = false;
+        for (java.util.Map.Entry<String, java.util.ArrayList<String>> e : bySvc.entrySet()) {
+            IBinder s = svc(e.getKey());
+            if (s == null) {
+                continue;
+            }
+            try {
+                Binder l = new DataListener();
+                Parcel d = Parcel.obtain();
+                Parcel r = Parcel.obtain();
+                try {
+                    d.writeInterfaceToken(desc(e.getKey()));
+                    d.writeStrongBinder(l);
+                    d.writeStringList(e.getValue());
+                    s.transact(TX_REGISTER, d, r, 0);
+                    r.readException();
+                } finally {
+                    d.recycle();
+                    r.recycle();
+                }
+                listeners.add(l);
+                any = true;
+                Log.e(TAG, "subscribed " + e.getKey() + " n=" + e.getValue().size());
+            } catch (Throwable t) {
+                Log.e(TAG, "subscribe " + e.getKey() + " fail: " + t);
+            }
+        }
+        subscribed = any;
+        return any;
+    }
+
+    private static void addFlag(java.util.Map<String, java.util.ArrayList<String>> map,
+                                String svcName, String key) {
+        if (svcName == null || key == null) {
+            return;
+        }
+        java.util.ArrayList<String> l = map.get(svcName);
+        if (l == null) {
+            l = new java.util.ArrayList<>();
+            map.put(svcName, l);
+        }
+        if (!l.contains(key)) {
+            l.add(key);
+        }
+    }
+
+    /** 订阅后先全量读一遍填缓存，否则服务端不推的 key 永远是空的。 */
+    void primeCache() {
+        int n = 0;
+        for (String[] m : MAP) {
+            IBinder b = svc(m[1]);
+            if (b == null) {
+                continue;
+            }
+            Object v = read(b, desc(m[1]), m[2]);
+            if (v != null) {
+                cache.put(m[2], v);
+                n++;
+            }
+        }
+        for (int i = 0; i < extraKeys.length; i++) {
+            IBinder b = svc(extraSvcs[i]);
+            if (b == null) {
+                continue;
+            }
+            Object v = read(b, desc(extraSvcs[i]), extraKeys[i]);
+            if (v != null) {
+                cache.put(extraKeys[i], v);
+                n++;
+            }
+        }
+        Log.e(TAG, "primeCache filled=" + n + " subscribed=" + subscribed);
+    }
+
+    /** 优先取推送缓存；已订阅且 primeCache 跑过，就不再回退到同步读。 */
+    private Object valueOf(String svcName, String key) {
+        if (subscribed) {
+            return cache.get(key);
+        }
+        IBinder b = svc(svcName);
+        return b == null ? null : read(b, desc(svcName), key);
+    }
+
     boolean bind(String pkg) {
         IBinder core = core();
         IBinder pool = pool(core, pkg);
@@ -181,7 +314,7 @@ final class Signals {
         JSONObject o = new JSONObject();
         for (String[] m : MAP) {
             try {
-                Object v = read(svc(m[1]), desc(m[1]), m[2]);
+                Object v = valueOf(m[1], m[2]);
                 if (v == null) {
                     continue;
                 }
@@ -201,11 +334,7 @@ final class Signals {
         }
         for (int i = 0; i < extraKeys.length; i++) {
             try {
-                IBinder b = svc(extraSvcs[i]);
-                if (b == null) {
-                    continue;
-                }
-                Object v = read(b, desc(extraSvcs[i]), extraKeys[i]);
+                Object v = valueOf(extraSvcs[i], extraKeys[i]);
                 if (v == null) {
                     continue;
                 }
