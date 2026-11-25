@@ -24,7 +24,8 @@
         </activity>
         <service
             android:name=".DashService"
-            android:exported="true" />
+            android:exported="true"
+            android:foregroundServiceType="location" />
 
         <service
             android:name=".TopWatcher20"
