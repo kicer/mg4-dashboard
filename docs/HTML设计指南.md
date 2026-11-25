@@ -55,66 +55,66 @@ window.onData = function (d) {
 
 ### 2.1 字段表
 
-JSON 里的键名是**「原始 key」列**。前面那列只是本文档里的简称，写页面时不能用。
+JSON 里的键名就是下表第一列（车机服务端的原始 key），没有别名、没有缩写。
 
 **电池 / BMS**
 
-| 简称 | 原始 key | 小数位 | 说明 |
-|---|---|---|---|
-| `soc` | BMS_SOC_PERCENT | 1 | 动力电池电量 % |
-| `soh` | BMS_BATTERY_SOC_ORG | 1 | 电池健康度 % |
-| `volt` | BMS_DISP_PACK_VOL_ORG | 1 | 电池包电压 V |
-| `curr` | BMS_DISP_PACK_CURRENT_ORG | 1 | 电池包电流 A |
-| `range` | RANGE | 0 | 剩余续航 km |
-| `power` | CHARGE_POWER | 1 | 充电功率 kW |
-| `heat` | BMS_HEAT | 0 | 电池加热状态 |
-| `warn` | BMS_WRNNG_INFO | 0 | 电池告警码 |
-| `chargeDoor` | CHARGE_DOOR | 0 | 充电口状态 |
-| `acVolt` | AC_VOLTAGE | 1 | 交流充电电压 V |
-| `acCurr` | AC_CURRENT | 1 | 交流充电电流 A |
-| `energyTotal` | BMS_TOTAL_CONSMP_AFT_START | 2 | 本次启动后总耗电 kWh |
-| `energyDrive` | BMS_ACC_CONSMP_AFT_START | 2 | 驱动耗电 kWh |
-| `energyHvac` | BMS_HVAC_CONSMP_AFT_START | 2 | 空调耗电 kWh |
-| `energyRegen` | BMS_REGEN_AFT_START | 2 | 能量回收 kWh |
+| 原始 key | 小数位 | 说明 |
+|---|---|---|
+| BMS_SOC_PERCENT | 1 | 动力电池电量 % |
+| BMS_BATTERY_SOC_ORG | 1 | 电池健康度 % |
+| BMS_DISP_PACK_VOL_ORG | 1 | 电池包电压 V |
+| BMS_DISP_PACK_CURRENT_ORG | 1 | 电池包电流 A |
+| RANGE | 0 | 剩余续航 km |
+| CHARGE_POWER | 1 | 充电功率 kW |
+| BMS_HEAT | 0 | 电池加热状态 |
+| BMS_WRNNG_INFO | 0 | 电池告警码 |
+| CHARGE_DOOR | 0 | 充电口状态 |
+| AC_VOLTAGE | 1 | 交流充电电压 V |
+| AC_CURRENT | 1 | 交流充电电流 A |
+| BMS_TOTAL_CONSMP_AFT_START | 2 | 本次启动后总耗电 kWh |
+| BMS_ACC_CONSMP_AFT_START | 2 | 驱动耗电 kWh |
+| BMS_HVAC_CONSMP_AFT_START | 2 | 空调耗电 kWh |
+| BMS_REGEN_AFT_START | 2 | 能量回收 kWh |
 
 **里程 / 行驶 / 胎压**
 
-| 简称 | 原始 key | 小数位 | 说明 |
-|---|---|---|---|
-| `odo` | ODO_DISP | 0 | 总里程 km |
-| `trip1` | IPK_TRIPMETER_TRIP1 | 1 | 小计里程 1 km |
-| `trip2` | IPK_TRIPMETER_TRIP2 | 1 | 小计里程 2 km |
-| `aec1` | IPK_AVERAGE_PC_AEC1 | 1 | 平均电耗 1（kWh/100km） |
-| `aec2` | IPK_AVERAGE_PC_AEC2 | 1 | 平均电耗 2 |
-| `aspd1` | IPK_AVERAGE_SPEED1 | 0 | 平均车速 1 km/h |
-| `aspd2` | IPK_AVERAGE_SPEED2 | 0 | 平均车速 2 |
-| `dtime1` | IPK_DRIVING_TIME1 | 0 | 行驶时长 1 |
-| `dtime2` | IPK_DRIVING_TIME2 | 0 | 行驶时长 2 |
-| `gear` | ORG_GEAR | 0 | 档位 |
-| `speed` | SPEED | 0 | 车速 km/h |
-| `pwrStatus` | POWER_STATUS | 0 | 电源状态 |
-| `tire_fl` | FL_TIRE_PRESSURE | 0 | 左前胎压 kPa |
-| `tire_fr` | FR_TIRE_PRESSURE | 0 | 右前胎压 |
-| `tire_rl` | RL_TIRE_PRESSURE | 0 | 左后胎压 |
-| `tire_rr` | RR_TIRE_PRESSURE | 0 | 右后胎压 |
+| 原始 key | 小数位 | 说明 |
+|---|---|---|
+| ODO_DISP | 0 | 总里程 km |
+| IPK_TRIPMETER_TRIP1 | 1 | 小计里程 1 km |
+| IPK_TRIPMETER_TRIP2 | 1 | 小计里程 2 km |
+| IPK_AVERAGE_PC_AEC1 | 1 | 平均电耗 1（kWh/100km） |
+| IPK_AVERAGE_PC_AEC2 | 1 | 平均电耗 2 |
+| IPK_AVERAGE_SPEED1 | 0 | 平均车速 1 km/h |
+| IPK_AVERAGE_SPEED2 | 0 | 平均车速 2 |
+| IPK_DRIVING_TIME1 | 0 | 行驶时长 1 |
+| IPK_DRIVING_TIME2 | 0 | 行驶时长 2 |
+| ORG_GEAR | 0 | 档位 |
+| SPEED | 0 | 车速 km/h |
+| POWER_STATUS | 0 | 电源状态 |
+| FL_TIRE_PRESSURE | 0 | 左前胎压 kPa |
+| FR_TIRE_PRESSURE | 0 | 右前胎压 |
+| RL_TIRE_PRESSURE | 0 | 左后胎压 |
+| RR_TIRE_PRESSURE | 0 | 右后胎压 |
 
 **空调 / 灯光 / 其他**
 
-| 简称 | 原始 key | 小数位 | 说明 |
-|---|---|---|---|
-| `intemp` | IACINCARTEM | 1 | 车内温度 ℃ |
-| `outtemp` | OUTSIDE_TEP | 1 | 车外温度 ℃ |
-| `dayLight` | DAY_LIGHT | 0 | 日行灯状态 |
-| `dipped` | DIPPED_BEAM_LIGHT_ON | 0 | 近光灯 |
-| `mainBeam` | MAIN_BEAM_LIGHT_ON | 0 | 远光灯 |
-| `fog` | FOG_LIGHT_STATUS | 0 | 雾灯 |
-| `turnLamp` | DIRECTION_INDICATOR_LAMP | 0 | 转向指示灯 |
-| `sideLight` | VEHICLE_SIDE_LIGHT_STS | 0 | 示宽灯 |
-| `turnLeft` | LIGHT_EL_LDIR_CONTRL_ON | 0 | 左转向 |
-| `turnRight` | LIGHT_EL_RDIR_CONTRL_ON | 0 | 右转向 |
-| `alt` | LocationManager | 0 | 海拔 m（走 GPS） |
-| `_ts` | — | — | 采集时间戳（毫秒） |
-| `_tick` | — | — | 帧序号，自增 |
+| 原始 key | 小数位 | 说明 |
+|---|---|---|
+| IACINCARTEM | 1 | 车内温度 ℃ |
+| OUTSIDE_TEP | 1 | 车外温度 ℃ |
+| DAY_LIGHT | 0 | 日行灯状态 |
+| DIPPED_BEAM_LIGHT_ON | 0 | 近光灯 |
+| MAIN_BEAM_LIGHT_ON | 0 | 远光灯 |
+| FOG_LIGHT_STATUS | 0 | 雾灯 |
+| DIRECTION_INDICATOR_LAMP | 0 | 转向指示灯 |
+| VEHICLE_SIDE_LIGHT_STS | 0 | 示宽灯 |
+| LIGHT_EL_LDIR_CONTRL_ON | 0 | 左转向 |
+| LIGHT_EL_RDIR_CONTRL_ON | 0 | 右转向 |
+| LocationManager | 0 | 海拔 m（走 GPS） |
+| — | — | 采集时间戳（毫秒） |
+| — | — | 帧序号，自增 |
 
 ### 2.2 三个必须注意的点
 
