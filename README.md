@@ -7,10 +7,45 @@ app 只做两件事：**采集车辆数据** → **推给你自己写的网页**
 
 ## 快速开始
 
+**装包 + 授权**（一次性）：
+
 ```bash
-./dev/setup.sh                              # 装包 + 授权，一次性
-./dev/push-page.sh 我的页面.html ui-main.html   # 换页面，随时
+adb push build/aligned.apk /sdcard/Download/dash.apk
+adb shell pm install -r -i com.zone.hmi.appstore /sdcard/Download/dash.apk
+adb shell appops set ov.dash SYSTEM_ALERT_WINDOW allow
+adb shell appops set ov.dash GET_USAGE_STATS allow
+adb shell pm grant ov.dash android.permission.ACCESS_FINE_LOCATION
+adb shell pm grant ov.dash android.permission.ACCESS_COARSE_LOCATION
+adb shell cmd notification allow_listener ov.dash/ov.dash.MediaListener
+adb shell am start -n ov.dash/.Main
 ```
+
+**换页面**（随时，不用重装）：
+
+```bash
+adb push 我的页面.html /sdcard/Download/_tmp.html
+adb shell "cp /sdcard/Download/_tmp.html /sdcard/Android/data/ov.dash/files/ui-main.html"
+adb shell "chmod 666 /sdcard/Android/data/ov.dash/files/ui-main.html"
+adb shell am broadcast -a ov.dash.reload
+```
+
+两个不能省的坑：
+
+- **不能直 push 到 `files/`**，会报 `remote fchown failed`，必须经 `Download/` 中转再 `cp`
+- **`chmod 666` 不能省**：新建文件属主是 `shell`、权限 600，app 读不到会白屏
+
+装包那几条里，`-i com.zone.hmi.appstore` 不能省（否则收不到开机广播），
+`SYSTEM_ALERT_WINDOW` 不能省（否则浮层不显示，车机没有授权界面）。
+
+**可选：无障碍**（桌面切换检测延迟更低）。顺序敏感，先关、设列表、再开：
+
+```bash
+adb shell "settings put secure accessibility_enabled 0"
+adb shell "settings put secure enabled_accessibility_services 'com.zone.service.speech.viewcmd/.ViewCmdAccessibilityService:ov.dash/.TopWatcher20'"
+adb shell "settings put secure accessibility_enabled 1"
+```
+
+`pm install -r` / `am force-stop` 会让系统移除这一项，需重跑。
 
 ## 写你的页面
 
@@ -45,23 +80,6 @@ app 会自动从 APK 里重新复制一份原版。
 副屏还有两块 QNX 区域盖不住：**上下各 75 物理像素的边栏**、**右侧导航信息栏**。
 详见 `docs/显示规格.md`。
 
-## 安装
-
-```bash
-adb push build/aligned.apk /sdcard/Download/dash.apk
-adb shell pm install -r -i com.zone.hmi.appstore /sdcard/Download/dash.apk
-adb shell appops set ov.dash SYSTEM_ALERT_WINDOW allow
-adb shell appops set ov.dash GET_USAGE_STATS allow
-adb shell pm grant ov.dash android.permission.ACCESS_FINE_LOCATION
-adb shell pm grant ov.dash android.permission.ACCESS_COARSE_LOCATION
-adb shell cmd notification allow_listener ov.dash/ov.dash.MediaListener
-./dev/enable-a11y.sh        # 可选，桌面切换检测延迟更低
-```
-
-- `-i com.zone.hmi.appstore` 不能省，否则收不到开机广播
-- `SYSTEM_ALERT_WINDOW` 不能省，否则浮层不显示（车机没有授权界面）
-- 无障碍在 `pm install -r` / `am force-stop` 后会被系统移除，需重跑 `enable-a11y.sh`
-
 ## 配置
 
 `/sdcard/Android/data/ov.dash/files/config.json`
@@ -94,7 +112,7 @@ adb shell am broadcast -a ov.dash.media    # 打印媒体/前台状态
 ```
 assets/          打进 APK 的默认页面和 keys.txt
 build/           构建产物（aligned.apk）
-dev/             脚本、当前配置、调试工具
+dev/             开发期脚本（setup.sh / push-page.sh 等），自用
 docs/            文档
 res/             无障碍服务配置
 src/ov/dash/     源码
