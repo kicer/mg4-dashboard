@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+:root{--g:#00E5FF;--g2:#00FF88;--bg:rgba(6,14,18,.66)}
+*{box-sizing:border-box}
+html,body{margin:0;width:1920px;height:1080px;background:transparent;overflow:hidden;
+  font-family:'Courier New',monospace;color:var(--g);-webkit-user-select:none}
+.card{position:absolute;background:var(--bg);border:1px solid rgba(0,229,255,.3);
+  border-radius:18px;padding:18px 24px;
+  box-shadow:0 0 30px rgba(0,229,255,.14),inset 0 0 30px rgba(0,229,255,.05)}
+.card::before{content:'';position:absolute;inset:0;border-radius:18px;pointer-events:none;
+  background:linear-gradient(135deg,rgba(0,229,255,.10),transparent 45%)}
+.title{font-size:18px;letter-spacing:4px;color:rgba(0,229,255,.6);margin-bottom:12px}
+.row{display:flex;justify-content:space-between;align-items:baseline;font-size:30px;margin:8px 0}
+.row span:first-child{color:rgba(0,229,255,.5);font-size:18px;letter-spacing:2px}
+.row b{font-weight:700;text-shadow:0 0 14px rgba(0,229,255,.5)}
+.big{font-size:66px;font-weight:700;text-shadow:0 0 20px rgba(0,229,255,.6);line-height:1}
+#power{top:120px;left:60px;width:420px}
+#tire{top:120px;right:60px;width:440px}
+#trip{bottom:120px;left:60px;width:420px}
+#env{bottom:120px;right:60px;width:440px}
+.tires{display:grid;grid-template-columns:1fr 1fr;gap:6px 26px}
+.tires div{font-size:34px;font-weight:700;text-shadow:0 0 14px rgba(0,229,255,.5)}
+.tag{font-size:14px;color:rgba(0,229,255,.45);font-weight:400;text-shadow:none}
+.bar{height:8px;background:rgba(0,229,255,.14);border-radius:4px;overflow:hidden;margin-top:10px}
+.fill{height:100%;width:0%;border-radius:4px;
+  background:linear-gradient(90deg,#00E5FF,#00FF88);transition:width .5s ease}
+.scan{position:absolute;left:0;right:0;height:2px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(0,229,255,.5),transparent);
+  animation:scan 8s linear infinite;opacity:.28}
+@keyframes scan{0%{top:110px}100%{top:970px}}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--g);
+  margin-right:8px;animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1;box-shadow:0 0 12px 3px rgba(0,229,255,.55)}}
+</style></head>
+<body>
+<div class="scan"></div>
+
+<div class="card" id="power">
+  <div class="title"><span class="dot"></span>POWER</div>
+  <div class="big" id="soc">--%</div>
+  <div class="bar"><div class="fill" id="fill"></div></div>
+  <div class="row"><span>VOLTAGE</span><b id="volt">--</b></div>
+  <div class="row"><span>CURRENT</span><b id="curr">--</b></div>
+  <div class="row"><span>RANGE</span><b id="range">--</b></div>
+</div>
+
+<div class="card" id="tire">
+  <div class="title"><span class="dot"></span>TIRE PRESSURE</div>
+  <div class="tires">
+    <div><span class="tag">FL</span><br><span id="tfl">--</span></div>
+    <div><span class="tag">FR</span><br><span id="tfr">--</span></div>
+    <div><span class="tag">RL</span><br><span id="trl">--</span></div>
+    <div><span class="tag">RR</span><br><span id="trr">--</span></div>
+  </div>
+</div>
+
+<div class="card" id="trip">
+  <div class="title"><span class="dot"></span>TRIP</div>
+  <div class="row"><span>ODO</span><b id="odo">--</b></div>
+  <div class="row"><span>TRIP1</span><b id="trip1">--</b></div>
+  <div class="row"><span>TRIP2</span><b id="trip2">--</b></div>
+  <div class="row"><span>kWh/100</span><b id="aec1">--</b></div>
+</div>
+
+<div class="card" id="env">
+  <div class="title"><span class="dot"></span>ENVIRONMENT</div>
+  <div class="row"><span>INDOOR</span><b id="intemp">--</b></div>
+  <div class="row"><span>OUTDOOR</span><b id="outtemp">--</b></div>
+  <div class="row"><span>ALTITUDE</span><b id="alt">--</b></div>
+  <div class="row"><span>ENERGY</span><b id="energy">--</b></div>
+</div>
+
+<script>
+function n(v,d){return v==null?'--':Number(v).toFixed(d==null?1:d);}
+window.onData=function(d){
+  var soc=d.soc==null?0:d.soc;
+  document.getElementById('soc').textContent=soc?soc.toFixed(0)+'%':'--';
+  document.getElementById('fill').style.width=soc+'%';
+  document.getElementById('volt').textContent=n(d.volt,1)+' V';
+  document.getElementById('curr').textContent=n(d.curr,1)+' A';
+  document.getElementById('range').textContent=n(d.range,0)+' km';
+  document.getElementById('tfl').textContent=n(d.tire_fl,0);
+  document.getElementById('tfr').textContent=n(d.tire_fr,0);
+  document.getElementById('trl').textContent=n(d.tire_rl,0);
+  document.getElementById('trr').textContent=n(d.tire_rr,0);
+  document.getElementById('odo').textContent=n(d.odo,0)+' km';
+  document.getElementById('trip1').textContent=n(d.trip1,1)+' km';
+  document.getElementById('trip2').textContent=n(d.trip2,1)+' km';
+  document.getElementById('aec1').textContent=n(d.aec1,1);
+  document.getElementById('intemp').textContent=n(d.intemp,1)+' C';
+  document.getElementById('outtemp').textContent=n(d.outtemp,1)+' C';
+  document.getElementById('alt').textContent=n(d.alt,0)+' m';
+  document.getElementById('energy').textContent=n(d.energyTotal,2)+' kWh';
+};
+</script>
+</body></html>

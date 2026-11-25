@@ -1,0 +1,8 @@
+# 构建产物
+gen/
+classes/
+dexout/
+unsigned.apk
+aligned.apk
+*.idsig
+.DS_Store

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+:root{--g:#00FF88;--c:#00E5FF;--bg:rgba(4,12,10,.62)}
+*{box-sizing:border-box}
+html,body{margin:0;width:1280px;height:768px;background:transparent;overflow:hidden;
+  font-family:'Courier New',monospace;color:var(--g);-webkit-user-select:none}
+.card{position:absolute;background:var(--bg);border:1px solid rgba(0,255,136,.28);
+  border-radius:14px;padding:10px 14px;
+  box-shadow:0 0 22px rgba(0,255,136,.12),inset 0 0 22px rgba(0,255,136,.04)}
+.card::before{content:'';position:absolute;inset:0;border-radius:14px;pointer-events:none;
+  background:linear-gradient(135deg,rgba(0,255,136,.10),transparent 42%)}
+.title{font-size:14px;letter-spacing:3px;color:rgba(0,255,136,.62);margin-bottom:6px}
+.val{font-size:34px;font-weight:700;line-height:1.1;text-shadow:0 0 12px rgba(0,255,136,.55)}
+#tire{top:80px;left:20px;width:330px}
+#power{top:80px;right:20px;width:346px}
+#trip{bottom:80px;left:20px;width:330px}
+#env{bottom:80px;right:20px;width:346px}
+.tires{display:grid;grid-template-columns:1fr 1fr;gap:2px 18px}
+.tires div{font-size:26px;font-weight:700;text-shadow:0 0 10px rgba(0,255,136,.5)}
+.tag{font-size:12px;color:rgba(0,255,136,.5);font-weight:400;text-shadow:none}
+.ringwrap{position:relative;width:110px;height:110px;float:right;margin:0 0 4px 8px}
+svg{transform:rotate(-90deg)}
+.ring-bg{stroke:rgba(0,255,136,.13)}
+.ring-fg{stroke:url(#grad);stroke-linecap:round;transition:stroke-dashoffset .6s ease}
+.ringtxt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:700;text-shadow:0 0 10px rgba(0,255,136,.6)}
+.row{display:flex;justify-content:space-between;align-items:baseline;font-size:19px;margin:3px 0}
+.row span:first-child{color:rgba(0,255,136,.55);font-size:13px;letter-spacing:1px}
+.row b{font-weight:700;text-shadow:0 0 10px rgba(0,255,136,.45)}
+.scan{position:absolute;left:0;right:0;height:2px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(0,255,136,.45),transparent);
+  animation:scan 6s linear infinite;opacity:.3}
+@keyframes scan{0%{top:76px}100%{top:690px}}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--g);
+  margin-right:6px;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1;box-shadow:0 0 10px 2px rgba(0,255,136,.55)}}
+</style></head>
+<body>
+<div class="scan"></div>
+
+<div class="card" id="tire">
+  <div class="title"><span class="dot"></span>TIRE PRESSURE</div>
+  <div class="tires">
+    <div><span class="tag">FL</span><br><span id="tfl">--</span></div>
+    <div><span class="tag">FR</span><br><span id="tfr">--</span></div>
+    <div><span class="tag">RL</span><br><span id="trl">--</span></div>
+    <div><span class="tag">RR</span><br><span id="trr">--</span></div>
+  </div>
+</div>
+
+<div class="card" id="power">
+  <div class="title"><span class="dot"></span>POWER</div>
+  <div class="ringwrap">
+    <svg width="110" height="110">
+      <defs><linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#00FF88"/><stop offset="100%" stop-color="#00E5FF"/>
+      </linearGradient></defs>
+      <circle class="ring-bg" cx="55" cy="55" r="46" stroke-width="9" fill="none"/>
+      <circle class="ring-fg" id="ring" cx="55" cy="55" r="46" stroke-width="9"
+              fill="none" stroke-dasharray="289" stroke-dashoffset="289"/>
+    </svg>
+    <div class="ringtxt" id="soc">--</div>
+  </div>
+  <div class="row"><span>VOLT</span><b id="volt">--</b></div>
+  <div class="row"><span>CURR</span><b id="curr">--</b></div>
+  <div class="row"><span>RANGE</span><b id="range">--</b></div>
+</div>
+
+<div class="card" id="trip">
+  <div class="title"><span class="dot"></span>TRIP</div>
+  <div class="row"><span>ODO</span><b id="odo">--</b></div>
+  <div class="row"><span>TRIP1</span><b id="trip1">--</b></div>
+  <div class="row"><span>TRIP2</span><b id="trip2">--</b></div>
+  <div class="row"><span>kWh/100</span><b id="aec1">--</b></div>
+</div>
+
+<div class="card" id="env">
+  <div class="title"><span class="dot"></span>ENV</div>
+  <div class="row"><span>IN</span><b id="intemp">--</b></div>
+  <div class="row"><span>OUT</span><b id="outtemp">--</b></div>
+  <div class="row"><span>ALT</span><b id="alt">--</b></div>
+  <div class="row"><span>ENERGY</span><b id="energy">--</b></div>
+</div>
+
+<script>
+var R=2*Math.PI*46;
+function n(v,d){return v==null?'--':Number(v).toFixed(d==null?1:d);}
+window.onData=function(d){
+  document.getElementById('tfl').textContent=n(d.tire_fl,0);
+  document.getElementById('tfr').textContent=n(d.tire_fr,0);
+  document.getElementById('trl').textContent=n(d.tire_rl,0);
+  document.getElementById('trr').textContent=n(d.tire_rr,0);
+  var soc=d.soc==null?0:d.soc;
+  document.getElementById('soc').textContent=soc?soc.toFixed(0)+'%':'--';
+  var ring=document.getElementById('ring');
+  ring.setAttribute('stroke-dashoffset',R*(1-soc/100));
+  document.getElementById('volt').textContent=n(d.volt,1)+' V';
+  document.getElementById('curr').textContent=n(d.curr,1)+' A';
+  document.getElementById('range').textContent=n(d.range,0)+' km';
+  document.getElementById('odo').textContent=n(d.odo,0)+' km';
+  document.getElementById('trip1').textContent=n(d.trip1,1)+' km';
+  document.getElementById('trip2').textContent=n(d.trip2,1)+' km';
+  document.getElementById('aec1').textContent=n(d.aec1,1);
+  document.getElementById('intemp').textContent=n(d.intemp,1)+' C';
+  document.getElementById('outtemp').textContent=n(d.outtemp,1)+' C';
+  document.getElementById('alt').textContent=n(d.alt,0)+' m';
+  document.getElementById('energy').textContent=n(d.energyTotal,2)+' kWh';
+};
+</script>
+</body></html>
