@@ -60,52 +60,6 @@ final class Signals {
     };
 
     /** key -> {服务名, 原始信号名, 小数位}，输出给前端的字段名就是 key。 */
-    static final String[][] MAP = {
-            {"soc",       "bms",    "BMS_SOC_PERCENT", "1"},
-            {"soh",       "bms",    "BMS_BATTERY_SOC_ORG", "1"},
-            {"volt",      "bms",    "BMS_DISP_PACK_VOL_ORG", "1"},
-            {"curr",      "bms",    "BMS_DISP_PACK_CURRENT_ORG", "1"},
-            {"range",     "bms",    "RANGE", "0"},
-            {"power",     "bms",    "CHARGE_POWER", "1"},
-            {"heat",      "bms",    "BMS_HEAT", "0"},
-            {"warn",      "bms",    "BMS_WRNNG_INFO", "0"},
-            {"chargeDoor","bms",    "CHARGE_DOOR", "0"},
-            {"acVolt",    "bms",    "AC_VOLTAGE", "1"},
-            {"acCurr",    "bms",    "AC_CURRENT", "1"},
-            {"energyTotal","bms",   "BMS_TOTAL_CONSMP_AFT_START", "2"},
-            {"energyDrive","bms",   "BMS_ACC_CONSMP_AFT_START", "2"},
-            {"energyHvac","bms",    "BMS_HVAC_CONSMP_AFT_START", "2"},
-            {"energyRegen","bms",   "BMS_REGEN_AFT_START", "2"},
-
-            {"odo",       "common", "ODO_DISP", "0"},
-            {"trip1",     "common", "IPK_TRIPMETER_TRIP1", "1"},
-            {"trip2",     "common", "IPK_TRIPMETER_TRIP2", "1"},
-            {"aec1",      "common", "IPK_AVERAGE_PC_AEC1", "1"},
-            {"aec2",      "common", "IPK_AVERAGE_PC_AEC2", "1"},
-            {"aspd1",     "common", "IPK_AVERAGE_SPEED1", "0"},
-            {"aspd2",     "common", "IPK_AVERAGE_SPEED2", "0"},
-            {"dtime1",    "common", "IPK_DRIVING_TIME1", "0"},
-            {"dtime2",    "common", "IPK_DRIVING_TIME2", "0"},
-            {"gear",      "common", "ORG_GEAR", "0"},
-            {"speed",     "common", "SPEED", "0"},
-            {"pwrStatus", "common", "POWER_STATUS", "0"},
-            {"tire_fl",   "common", "FL_TIRE_PRESSURE", "0"},
-            {"tire_fr",   "common", "FR_TIRE_PRESSURE", "0"},
-            {"tire_rl",   "common", "RL_TIRE_PRESSURE", "0"},
-            {"tire_rr",   "common", "RR_TIRE_PRESSURE", "0"},
-
-            {"intemp",    "hvac",   "IACINCARTEM", "1"},
-            {"outtemp",   "hvac",   "OUTSIDE_TEP", "1"},
-
-            {"dayLight",  "light",  "DAY_LIGHT", "0"},
-            {"dipped",    "light",  "DIPPED_BEAM_LIGHT_ON", "0"},
-            {"mainBeam",  "light",  "MAIN_BEAM_LIGHT_ON", "0"},
-            {"fog",       "light",  "FOG_LIGHT_STATUS", "0"},
-            {"turnLamp",  "light",  "DIRECTION_INDICATOR_LAMP", "0"},
-            {"sideLight", "light",  "VEHICLE_SIDE_LIGHT_STS", "0"},
-            {"turnLeft",  "light",  "LIGHT_EL_LDIR_CONTRL_ON", "0"},
-            {"turnRight", "light",  "LIGHT_EL_RDIR_CONTRL_ON", "0"},
-    };
 
     private IBinder bms;
     private IBinder common;
@@ -157,12 +111,9 @@ final class Signals {
         }
     }
 
-    /** MAP 的短名 + keys.txt 的动态字段，全部按服务分组订阅。 */
+    /** keys.txt 的动态字段，按服务分组订阅。 */
     boolean subscribeAll() {
         java.util.Map<String, java.util.ArrayList<String>> bySvc = new java.util.HashMap<>();
-        for (String[] m : MAP) {
-            addFlag(bySvc, m[1], m[2]);
-        }
         for (int i = 0; i < extraKeys.length; i++) {
             addFlag(bySvc, extraSvcs[i], extraKeys[i]);
         }
@@ -215,17 +166,6 @@ final class Signals {
     /** 订阅后先全量读一遍填缓存，否则服务端不推的 key 永远是空的。 */
     void primeCache() {
         int n = 0;
-        for (String[] m : MAP) {
-            IBinder b = svc(m[1]);
-            if (b == null) {
-                continue;
-            }
-            Object v = read(b, desc(m[1]), m[2]);
-            if (v != null) {
-                cache.put(m[2], v);
-                n++;
-            }
-        }
         for (int i = 0; i < extraKeys.length; i++) {
             IBinder b = svc(extraSvcs[i]);
             if (b == null) {
@@ -313,18 +253,6 @@ final class Signals {
     /** 采集全部信号，返回 JSON。取不到的值不出现在 JSON 里。 */
     JSONObject collect(LocationManager lm) {
         JSONObject o = new JSONObject();
-        for (String[] m : MAP) {
-            try {
-                Object v = valueOf(m[1], m[2]);
-                if (v == null) {
-                    continue;
-                }
-                int dp = Integer.parseInt(m[3]);
-                o.put(m[0], round(f(v), dp));
-            } catch (Throwable ignore) {
-                // 单个信号失败不影响整体
-            }
-        }
         try {
             float alt = altitude(lm);
             if (!Float.isNaN(alt)) {
@@ -373,10 +301,10 @@ final class Signals {
             }
             o.put("mediaPlaying", MediaListener.playing);
             // 窗口状态：无障碍在线才有意义，作为数据源交 HTML 自行判断
-            if (TopWatcher14.connected) {
-                o.put("appWindow", TopWatcher14.hasAppWindow);
-                if (TopWatcher14.topAppPkg != null) {
-                    o.put("appPkg", TopWatcher14.topAppPkg);
+            if (TopWatcher16.connected) {
+                o.put("appWindow", TopWatcher16.hasAppWindow);
+                if (TopWatcher16.topAppPkg != null) {
+                    o.put("appPkg", TopWatcher16.topAppPkg);
                 }
             }
         } catch (Throwable ignore) {
@@ -486,6 +414,7 @@ final class Signals {
             case "bms":
                 return bms;
             case "common":
+            case "vehicleCommon":
                 return common;
             case "hvac":
                 return hvac;
@@ -519,6 +448,7 @@ final class Signals {
             case "bms":
                 return DESC_BMS;
             case "common":
+            case "vehicleCommon":
                 return DESC_COMMON;
             case "hvac":
                 return DESC_HVAC;

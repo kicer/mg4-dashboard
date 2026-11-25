@@ -74,24 +74,24 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
 <script>
 function n(v,d){return v==null?'--':Number(v).toFixed(d==null?1:d);}
 window.onData=function(d){
-  var soc=d.soc==null?0:d.soc;
+  var soc=d.BMS_SOC_PERCENT==null?0:d.BMS_SOC_PERCENT;
   document.getElementById('soc').textContent=soc?soc.toFixed(0)+'%':'--';
   document.getElementById('fill').style.width=soc+'%';
-  document.getElementById('volt').textContent=n(d.volt,1)+' V';
-  document.getElementById('curr').textContent=n(d.curr,1)+' A';
-  document.getElementById('range').textContent=n(d.range,0)+' km';
-  document.getElementById('tfl').textContent=n(d.tire_fl,0);
-  document.getElementById('tfr').textContent=n(d.tire_fr,0);
-  document.getElementById('trl').textContent=n(d.tire_rl,0);
-  document.getElementById('trr').textContent=n(d.tire_rr,0);
-  document.getElementById('odo').textContent=n(d.odo,0)+' km';
-  document.getElementById('trip1').textContent=n(d.trip1,1)+' km';
-  document.getElementById('trip2').textContent=n(d.trip2,1)+' km';
-  document.getElementById('aec1').textContent=n(d.aec1,1);
-  document.getElementById('intemp').textContent=n(d.intemp,1)+' C';
-  document.getElementById('outtemp').textContent=n(d.outtemp,1)+' C';
+  document.getElementById('volt').textContent=n(d.BMS_DISP_PACK_VOL_ORG,1)+' V';
+  document.getElementById('curr').textContent=n(d.BMS_DISP_PACK_CURRENT_ORG,1)+' A';
+  document.getElementById('range').textContent=n(d.RANGE,0)+' km';
+  document.getElementById('tfl').textContent=n(d.FL_TIRE_PRESSURE,0);
+  document.getElementById('tfr').textContent=n(d.FR_TIRE_PRESSURE,0);
+  document.getElementById('trl').textContent=n(d.RL_TIRE_PRESSURE,0);
+  document.getElementById('trr').textContent=n(d.RR_TIRE_PRESSURE,0);
+  document.getElementById('odo').textContent=n(d.ODO_DISP,0)+' km';
+  document.getElementById('trip1').textContent=n(d.IPK_TRIPMETER_TRIP1,1)+' km';
+  document.getElementById('trip2').textContent=n(d.IPK_TRIPMETER_TRIP2,1)+' km';
+  document.getElementById('aec1').textContent=n(d.IPK_AVERAGE_PC_AEC1,1);
+  document.getElementById('intemp').textContent=n(d.IACINCARTEM,1)+' C';
+  document.getElementById('outtemp').textContent=n(d.OUTSIDE_TEP,1)+' C';
   document.getElementById('alt').textContent=n(d.alt,0)+' m';
-  document.getElementById('energy').textContent=n(d.energyTotal,2)+' kWh';
+  document.getElementById('energy').textContent=n(d.BMS_TOTAL_CONSMP_AFT_START,2)+' kWh';
 };
 </script>
 </body></html>

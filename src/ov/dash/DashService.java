@@ -200,7 +200,7 @@ public class DashService extends Service {
         // 媒体中心 bind 放在这里发起，不依赖无障碍/通知监听是否连上
         MediaCenterReader.init(this);
         // 无障碍事件到达时直接触发一次检查，不再靠定时轮询
-        TopWatcher14.onChange = new Runnable() {
+        TopWatcher16.onChange = new Runnable() {
             @Override
             public void run() {
                 handler.post(topChecker);
@@ -486,7 +486,7 @@ public class DashService extends Service {
     private String currentTop() {
         UsageStatsManager usm = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
         if (usm == null) {
-            return TopWatcher14.connected ? TopWatcher14.topPkg : topPkg;
+            return TopWatcher16.connected ? TopWatcher16.topPkg : topPkg;
         }
         long now = System.currentTimeMillis();
         long from = topCheckedAt > 0 ? topCheckedAt - 1000 : now - 3600000L;
@@ -545,7 +545,7 @@ public class DashService extends Service {
                 Log.e(TAG, "topChecker fail: " + t);
             }
             // 无障碍在线时由事件触发，不再定时轮询；没连上才退回定时查询
-            if (!TopWatcher14.connected && active && needTopCheck()) {
+            if (!TopWatcher16.connected && active && needTopCheck()) {
                 handler.postDelayed(this, Math.max(100, cfg.topCheckMs));
             }
         }
