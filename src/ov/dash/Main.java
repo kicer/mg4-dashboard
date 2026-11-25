@@ -40,6 +40,8 @@ public class Main extends Activity {
         startForegroundService(new Intent(this, DashService.class));
 
         web = new WebView(this);
+        // 先铺深色底，避免 WebView 初始化时闪白
+        web.setBackgroundColor(0xFF0B1116);
         WebSettings ws = web.getSettings();
         ws.setJavaScriptEnabled(true);
         ws.setAllowFileAccess(true);
@@ -81,7 +83,7 @@ public class Main extends Activity {
     /** JS 接口。被 WebView 的 JS 线程调用，同步 IO 都是小文件。 */
     private class Bridge {
 
-        /** 环境 + 当前配置 + 可选页面，一次给全。 */
+        /** 环境 + 当前配置。故意不含页面列表（扫 U 盘会很慢），那部分走 pages()。 */
         @JavascriptInterface
         public String info() {
             try {
@@ -90,11 +92,21 @@ public class Main extends Activity {
                 o.put("ip", localIp());
                 o.put("a11y", a11yOn());
                 o.put("config", readConfigText());
-                o.put("pages", pagesJson());
                 return o.toString();
             } catch (Throwable t) {
                 Log.e(TAG, "info fail: " + t);
                 return "{\"error\":\"" + t + "\"}";
+            }
+        }
+
+        /** 扫描可选页面。可能读 U 盘，慢，单独给，让首屏先渲染。 */
+        @JavascriptInterface
+        public String pages() {
+            try {
+                return pagesJson();
+            } catch (Throwable t) {
+                Log.e(TAG, "pages fail: " + t);
+                return "[]";
             }
         }
 
@@ -234,9 +246,9 @@ public class Main extends Activity {
             if (s == null) {
                 return false;
             }
-            // 系统里存的是短名 ov.dash/.TopWatcher28，dumpsys 才展开成全名
-            String full = getPackageName() + "/" + TopWatcher28.class.getName();
-            String brief = getPackageName() + "/." + TopWatcher28.class.getSimpleName();
+            // 系统里存的是短名 ov.dash/.TopWatcher30，dumpsys 才展开成全名
+            String full = getPackageName() + "/" + TopWatcher30.class.getName();
+            String brief = getPackageName() + "/." + TopWatcher30.class.getSimpleName();
             return s.contains(full) || s.contains(brief);
         } catch (Throwable t) {
             return false;

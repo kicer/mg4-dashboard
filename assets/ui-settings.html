@@ -187,7 +187,7 @@ function load() {
     return;
   }
   cfg = JSON.parse(info.config || '{}');
-  pages = JSON.parse(info.pages || '[]');
+  pages = [];
   if (!cfg.screens) cfg.screens = [];
 
   var env = document.getElementById('env');
@@ -195,6 +195,18 @@ function load() {
     (info.a11y ? 'ok' : 'warn') + '">' + (info.a11y ? '已开启' : '未开启') + '</b>';
 
   document.getElementById('refresh').value = String(cfg.refresh || 1000);
+  render();
+
+  /* 页面列表要扫 U 盘，可能很慢。先让首屏出来，稍后再补下拉项 */
+  setTimeout(loadPages, 30);
+}
+
+function loadPages() {
+  try {
+    pages = JSON.parse(dash.pages());
+  } catch (e) {
+    pages = [];
+  }
   render();
 }
 
