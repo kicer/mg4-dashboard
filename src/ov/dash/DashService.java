@@ -180,7 +180,7 @@ public class DashService extends Service {
             }, "ovdash-subscribe").start();
         }
         // 无障碍事件到达时直接触发一次检查，不再靠定时轮询
-        TopWatcher.onChange = new Runnable() {
+        TopWatcher2.onChange = new Runnable() {
             @Override
             public void run() {
                 handler.post(topChecker);
@@ -460,8 +460,8 @@ public class DashService extends Service {
 
     /** 取当前前台包名：无障碍在线就直接用事件值，否则回退到 queryEvents。 */
     private String currentTop() {
-        if (TopWatcher.connected) {
-            return TopWatcher.topPkg;
+        if (TopWatcher2.connected) {
+            return TopWatcher2.topPkg;
         }
         UsageStatsManager usm = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
         if (usm == null) {
@@ -524,7 +524,7 @@ public class DashService extends Service {
                 Log.e(TAG, "topChecker fail: " + t);
             }
             // 无障碍在线就不轮询了，只靠事件触发；没连上才退回定时查询
-            if (!TopWatcher.connected && active && needTopCheck()) {
+            if (!TopWatcher2.connected && active && needTopCheck()) {
                 handler.postDelayed(this, Math.max(100, cfg.topCheckMs));
             }
         }
