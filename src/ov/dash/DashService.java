@@ -18,6 +18,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.FileObserver;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
@@ -61,8 +62,11 @@ public class DashService extends Service {
     private static final long WATCHDOG_MS = 120_000L;
     private static final int TYPE_OVERLAY = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
 
-    /** 主线程：WebView 操作与信号采集都跑在这里。 */
+    /** 主线程：只负责 WebView 操作。 */
     private final Handler handler = new Handler(Looper.getMainLooper());
+    /** 后台线程：负责 binder 采集，避免阻塞 UI。 */
+    private HandlerThread bgThread;
+    private Handler bgHandler;
     private final Signals signals = Signals.create();
     private final List<ScreenCtx> screens = new ArrayList<>();
 
@@ -72,6 +76,8 @@ public class DashService extends Service {
     private FileObserver observer;
     private boolean pumping;
     private int tick;
+    /** 跨线程可见：主线程写，采集线程读，避免直接读 screens 列表。 */
+    private volatile boolean active;
 
     /** 一块屏一个 WebView。 */
     private static final class ScreenCtx {
@@ -82,17 +88,24 @@ public class DashService extends Service {
         long lastPush;
     }
 
-    /** 主线程循环：采集完直接分发。 */
+    /** 后台线程执行：采集完把 JSON 丢回主线程分发。 */
     private final Runnable loop = new Runnable() {
         @Override
         public void run() {
-            String json = collectJson();
+            final String json = collectJson();
             if (json != null) {
-                distribute(json);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        distribute(json);
+                    }
+                });
             }
             getSharedPreferences(Watchdog.PREF, MODE_PRIVATE).edit()
                     .putLong(Watchdog.KEY_HB, System.currentTimeMillis()).apply();
-            handler.postDelayed(this, Math.max(500, cfg.refresh));
+            if (bgHandler != null) {
+                bgHandler.postDelayed(this, Math.max(500, cfg.refresh));
+            }
         }
     };
 
@@ -127,7 +140,10 @@ public class DashService extends Service {
         buildScreens();
         registerReceiver(rx, filter());
 
-        handler.post(loop);
+        bgThread = new HandlerThread("ovdash-collect");
+        bgThread.start();
+        bgHandler = new Handler(bgThread.getLooper());
+        bgHandler.post(loop);
         Log.e(TAG, "service ready dir=" + baseDir);
     }
 
@@ -153,6 +169,12 @@ public class DashService extends Service {
             observer.stopWatching();
         }
         destroyAll();
+        if (bgHandler != null) {
+            bgHandler.removeCallbacksAndMessages(null);
+        }
+        if (bgThread != null) {
+            bgThread.quitSafely();
+        }
         super.onDestroy();
         Log.e(TAG, "destroyed");
     }
@@ -174,7 +196,8 @@ public class DashService extends Service {
             }
             createScreen(s);
         }
-        Log.e(TAG, "screens=" + screens.size());
+        active = !screens.isEmpty();
+        Log.e(TAG, "active screens=" + screens.size() + " active=" + active);
     }
 
     private void createScreen(final Config.Screen s) {
@@ -275,6 +298,7 @@ public class DashService extends Service {
             }
         }
         screens.clear();
+        active = false;
     }
 
     private void reloadAll() {
@@ -286,9 +310,9 @@ public class DashService extends Service {
 
     // ---------------- 数据推送 ----------------
 
-    /** 采集全部信号，返回 JSON 字符串。 */
+    /** 后台线程：采集全部信号，返回 JSON 字符串。 */
     private String collectJson() {
-        if (pumping) {
+        if (pumping || !active) {
             return null;
         }
         pumping = true;
