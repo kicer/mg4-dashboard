@@ -1,0 +1,352 @@
+# ov.dash HTML 设计指南
+
+车机上跑的这个 app 只做两件事：**采集车辆信号** + **把 JSON 推给你写的网页**。
+界面长什么样完全由 `ui.html` 决定，改网页**不需要重装 APK**。
+
+---
+
+## 1. 最小骨架
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    background: transparent;      /* 必须透明，否则会盖黑原厂界面 */
+    overflow: hidden;
+    font-family: monospace;
+    color: #fff;
+    -webkit-user-select: none;
+  }
+</style>
+</head>
+<body>
+  <div id="v">--</div>
+  <script>
+    window.onData = function (d) {
+      document.getElementById('v').textContent = d.speed == null ? '--' : d.speed;
+    };
+  </script>
+</body>
+</html>
+```
+
+就这么点东西。存成 `ui.html` 丢进 `files/` 目录，一秒后屏幕就变。
+
+---
+
+## 2. 数据接口
+
+app 每次采集完就调用一次：
+
+```js
+window.onData = function (d) {
+  // d 是一个普通对象，字段见下表
+};
+```
+
+- 周期：`config.json` 里的 `refresh`（默认 1000ms）
+- 值**变化才推**（`pushOnChange:true`），但最长 `forcePushMs`（默认 30s）会强制推一次，保证心跳
+- **所有数值都是 number，不是字符串**
+
+### 2.1 字段表
+
+**电池 / BMS**
+
+| 字段 | 原始 key | 小数位 | 说明 |
+|---|---|---|---|
+| `soc` | BMS_SOC_PERCENT | 1 | 动力电池电量 % |
+| `soh` | BMS_BATTERY_SOC_ORG | 1 | 电池健康度 % |
+| `volt` | BMS_DISP_PACK_VOL_ORG | 1 | 电池包电压 V |
+| `curr` | BMS_DISP_PACK_CURRENT_ORG | 1 | 电池包电流 A |
+| `range` | RANGE | 0 | 剩余续航 km |
+| `power` | CHARGE_POWER | 1 | 充电功率 kW |
+| `heat` | BMS_HEAT | 0 | 电池加热状态 |
+| `warn` | BMS_WRNNG_INFO | 0 | 电池告警码 |
+| `chargeDoor` | CHARGE_DOOR | 0 | 充电口状态 |
+| `acVolt` | AC_VOLTAGE | 1 | 交流充电电压 V |
+| `acCurr` | AC_CURRENT | 1 | 交流充电电流 A |
+| `energyTotal` | BMS_TOTAL_CONSMP_AFT_START | 2 | 本次启动后总耗电 kWh |
+| `energyDrive` | BMS_ACC_CONSMP_AFT_START | 2 | 驱动耗电 kWh |
+| `energyHvac` | BMS_HVAC_CONSMP_AFT_START | 2 | 空调耗电 kWh |
+| `energyRegen` | BMS_REGEN_AFT_START | 2 | 能量回收 kWh |
+
+**里程 / 行驶 / 胎压**
+
+| 字段 | 原始 key | 小数位 | 说明 |
+|---|---|---|---|
+| `odo` | ODO_DISP | 0 | 总里程 km |
+| `trip1` | IPK_TRIPMETER_TRIP1 | 1 | 小计里程 1 km |
+| `trip2` | IPK_TRIPMETER_TRIP2 | 1 | 小计里程 2 km |
+| `aec1` | IPK_AVERAGE_PC_AEC1 | 1 | 平均电耗 1（kWh/100km） |
+| `aec2` | IPK_AVERAGE_PC_AEC2 | 1 | 平均电耗 2 |
+| `aspd1` | IPK_AVERAGE_SPEED1 | 0 | 平均车速 1 km/h |
+| `aspd2` | IPK_AVERAGE_SPEED2 | 0 | 平均车速 2 |
+| `dtime1` | IPK_DRIVING_TIME1 | 0 | 行驶时长 1 |
+| `dtime2` | IPK_DRIVING_TIME2 | 0 | 行驶时长 2 |
+| `gear` | ORG_GEAR | 0 | 档位 |
+| `speed` | SPEED | 0 | 车速 km/h |
+| `pwrStatus` | POWER_STATUS | 0 | 电源状态 |
+| `tire_fl` | FL_TIRE_PRESSURE | 0 | 左前胎压 kPa |
+| `tire_fr` | FR_TIRE_PRESSURE | 0 | 右前胎压 |
+| `tire_rl` | RL_TIRE_PRESSURE | 0 | 左后胎压 |
+| `tire_rr` | RR_TIRE_PRESSURE | 0 | 右后胎压 |
+
+**空调 / 灯光 / 其他**
+
+| 字段 | 原始 key | 小数位 | 说明 |
+|---|---|---|---|
+| `intemp` | IACINCARTEM | 1 | 车内温度 ℃ |
+| `outtemp` | OUTSIDE_TEP | 1 | 车外温度 ℃ |
+| `dayLight` | DAY_LIGHT | 0 | 日行灯状态 |
+| `dipped` | DIPPED_BEAM_LIGHT_ON | 0 | 近光灯 |
+| `mainBeam` | MAIN_BEAM_LIGHT_ON | 0 | 远光灯 |
+| `fog` | FOG_LIGHT_STATUS | 0 | 雾灯 |
+| `turnLamp` | DIRECTION_INDICATOR_LAMP | 0 | 转向指示灯 |
+| `sideLight` | VEHICLE_SIDE_LIGHT_STS | 0 | 示宽灯 |
+| `turnLeft` | LIGHT_EL_LDIR_CONTRL_ON | 0 | 左转向 |
+| `turnRight` | LIGHT_EL_RDIR_CONTRL_ON | 0 | 右转向 |
+| `alt` | LocationManager | 0 | 海拔 m（走 GPS） |
+| `_ts` | — | — | 采集时间戳（毫秒） |
+| `_tick` | — | — | 帧序号，自增 |
+
+### 2.2 三个必须注意的点
+
+**① 字段可能不存在**
+
+取不到的信号**不会出现在 JSON 里**，不是 `0` 也不是 `null`：
+
+```js
+// 错
+if (d.soc > 50) ...
+
+// 对
+if (d.soc != null && d.soc > 50) ...
+```
+
+**② 灯光类不一定是 0/1**
+
+`dayLight` 实测返回过 `3`，是状态枚举值，不要当成布尔用。要显示图标就按区间判断。
+
+**③ 单位**
+
+| 量 | 单位 |
+|---|---|
+| 电压 | V |
+| 电流 | A |
+| 功率 | kW |
+| 温度 | ℃ |
+| 胎压 | kPa（实测 248 ≈ 2.48 bar） |
+| 里程 | km |
+| 电耗 | kWh/100km |
+| 海拔 | m |
+
+---
+
+## 3. 画布尺寸（重要）
+
+**CSS 视口不等于物理分辨率**。按下面的数字设计：
+
+| 屏 | 物理 | **CSS 画布** | **内容可用区** |
+|---|---|---|---|
+| 主屏 display 0 | 1920×1080 | **1708 × 880** | 1708 × 880 |
+| 副屏 display 1 | 1280×768 | **1139 × 684** | **1139 × 550** |
+
+### 3.1 副屏的 QNX 边栏
+
+副屏**上下各 75 物理像素**（= 66.7 CSS）被 QNX 边栏占据，你的网页内容画到那里会被挡：
+
+```
+0    ┌────────────────────┐
+     │  QNX 边栏 75px      │  ← 别画东西
+75   ├────────────────────┤
+     │                    │
+     │   安全区            │  ← 1139 × 550 CSS
+     │   （1280×618 物理） │
+     │                    │
+693  ├────────────────────┤
+     │  QNX 边栏 75px      │  ← 别画东西
+768  └────────────────────┘
+```
+
+实用写法：
+
+```css
+.safe {
+  position: absolute;
+  left: 0; right: 0;
+  top: 67px;              /* 75 / 1.125 ≈ 67 */
+  bottom: 67px;
+}
+```
+
+主屏没有边栏，整个 1708×880 都能用（但底部 90 物理像素已经被系统导航栏吃掉，不在画布里）。
+
+### 3.2 换算
+
+```js
+物理宽 = innerWidth  * devicePixelRatio   // 1.125
+物理高 = innerHeight * devicePixelRatio
+```
+
+参考截图：`91-截图/规格-主屏-1920x1080.png`、`规格-副屏-1280x768.png`
+
+---
+
+## 4. 硬性规则
+
+| # | 规则 | 原因 |
+|---|---|---|
+| 1 | `html,body` 必须 `background:transparent` | 否则盖黑原厂界面 |
+| 2 | **不要写死 `width`/`height`**，用 `100%` | 实际视口 1139×684，写 1280×768 会溢出裁切 |
+| 3 | **不要用 `screen.width/height`** | 副屏上它返回主屏的 1707×960 |
+| 4 | **不要用 `inset`** | 车机 WebView 版本旧（Chrome <87），不认，元素会变 0 尺寸。用 `left/top/right/bottom` |
+| 5 | 用 ES5 语法（`var`、`function`） | 避免 `?.` `??` `let` 在老 WebView 上的兼容问题 |
+| 6 | 不要用 `alert` / `confirm` / `prompt` | 车机可能不弹，且会卡住线程 |
+| 7 | 不要引用外网资源（CDN、字体、图片） | 车机不一定有网 |
+| 8 | 同目录资源用相对路径（`./a.png`） | app 用 `file://` 加载，相对路径可用 |
+
+---
+
+## 5. 性能
+
+车机 CPU 不宽裕，主屏副屏各一个 WebView，每秒推一次数据。
+
+**该做**
+
+```js
+// 只改文本，不重建节点
+el.textContent = v;
+```
+
+**别做**
+
+```js
+// 每帧 innerHTML 重建整个 DOM —— 会疯狂重排
+box.innerHTML = '<div>...</div>';
+```
+
+- 动画用 CSS `transform` / `opacity`，不要用 `top` / `left` / `width`
+- 大范围 `box-shadow`、`filter: blur()` 慎用，车机 GPU 弱
+- 别在 `onData` 里做 `querySelector`（先用变量缓存节点）
+
+实测参考：一个只有边框的页面 6 秒渲染 362 帧（≈60fps），说明 WebView 是满帧跑的，写重一点很容易掉帧。
+
+---
+
+## 6. 部署与调试（不重装 APK）
+
+### 6.1 目录
+
+```
+/sdcard/Android/data/ov.dash/files/
+  config.json        配置
+  ui-main.html       主屏页面
+  ui-cluster.html    副屏页面
+```
+
+### 6.2 改页面的正确姿势
+
+```bash
+adb push 新页面.html /sdcard/Download/x.html
+adb shell "cp /sdcard/Download/x.html /sdcard/Android/data/ov.dash/files/ui-cluster.html"
+```
+
+**关键**：`cp` 必须**覆盖已存在的文件**。覆盖时属主保持为 app；如果 cp 成新文件，属主会变成 shell（权限 600），app 读不到，页面会白屏。
+
+`FileObserver` 会监听目录，保存后**自动热重载**，不用广播。保险起见也可以：
+
+```bash
+adb shell am broadcast -a ov.dash.reload
+```
+
+### 6.3 config.json
+
+```json
+{
+  "refresh": 1000,
+  "pushOnChange": true,
+  "forcePushMs": 30000,
+  "screens": [
+    { "display": 0, "html": "ui-main.html",    "enabled": true  },
+    { "display": 1, "html": "ui-cluster.html", "enabled": true  }
+  ]
+}
+```
+
+| 字段 | 说明 |
+|---|---|
+| `refresh` | 采集周期 ms，最小 500 |
+| `pushOnChange` | 值变化才推 |
+| `forcePushMs` | 强制推送间隔 ms |
+| `screens[].display` | 0 = 主屏，1 = 副屏 |
+| `screens[].enabled` | `false` 时不创建 WebView，零内存 |
+
+### 6.4 看日志
+
+```bash
+adb shell logcat -d -s OVDASH:* | tail -40
+```
+
+---
+
+## 7. 完整示例
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background: transparent; overflow: hidden;
+    font-family: 'Courier New', monospace; color: #00ff88;
+    -webkit-user-select: none;
+  }
+  .safe {
+    position: absolute; left: 0; right: 0;
+    top: 67px; bottom: 67px;        /* 让开副屏 QNX 边栏 */
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+  }
+  .big { font-size: 90px; font-weight: 700; line-height: 1;
+         text-shadow: 0 0 20px rgba(0,255,136,.6); }
+  .row { display: flex; gap: 40px; margin-top: 18px; font-size: 24px; }
+  .k { color: rgba(0,255,136,.55); font-size: 14px; letter-spacing: 2px; }
+</style>
+</head>
+<body>
+  <div class="safe">
+    <div class="big" id="spd">--</div>
+    <div class="k">KM/H</div>
+    <div class="row">
+      <div><span class="k">SOC</span> <b id="soc">--</b>%</div>
+      <div><span class="k">RANGE</span> <b id="rng">--</b>km</div>
+      <div><span class="k">ODO</span> <b id="odo">--</b>km</div>
+    </div>
+  </div>
+  <script>
+    var $spd = document.getElementById('spd'),
+        $soc = document.getElementById('soc'),
+        $rng = document.getElementById('rng'),
+        $odo = document.getElementById('odo');
+
+    function n(v, d) { return v == null ? '--' : Number(v).toFixed(d || 0); }
+
+    window.onData = function (d) {
+      $spd.textContent = n(d.speed, 0);
+      $soc.textContent = n(d.soc, 0);
+      $rng.textContent = n(d.range, 0);
+      $odo.textContent = n(d.odo, 0);
+    };
+  </script>
+</body>
+</html>
+```
+
+放在副屏（display 1），会显示车速、电量、续航、里程，自动避开上下边栏。
