@@ -6,3 +6,4 @@ unsigned.apk
 aligned.apk
 *.idsig
 .DS_Store
+compiled/
