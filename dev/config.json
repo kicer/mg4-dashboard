@@ -1,0 +1,22 @@
+{
+  "refresh": 1000,
+  "topCheckMs": 500,
+  "pushOnChange": true,
+  "forcePushMs": 30000,
+  "screens": [
+    {
+      "display": 0,
+      "html": "ui-main.html",
+      "name": "main",
+      "enabled": true,
+      "onlyOnLauncher": true,
+      "launcherPkg": "com.zone.hmi.launcher"
+    },
+    {
+      "display": 1,
+      "html": "ui-cluster.html",
+      "name": "cluster",
+      "enabled": true
+    }
+  ]
+}

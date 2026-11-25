@@ -1,21 +1,26 @@
 <!DOCTYPE html>
 <html><head><meta charset="utf-8">
 <style>
-html,body{margin:0;height:100%;overflow:hidden;background:rgba(0,0,0,.85);
+/* 整页透明，只有下半部分 #panel 有背景。
+   顶部 68px 完全留空，ui-top 即使被压在下面也能透出来 */
+html,body{margin:0;height:100%;overflow:hidden;background:transparent;
   font-family:monospace;color:#e0e0e0}
-#head{padding:12px 20px;border-bottom:1px solid #333;font-size:21px}
+#panel{margin-top:68px;height:calc(100% - 68px);box-sizing:border-box;
+  background:rgba(0,0,0,.85);display:flex;flex-direction:column}
+#head{padding:12px 20px;border-bottom:1px solid #333;font-size:21px;flex:0 0 auto}
 #head b{color:#ffd60a}
 #head .t{color:#78909c;font-size:16px}
-#list{padding:10px 20px;font-size:18px;line-height:1.55;height:calc(100% - 58px);
-  box-sizing:border-box;overflow:hidden}
+#list{padding:10px 20px;font-size:18px;line-height:1.55;flex:1 1 auto;overflow:hidden}
 .row{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .t{color:#78909c}
 .k{color:#64b5f6}
 .d{color:#00e676}
 </style></head>
 <body>
-<div id="head">等待数据…</div>
-<div id="list"></div>
+<div id="panel">
+  <div id="head">等待数据…</div>
+  <div id="list"></div>
+</div>
 <script>
 var head=document.getElementById('head'), list=document.getElementById('list');
 var last='';
@@ -29,7 +34,6 @@ window.onData=function(d){
   head.innerHTML = '<b>' + (on ? '桌面' : 'APP') + '</b> &nbsp; '
       + (d.fgApp || '-')
       + ' &nbsp; <span class="t">tick=' + (d._tick|0) + '</span>';
-  // 只有状态真的变了才追加一行，避免每秒刷屏
   var line = on + '|' + (d.fgApp||'') + '|' + (d.mediaTitle||'');
   if (line === last) return;
   last = line;
