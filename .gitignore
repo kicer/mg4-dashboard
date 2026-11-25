@@ -1,9 +1,5 @@
 # 构建产物
-gen/
-classes/
-dexout/
-unsigned.apk
+build/
 aligned.apk
 *.idsig
 .DS_Store
-compiled/
