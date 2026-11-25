@@ -12,7 +12,7 @@ import android.view.accessibility.AccessibilityWindowInfo;
  *
  * 作用：替代 UsageStatsManager 轮询，切应用瞬间就能知道。
  */
-public class TopWatcher26 extends AccessibilityService {
+public class TopWatcher28 extends AccessibilityService {
 
     private static final String TAG = "OVDASH";
 
@@ -87,11 +87,10 @@ public class TopWatcher26 extends AccessibilityService {
             return;
         }
         String p = cs.toString();
-        // 自己的 WebView 退到后台还会刷窗口事件，只有设置页真的在前台才算
-        if (getPackageName().equals(p) && !Main.visible) {
+        // 永远不把 ov.dash 当成前台 app：设置页的显隐由 Main.visible 单独处理
+        if (getPackageName().equals(p)) {
             return;
         }
-        // 不过滤自己：设置页打开时也算离开桌面，浮层要让开
         if (!p.equals(topPkg)) {
             topPkg = p;
             Log.e(TAG, "a11y top -> " + p + " / " + ev.getClassName());

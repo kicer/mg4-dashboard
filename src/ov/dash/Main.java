@@ -234,9 +234,9 @@ public class Main extends Activity {
             if (s == null) {
                 return false;
             }
-            // 系统里存的是短名 ov.dash/.TopWatcher26，dumpsys 才展开成全名
-            String full = getPackageName() + "/" + TopWatcher26.class.getName();
-            String brief = getPackageName() + "/." + TopWatcher26.class.getSimpleName();
+            // 系统里存的是短名 ov.dash/.TopWatcher28，dumpsys 才展开成全名
+            String full = getPackageName() + "/" + TopWatcher28.class.getName();
+            String brief = getPackageName() + "/." + TopWatcher28.class.getSimpleName();
             return s.contains(full) || s.contains(brief);
         } catch (Throwable t) {
             return false;

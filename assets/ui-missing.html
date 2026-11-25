@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>页面不存在</title>
+<style>
+  /* 目标环境 WebView 83：不用 flex gap / inset / :has() / aspect-ratio */
+  html,body{margin:0;padding:0;height:100%;
+    background:rgba(9,14,19,.93);color:#d8e6ee;
+    font-family:'Noto Sans CJK SC','Source Han Sans SC',sans-serif;
+    overflow:hidden;-webkit-user-select:none}
+  .wrap{padding:56px 64px}
+  h1{font-size:42px;margin:0 0 26px;font-weight:600;color:#ef5350}
+  .k{font-size:20px;color:#7f9aab;margin-bottom:10px}
+  .p{font-size:22px;color:#ffb74d;word-break:break-all;line-height:1.5;
+    background:#141d25;border:1px solid #2a3a47;border-radius:10px;
+    padding:14px 18px;margin-bottom:30px}
+  .tip{font-size:19px;color:#8fa9ba;line-height:1.85}
+  .tip b{color:#b9d4e3;font-weight:500}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>页面文件不存在</h1>
+  <div class="k">配置里指向的路径：</div>
+  <div class="p" id="path">（未取得）</div>
+  <div class="tip">
+    <b>常见原因</b>：U 盘已拔出、文件被移动或改名、config 里的路径写错<br>
+    <b>怎么修</b>：打开 ov.dash 设置重新选一个页面，或把文件放回原路径后发
+    <code>am broadcast -a ov.dash.reload</code>
+  </div>
+</div>
+<script>
+  var q = location.search || '';
+  var i = q.indexOf('p=');
+  if (i >= 0) {
+    var v = q.substring(i + 2);
+    try { v = decodeURIComponent(v); } catch (e) {}
+    document.getElementById('path').textContent = v;
+  }
+</script>
+</body>
+</html>

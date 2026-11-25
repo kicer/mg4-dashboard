@@ -182,8 +182,8 @@ public class DashService extends Service {
                         + " | album=" + MediaCenterReader.album
                         + " | src=" + MediaCenterReader.kind
                         + " | playing=" + MediaListener.playing
-                        + " | appWindow=" + TopWatcher26.hasAppWindow
-                        + " | appPkg=" + TopWatcher26.topAppPkg
+                        + " | appWindow=" + TopWatcher28.hasAppWindow
+                        + " | appPkg=" + TopWatcher28.topAppPkg
                         + " || onDesktop=" + isOnDesktop()
                         + " | fgApp=" + topPkg
                         + " | pushCount=" + Signals.pushCount.get());
@@ -218,7 +218,7 @@ public class DashService extends Service {
         // 媒体中心 bind 放在这里发起，不依赖无障碍/通知监听是否连上
         MediaCenterReader.init(this);
         // 无障碍事件到达时直接触发一次检查，不再靠定时轮询
-        TopWatcher26.onChange = new Runnable() {
+        TopWatcher28.onChange = new Runnable() {
             @Override
             public void run() {
                 handler.post(topChecker);
@@ -410,10 +410,25 @@ public class DashService extends Service {
     /** file:// 加载，同目录相对路径的图片/CSS/JS 自动可用。 */
     private void loadScreen(ScreenCtx c) {
         File f = resolve(c.cfg.html);
-        if (!f.exists() && !c.cfg.html.startsWith("/")) {
-            copyAsset(c.cfg.html, f);
+        if (!f.exists()) {
+            if (c.cfg.html.startsWith("/")) {
+                // 绝对路径可能在 U 盘 / Download，拔掉后先找共享目录里的同名文件
+                File alt = new File(baseDir, new File(c.cfg.html).getName());
+                if (alt.exists()) {
+                    f = alt;
+                    Log.e(TAG, "fallback " + c.cfg.html + " -> " + f.getName());
+                }
+            } else {
+                copyAsset(c.cfg.html, f);
+            }
         }
-        String url = Uri.fromFile(f).toString();
+        String url;
+        if (f.exists()) {
+            url = Uri.fromFile(f).toString();
+        } else {
+            // 实在找不到就显提示页，不白屏
+            url = "file:///android_asset/ui-missing.html?p=" + Uri.encode(c.cfg.html);
+        }
         Log.e(TAG, "load screen display=" + c.cfg.display + " url=" + url + " exists=" + f.exists());
         c.web.loadUrl(url);
     }
@@ -588,7 +603,7 @@ public class DashService extends Service {
     private String currentTop() {
         UsageStatsManager usm = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
         if (usm == null) {
-            return TopWatcher26.connected ? TopWatcher26.topPkg : topPkg;
+            return TopWatcher28.connected ? TopWatcher28.topPkg : topPkg;
         }
         long now = System.currentTimeMillis();
         long from = topCheckedAt > 0 ? topCheckedAt - 1000 : now - 3600000L;
@@ -605,8 +620,9 @@ public class DashService extends Service {
                         p = e.getPackageName();
                     }
                 }
-                // 自己在前台（设置页）也算离开桌面，浮层要让开
-                if (p != null) {
+                // 过滤自己：topPkg 只表示「非 ov.dash 的前台 app」，
+                // 设置页要不要让开浮层由 Main.visible 单独决定
+                if (p != null && !getPackageName().equals(p)) {
                     if (!p.equals(topPkg)) {
                         Log.e(TAG, "top -> " + p);
                     }
@@ -656,7 +672,7 @@ public class DashService extends Service {
                 Log.e(TAG, "topChecker fail: " + t);
             }
             // 无障碍在线时由事件触发，不再定时轮询；没连上才退回定时查询
-            if (!TopWatcher26.connected && active && needTopCheck()) {
+            if (!TopWatcher28.connected && active && needTopCheck()) {
                 handler.postDelayed(this, Math.max(100, cfg.topCheckMs));
             }
         }
