@@ -246,6 +246,10 @@ public class DashService extends Service {
         c.cfg = s;
         c.wm = (WindowManager) ctx.getSystemService(WINDOW_SERVICE);
         c.web = new WebView(ctx);
+        // 排查用：确认这块屏的 WebView 到底拿到了什么 density，副屏应该是 1.0
+        Log.e(TAG, "display=" + s.display + " density="
+                + ctx.getResources().getDisplayMetrics().density
+                + " dpi=" + ctx.getResources().getDisplayMetrics().densityDpi);
         c.web.setBackgroundColor(Color.TRANSPARENT);
         c.web.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         WebSettings ws = c.web.getSettings();

@@ -1,0 +1,17 @@
+{
+  "refresh": 1000,
+  "pushOnChange": true,
+  "forcePushMs": 30000,
+  "screens": [
+    {
+      "display": 0,
+      "html": "ui-frame.html",
+      "enabled": true
+    },
+    {
+      "display": 1,
+      "html": "ui-frame.html",
+      "enabled": true
+    }
+  ]
+}
