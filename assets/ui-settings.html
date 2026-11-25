@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ov.dash 设置</title>
+<style>
+  /* 目标环境 WebView 83（Chrome 83）：不能用 flex gap / inset / :has() / aspect-ratio */
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;height:100%;
+    background:#0b1116;color:#d8e6ee;
+    font-family:-apple-system,'Noto Sans CJK SC','Source Han Sans SC',sans-serif;
+    font-size:20px;overflow-y:auto;-webkit-user-select:none}
+  .wrap{max-width:1100px;margin:0 auto;padding:28px 36px 60px}
+
+  h1{font-size:30px;margin:0 0 6px;font-weight:600;letter-spacing:1px}
+  .sub{font-size:16px;color:#6f8b9c;line-height:1.7;margin-bottom:22px}
+  .sub b{color:#8fb8cc;font-weight:500}
+
+  .box{background:#131c24;border:1px solid #22303c;border-radius:14px;
+    padding:22px 26px;margin-bottom:18px}
+  .box-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .box-t{font-size:22px;font-weight:600;color:#9fd8f0}
+  .tag{font-size:15px;color:#5f7b8c;margin-left:12px;font-weight:400}
+
+  label.chk{display:inline-flex;align-items:center;margin-left:22px;
+    font-size:17px;color:#a8c2d0;cursor:pointer}
+  label.chk input{width:26px;height:26px;margin:0 8px 0 0;accent-color:#00b8d4}
+
+  select{font-size:19px;padding:9px 14px;border-radius:9px;
+    background:#1b2833;color:#d8e6ee;border:1px solid #2e4150;
+    font-family:inherit;min-width:220px;max-width:100%}
+  select:focus{outline:1px solid #00b8d4}
+
+  .row{display:flex;align-items:center;margin-bottom:14px}
+  .row:last-child{margin-bottom:0}
+  .row .k{width:110px;color:#7f9aab;font-size:17px;flex:0 0 auto}
+  .row .v{flex:1 1 auto;min-width:0}
+
+  .warn{color:#ffb74d}
+  .ok{color:#66d9a0}
+  .bad{color:#ef5350}
+
+  .bar{display:flex;align-items:center;padding-top:8px}
+  .btn{font-size:21px;font-weight:600;padding:15px 44px;border-radius:11px;
+    border:0;background:#00b8d4;color:#04222b;cursor:pointer;font-family:inherit}
+  .btn:active{background:#0097ad}
+  .btn[disabled]{background:#2b3d47;color:#6a8593;cursor:default}
+  .msg{margin-left:20px;font-size:17px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ov.dash 设置</h1>
+  <div class="sub" id="env">读取中…</div>
+
+  <div class="box">
+    <div class="box-h">
+      <div class="box-t">采集<span class="tag">全局</span></div>
+    </div>
+    <div class="row">
+      <div class="k">刷新周期</div>
+      <div class="v">
+        <select id="refresh">
+          <option value="500">500 ms（每秒 2 次）</option>
+          <option value="1000">1000 ms（每秒 1 次）</option>
+          <option value="2000">2000 ms</option>
+          <option value="5000">5000 ms（省电）</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div id="screens"></div>
+
+  <div class="bar">
+    <button class="btn" id="save">保存并应用</button>
+    <span class="msg" id="msg"></span>
+  </div>
+</div>
+
+<script>
+var info = null, cfg = null, pages = [];
+
+function fullPath(h) {
+  if (!h) return '';
+  return h.charAt(0) === '/' ? h : (info.root + '/' + h);
+}
+
+/* 共享目录里的写相对路径（好搬），外面的一律绝对路径 */
+function cfgPath(abs) {
+  var pre = info.root + '/';
+  return abs.indexOf(pre) === 0 ? abs.substring(pre.length) : abs;
+}
+
+function el(tag, cls, text) {
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+function render() {
+  var wrap = document.getElementById('screens');
+  wrap.innerHTML = '';
+
+  cfg.screens.forEach(function (s, i) {
+    var box = el('div', 'box');
+    var head = el('div', 'box-h');
+
+    var title = el('div', 'box-t', s.display === 0 ? '主屏' : ('副屏 ' + s.display));
+    title.appendChild(el('span', 'tag', 'display ' + s.display));
+    head.appendChild(title);
+
+    var chks = el('div');
+    chks.appendChild(mkCheck('启用', s.enabled, function (v) { s.enabled = v; }));
+    chks.appendChild(mkCheck('仅桌面显示', s.onlyOnDesktop, function (v) { s.onlyOnDesktop = v; }));
+    head.appendChild(chks);
+    box.appendChild(head);
+
+    var row = el('div', 'row');
+    row.appendChild(el('div', 'k', '页面'));
+    var v = el('div', 'v');
+    var sel = document.createElement('select');
+    sel.style.width = '100%';
+
+    var groups = {};
+    pages.forEach(function (p) {
+      if (!groups[p.dir]) {
+        groups[p.dir] = el('optgroup');
+        groups[p.dir].label = p.dir;
+        sel.appendChild(groups[p.dir]);
+      }
+      var o = el('option', null, p.name);
+      o.value = p.path;
+      groups[p.dir].appendChild(o);
+    });
+
+    /* 当前配置指向的文件可能不在两个扫描目录里，补一个已失效项免得静默跳走 */
+    var cur = fullPath(s.html);
+    var found = false;
+    for (var k = 0; k < sel.options.length; k++) {
+      if (sel.options[k].value === cur) { found = true; break; }
+    }
+    if (!found) {
+      var o2 = el('option', null, (s.html || '（空）') + '（文件不存在）');
+      o2.value = cur;
+      sel.appendChild(o2);
+    }
+    sel.value = cur;
+    sel.onchange = function () { s.html = cfgPath(sel.value); };
+    v.appendChild(sel);
+
+    row.appendChild(v);
+    box.appendChild(row);
+    wrap.appendChild(box);
+  });
+}
+
+function mkCheck(text, on, cb) {
+  var l = el('label', 'chk');
+  var c = document.createElement('input');
+  c.type = 'checkbox';
+  c.checked = !!on;
+  c.onchange = function () { cb(c.checked); };
+  l.appendChild(c);
+  l.appendChild(document.createTextNode(text));
+  return l;
+}
+
+function load() {
+  try {
+    info = JSON.parse(dash.info());
+  } catch (e) {
+    document.getElementById('env').textContent = '读取失败：' + e;
+    return;
+  }
+  if (info.error) {
+    document.getElementById('env').textContent = '读取失败：' + info.error;
+    return;
+  }
+  cfg = JSON.parse(info.config || '{}');
+  pages = JSON.parse(info.pages || '[]');
+  if (!cfg.screens) cfg.screens = [];
+
+  var env = document.getElementById('env');
+  env.innerHTML = '共享目录 <b>' + info.root + '</b>　·　IP <b>' + (info.ip || '未联网') + '</b>　·　无障碍 <b class="' +
+    (info.a11y ? 'ok' : 'warn') + '">' + (info.a11y ? '已开启' : '未开启') + '</b>';
+
+  document.getElementById('refresh').value = String(cfg.refresh || 1000);
+  render();
+}
+
+document.getElementById('save').onclick = function () {
+  var btn = this, msg = document.getElementById('msg');
+  btn.disabled = true;
+  msg.className = 'msg';
+  msg.textContent = '保存中…';
+
+  cfg.refresh = parseInt(document.getElementById('refresh').value, 10) || 1000;
+  var err = dash.save(JSON.stringify(cfg));
+
+  if (err) {
+    msg.className = 'msg bad';
+    msg.textContent = '失败：' + err;
+    btn.disabled = false;
+  } else {
+    msg.className = 'msg ok';
+    msg.textContent = '已保存，浮层正在重新加载';
+    setTimeout(function () { btn.disabled = false; }, 1200);
+  }
+};
+
+load();
+</script>
+</body>
+</html>

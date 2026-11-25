@@ -12,7 +12,7 @@ import android.view.accessibility.AccessibilityWindowInfo;
  *
  * 作用：替代 UsageStatsManager 轮询，切应用瞬间就能知道。
  */
-public class TopWatcher20 extends AccessibilityService {
+public class TopWatcher22 extends AccessibilityService {
 
     private static final String TAG = "OVDASH";
 
