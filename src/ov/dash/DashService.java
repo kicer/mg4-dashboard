@@ -180,7 +180,7 @@ public class DashService extends Service {
             }, "ovdash-subscribe").start();
         }
         // 无障碍事件到达时直接触发一次检查，不再靠定时轮询
-        TopWatcher2.onChange = new Runnable() {
+        TopWatcher3.onChange = new Runnable() {
             @Override
             public void run() {
                 handler.post(topChecker);
@@ -458,14 +458,13 @@ public class DashService extends Service {
     private String topPkg;
     private long topCheckedAt;
 
-    /** 取当前前台包名：无障碍在线就直接用事件值，否则回退到 queryEvents。 */
+    /** 取当前前台包名：无障碍事件只当触发器，实际值仍用 queryEvents 确认。
+     *  因为 launcher 的常驻浮层也会发 TYPE_WINDOW_STATE_CHANGED，包名是 launcher，
+     *  光信事件会被误判成「回到桌面」。 */
     private String currentTop() {
-        if (TopWatcher2.connected) {
-            return TopWatcher2.topPkg;
-        }
         UsageStatsManager usm = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
         if (usm == null) {
-            return topPkg;
+            return TopWatcher3.connected ? TopWatcher3.topPkg : topPkg;
         }
         long now = System.currentTimeMillis();
         long from = topCheckedAt > 0 ? topCheckedAt - 1000 : now - 3600000L;
@@ -523,8 +522,8 @@ public class DashService extends Service {
             } catch (Throwable t) {
                 Log.e(TAG, "topChecker fail: " + t);
             }
-            // 无障碍在线就不轮询了，只靠事件触发；没连上才退回定时查询
-            if (!TopWatcher2.connected && active && needTopCheck()) {
+            // 无障碍在线时由事件触发，不再定时轮询；没连上才退回定时查询
+            if (!TopWatcher3.connected && active && needTopCheck()) {
                 handler.postDelayed(this, Math.max(100, cfg.topCheckMs));
             }
         }
