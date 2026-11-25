@@ -39,6 +39,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,11 +54,12 @@ import java.util.Map;
  * 每个 enabled 的 screen 对应一个独立 WebView（View 不能跨窗口，必须一屏一实例）。
  * HTML 用 file:// 加载，同目录下的图片/CSS/JS 走相对路径即可。
  *
- * 文件布局:
- *   {externalFilesDir}/config.json       全局配置
- *   {externalFilesDir}/ui-cluster.html   仪表屏 UI
- *   {externalFilesDir}/ui-main.html      中控 UI（默认关闭）
- *   {externalFilesDir}/...               任意 png/css/js，相对路径引用
+ * 文件布局（根目录 = Android/media/ov.dash/，公共可见，adb push 无需 chmod）:
+ *   config.json       全局配置
+ *   ui-cluster.html   仪表屏 UI
+ *   ui-main.html      中控 UI
+ *   ...               任意 png/css/js，相对路径引用
+ * 页面也可以写绝对路径（以 / 开头），但 app 读不到时会白屏。
  */
 public class DashService extends Service {
 
@@ -189,7 +192,7 @@ public class DashService extends Service {
         super.onCreate();
         startForeground(1, notif());
 
-        baseDir = getExternalFilesDir(null);
+        baseDir = pickBaseDir();
         cfgFile = new File(baseDir, "config.json");
         cfg = Config.load(cfgFile);
         Log.e(TAG, "config loaded: refresh=" + cfg.refresh + " screens=" + cfg.screens.size());
@@ -401,8 +404,8 @@ public class DashService extends Service {
 
     /** file:// 加载，同目录相对路径的图片/CSS/JS 自动可用。 */
     private void loadScreen(ScreenCtx c) {
-        File f = new File(baseDir, c.cfg.html);
-        if (!f.exists()) {
+        File f = resolve(c.cfg.html);
+        if (!f.exists() && !c.cfg.html.startsWith("/")) {
             copyAsset(c.cfg.html, f);
         }
         String url = Uri.fromFile(f).toString();
@@ -490,8 +493,74 @@ public class DashService extends Service {
 
     // ---------------- 资源 ----------------
 
+    /** 相对路径按根目录展开；以 / 开头当绝对路径（外部目录里的页面）。 */
+    private File resolve(String path) {
+        if (path == null) {
+            return new File(baseDir, "ui-main.html");
+        }
+        return path.startsWith("/") ? new File(path) : new File(baseDir, path);
+    }
+
+    /**
+     * 页面根目录。优先 Android/media/<pkg>：文件管理器可见，adb push 不需要
+     * 中转和 chmod（Android/data 下 push 会 fchown 失败）。
+     * 没有外部存储时退回私有目录。
+     */
+    private File pickBaseDir() {
+        File legacy = getExternalFilesDir(null);
+        File picked = null;
+        File[] all = getExternalMediaDirs();
+        if (all != null) {
+            for (File d : all) {
+                if (d != null) {
+                    picked = d;
+                    break;
+                }
+            }
+        }
+        if (picked == null) {
+            return legacy;
+        }
+        migrateLegacy(legacy, picked);
+        return picked;
+    }
+
+    /** 老版本的页面在 Android/data 下，首次切目录时搬一次，不覆盖已有文件。 */
+    private void migrateLegacy(File from, File to) {
+        if (from == null || to == null) {
+            return;
+        }
+        if (new File(to, "config.json").exists()) {
+            return;                       // 已经迁移过
+        }
+        File[] fs = from.listFiles();
+        if (fs == null) {
+            return;
+        }
+        int n = 0;
+        for (File f : fs) {
+            if (!f.isFile()) {
+                continue;
+            }
+            File dst = new File(to, f.getName());
+            if (dst.exists()) {
+                continue;
+            }
+            try {
+                Files.copy(f.toPath(), dst.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                n++;
+            } catch (Throwable t) {
+                Log.e(TAG, "migrate fail " + f.getName() + ": " + t);
+            }
+        }
+        Log.e(TAG, "migrated " + n + " files -> " + to);
+    }
+
     private void copyMissingAssets() {
         for (Config.Screen s : cfg.screens) {
+            if (s.html != null && s.html.startsWith("/")) {
+                continue;                 // 外部绝对路径，assets 里没有
+            }
             File f = new File(baseDir, s.html);
             if (!f.exists()) {
                 copyAsset(s.html, f);
@@ -702,6 +771,10 @@ public class DashService extends Service {
 
     private void copyAsset(String name, File dst) {
         try {
+            File dir = dst.getParentFile();
+            if (dir != null && !dir.exists()) {
+                dir.mkdirs();
+            }
             AssetManager am = getAssets();
             InputStream in = am.open(name);
             FileOutputStream out = new FileOutputStream(dst);
