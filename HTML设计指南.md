@@ -50,7 +50,7 @@ window.onData = function (d) {
 ```
 
 - 周期：`config.json` 里的 `refresh`（默认 1000ms）
-- 值**变化才推**（`pushOnChange:true`），但最长 `forcePushMs`（默认 30s）会强制推一次，保证心跳
+- 每个 `refresh` 周期推一次。516 个字段里约 10 个每秒在变（电流抖动、gpsAge 递增等），做不到「值没变就不推」
 - **所有数值都是 number，不是字符串**
 
 ### 2.1 字段表
@@ -295,8 +295,6 @@ adb shell am broadcast -a ov.dash.reload
 {
   "refresh": 1000,
   "topCheckMs": 500,
-  "pushOnChange": true,
-  "forcePushMs": 30000,
   "screens": [
     { "display": 0, "html": "ui-main.html",    "name": "main",    "enabled": true },
     { "display": 1, "html": "ui-cluster.html", "name": "cluster", "enabled": true }
@@ -310,8 +308,6 @@ adb shell am broadcast -a ov.dash.reload
 |---|---|---|
 | `refresh` | 1000 | 采集周期 ms |
 | `topCheckMs` | 500 | 前台应用检查间隔 ms（无障碍在线时靠事件，不跑定时） |
-| `pushOnChange` | true | 值没变就不推 |
-| `forcePushMs` | 30000 | 即使没变也至少这么久推一次，保活 |
 
 **每个屏**
 

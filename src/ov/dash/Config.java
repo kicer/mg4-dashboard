@@ -19,8 +19,6 @@ final class Config {
     int refresh = 1000;
     /** 前台应用检查间隔，配多少用多少（不搞 0 特殊值）。 */
     int topCheckMs = 500;
-    boolean pushOnChange = true;
-    int forcePushMs = 30_000;
 
     final List<Screen> screens = new ArrayList<>();
 
@@ -73,8 +71,6 @@ final class Config {
         c.screens.clear();
         c.refresh = o.optInt("refresh", c.refresh);
         c.topCheckMs = o.optInt("topCheckMs", c.topCheckMs);
-        c.pushOnChange = o.optBoolean("pushOnChange", c.pushOnChange);
-        c.forcePushMs = o.optInt("forcePushMs", c.forcePushMs);
         JSONArray arr = o.optJSONArray("screens");
         if (arr != null) {
             for (int i = 0; i < arr.length(); i++) {
@@ -104,8 +100,6 @@ final class Config {
             JSONObject o = new JSONObject();
             o.put("refresh", refresh);
             o.put("topCheckMs", topCheckMs);
-            o.put("pushOnChange", pushOnChange);
-            o.put("forcePushMs", forcePushMs);
             JSONArray arr = new JSONArray();
             for (Screen s : screens) {
                 JSONObject so = new JSONObject();

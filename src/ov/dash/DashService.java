@@ -100,8 +100,6 @@ public class DashService extends Service {
         WindowManager wm;
         WindowManager.LayoutParams lp;
         boolean attached;
-        String lastJson = "";
-        long lastPush;
     }
 
     /** 后台线程执行：采集完把 JSON 丢回主线程分发。 */
@@ -398,7 +396,6 @@ public class DashService extends Service {
         c.web.setWebViewClient(new WebViewClient());
         c.web.setVerticalScrollBarEnabled(false);
         c.web.setHorizontalScrollBarEnabled(false);
-        c.lastJson = "";
         loadScreen(c);
     }
 
@@ -477,21 +474,14 @@ public class DashService extends Service {
 
     /** 主线程：把 JSON 推给各屏 WebView，值未变化时按策略跳过。 */
     private void distribute(String json) {
-        long now = System.currentTimeMillis();
         for (ScreenCtx c : screens) {
             if (c.web == null) {
-                continue;
-            }
-            if (cfg.pushOnChange && json.equals(c.lastJson)
-                    && now - c.lastPush < cfg.forcePushMs) {
                 continue;
             }
             try {
                 String per = json.substring(0, json.length() - 1)
                         + ",\"_slot\":\"" + c.slotName + "\",\"_h\":" + c.cfg.height + "}";
                 c.web.evaluateJavascript("window.onData&&window.onData(" + per + ")", null);
-                c.lastJson = json;
-                c.lastPush = now;
             } catch (Throwable t) {
                 Log.e(TAG, "distribute fail display=" + c.cfg.display + ": " + t);
             }
@@ -629,7 +619,6 @@ public class DashService extends Service {
             c.web = null;
             c.wm = null;
             c.attached = false;
-            c.lastJson = "";
             Log.e(TAG, "display=" + c.cfg.display + " destroyed top=" + topPkg);
         }
     }
