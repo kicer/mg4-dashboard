@@ -3,6 +3,8 @@ package ov.dash;
 import android.accessibilityservice.AccessibilityService;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityWindowInfo;
 
 /**
  * 前台应用监听。只关心 TYPE_WINDOW_STATE_CHANGED 的包名，
@@ -10,12 +12,16 @@ import android.view.accessibility.AccessibilityEvent;
  *
  * 作用：替代 UsageStatsManager 轮询，切应用瞬间就能知道。
  */
-public class TopWatcher3 extends AccessibilityService {
+public class TopWatcher12 extends AccessibilityService {
 
     private static final String TAG = "OVDASH";
 
     /** 当前前台包名，DashService 直接读这个字段。 */
     static volatile String topPkg;
+    /** 最顶层的应用窗口包名（含分屏/透明 Activity 这类 ACTIVITY_RESUMED 看不出来的）。 */
+    static volatile String topAppPkg;
+    /** 是否有非桌面的应用窗口可见。仅作为数据源交给 HTML 自己判断。 */
+    static volatile boolean hasAppWindow;
     /** 无障碍服务是否已连上。false 时 DashService 退回轮询。 */
     static volatile boolean connected;
     /** 事件到达时的回调，由 DashService 注册。 */
@@ -26,7 +32,41 @@ public class TopWatcher3 extends AccessibilityService {
         super.onServiceConnected();
         connected = true;
         Log.e(TAG, "a11y connected");
+        scanWindows();
         fire();
+    }
+
+    /**
+     * 看最顶层的 TYPE_APPLICATION 窗口是哪个 app。
+     * 多媒体小窗、分屏、透明 Activity 这些场景里 ACTIVITY_RESUMED 会停在桌面，
+     * 只能靠窗口层级判断。
+     */
+    private void scanWindows() {
+        try {
+            java.util.List<AccessibilityWindowInfo> wins = getWindows();
+            if (wins == null) {
+                return;
+            }
+            String top = null;
+            for (AccessibilityWindowInfo w : wins) {
+                if (w.getType() != AccessibilityWindowInfo.TYPE_APPLICATION) {
+                    continue;
+                }
+                AccessibilityNodeInfo root = w.getRoot();
+                if (root == null) {
+                    continue;
+                }
+                CharSequence p = root.getPackageName();
+                if (p != null) {
+                    top = p.toString();
+                    break;   // getWindows 按层级从高到低，第一个就是最顶层
+                }
+            }
+            topAppPkg = top;
+            hasAppWindow = top != null && !top.equals("com.zone.hmi.launcher");
+        } catch (Throwable t) {
+            Log.e(TAG, "scanWindows fail: " + t);
+        }
     }
 
     @Override
@@ -54,6 +94,7 @@ public class TopWatcher3 extends AccessibilityService {
             topPkg = p;
             Log.e(TAG, "a11y top -> " + p + " / " + ev.getClassName());
         }
+        scanWindows();
         fire();
     }
 

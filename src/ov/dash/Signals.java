@@ -343,6 +343,43 @@ final class Signals {
                 // 单个字段失败不影响其他
             }
         }
+        // 媒体信息：优先用车机媒体中心（蓝牙场景只有它有歌名），退化到 MediaSession
+        try {
+            String mt = MediaCenterReader.title;
+            String ma = MediaCenterReader.artist;
+            String mal = MediaCenterReader.album;
+            if (mt == null || mt.isEmpty()) {
+                mt = MediaListener.title;
+            }
+            if (ma == null || ma.isEmpty()) {
+                ma = MediaListener.artist;
+            }
+            if (mal == null || mal.isEmpty()) {
+                mal = MediaListener.album;
+            }
+            if (mt != null && !mt.isEmpty()) {
+                o.put("mediaTitle", mt);
+            }
+            if (ma != null && !ma.isEmpty()) {
+                o.put("mediaArtist", ma);
+            }
+            if (mal != null && !mal.isEmpty()) {
+                o.put("mediaAlbum", mal);
+            }
+            if (MediaCenterReader.kind != null && !MediaCenterReader.kind.isEmpty()) {
+                o.put("mediaSource", MediaCenterReader.kind);
+            }
+            o.put("mediaPlaying", MediaListener.playing);
+            // 窗口状态：无障碍在线才有意义，作为数据源交 HTML 自行判断
+            if (TopWatcher12.connected) {
+                o.put("appWindow", TopWatcher12.hasAppWindow);
+                if (TopWatcher12.topAppPkg != null) {
+                    o.put("appPkg", TopWatcher12.topAppPkg);
+                }
+            }
+        } catch (Throwable ignore) {
+            // JSON 构造失败不影响其他字段
+        }
         try {
             o.put("_ts", System.currentTimeMillis());
         } catch (Throwable ignore) {
