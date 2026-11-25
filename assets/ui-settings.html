@@ -47,9 +47,16 @@
   .btn:active{background:#0097ad}
   .btn[disabled]{background:#2b3d47;color:#6a8593;cursor:default}
   .msg{margin-left:20px;font-size:17px}
+
+  /* 右上角关闭：固定定位，尺寸按车机手指点按留余量 */
+  #close{position:fixed;top:16px;right:24px;width:64px;height:64px;
+    border-radius:50%;background:#1b2833;border:1px solid #2e4150;
+    color:#9fb6c4;font-size:30px;line-height:62px;text-align:center;
+    cursor:pointer;z-index:10}
 </style>
 </head>
 <body>
+<div id="close">&times;</div>
 <div class="wrap">
   <h1>ov.dash 设置</h1>
   <div class="sub" id="env">读取中…</div>
@@ -210,6 +217,10 @@ document.getElementById('save').onclick = function () {
     setTimeout(function () { btn.disabled = false; }, 1200);
   }
 };
+
+document.getElementById('close').addEventListener('click', function () {
+  try { dash.close(); } catch (e) {}
+});
 
 load();
 </script>

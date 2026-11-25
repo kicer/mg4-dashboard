@@ -38,7 +38,7 @@ adb push 我的页面.html /sdcard/Android/media/ov.dash/ui-main.html
 
 ```bash
 adb shell "settings put secure accessibility_enabled 0"
-adb shell "settings put secure enabled_accessibility_services 'com.zone.service.speech.viewcmd/.ViewCmdAccessibilityService:ov.dash/.TopWatcher24'"
+adb shell "settings put secure enabled_accessibility_services 'com.zone.service.speech.viewcmd/.ViewCmdAccessibilityService:ov.dash/.TopWatcher25'"
 adb shell "settings put secure accessibility_enabled 1"
 ```
 

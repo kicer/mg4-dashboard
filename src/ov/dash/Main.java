@@ -98,6 +98,17 @@ public class Main extends Activity {
             }
         }
 
+        /** 关闭设置页：finish 掉 Activity，浮层由 onPause 的 ping 叫回来。 */
+        @JavascriptInterface
+        public void close() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    finish();
+                }
+            });
+        }
+
         /** 存盘并让服务重载。返回空串表示成功，否则是错误信息。 */
         @JavascriptInterface
         public String save(String json) {
@@ -220,9 +231,9 @@ public class Main extends Activity {
             if (s == null) {
                 return false;
             }
-            // 系统里存的是短名 ov.dash/.TopWatcher24，dumpsys 才展开成全名
-            String full = getPackageName() + "/" + TopWatcher24.class.getName();
-            String brief = getPackageName() + "/." + TopWatcher24.class.getSimpleName();
+            // 系统里存的是短名 ov.dash/.TopWatcher25，dumpsys 才展开成全名
+            String full = getPackageName() + "/" + TopWatcher25.class.getName();
+            String brief = getPackageName() + "/." + TopWatcher25.class.getSimpleName();
             return s.contains(full) || s.contains(brief);
         } catch (Throwable t) {
             return false;
