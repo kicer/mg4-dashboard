@@ -39,7 +39,9 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 
 /**
@@ -78,6 +80,8 @@ public class DashService extends Service {
     private int tick;
     /** 跨线程可见：主线程写，采集线程读，避免直接读 screens 列表。 */
     private volatile boolean active;
+    /** 已注册「等 display 出现」的屏，避免重复注册 DisplayListener。 */
+    private final Set<Integer> waiting = new HashSet<>();
 
     /** 一块屏一个 WebView。 */
     private static final class ScreenCtx {
@@ -204,11 +208,17 @@ public class DashService extends Service {
         final DisplayManager dm = (DisplayManager) getSystemService(DISPLAY_SERVICE);
         Display d = dm.getDisplay(s.display);
         if (d == null) {
+            // 同一块屏只注册一次，否则热重载会堆积多个 listener，副屏一出现就叠出多个 WebView
+            if (!waiting.add(s.display)) {
+                Log.e(TAG, "display " + s.display + " not ready, already waiting");
+                return;
+            }
             Log.e(TAG, "display " + s.display + " not ready, waiting");
             dm.registerDisplayListener(new DisplayManager.DisplayListener() {
                 @Override
                 public void onDisplayAdded(int id) {
                     if (id == s.display) {
+                        waiting.remove(s.display);
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -266,7 +276,9 @@ public class DashService extends Service {
         }
         loadScreen(c);
         screens.add(c);
-        Log.e(TAG, "screen created display=" + s.display + " html=" + s.html);
+        // 副屏可能晚于 buildScreens 就绪，这里必须同步一次，否则采集被 active 短路
+        active = !screens.isEmpty();
+        Log.e(TAG, "screen created display=" + s.display + " html=" + s.html + " active=" + active);
     }
 
     /** file:// 加载，同目录相对路径的图片/CSS/JS 自动可用。 */
