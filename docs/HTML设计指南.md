@@ -28,7 +28,7 @@
   <div id="v">--</div>
   <script>
     window.onData = function (d) {
-      document.getElementById('v').textContent = d.speed == null ? '--' : d.speed;
+      document.getElementById('v').textContent = d.SPEED == null ? '--' : d.SPEED;
     };
   </script>
 </body>
@@ -55,9 +55,11 @@ window.onData = function (d) {
 
 ### 2.1 字段表
 
+JSON 里的键名是**「原始 key」列**。前面那列只是本文档里的简称，写页面时不能用。
+
 **电池 / BMS**
 
-| 字段 | 原始 key | 小数位 | 说明 |
+| 简称 | 原始 key | 小数位 | 说明 |
 |---|---|---|---|
 | `soc` | BMS_SOC_PERCENT | 1 | 动力电池电量 % |
 | `soh` | BMS_BATTERY_SOC_ORG | 1 | 电池健康度 % |
@@ -122,15 +124,15 @@ window.onData = function (d) {
 
 ```js
 // 错
-if (d.soc > 50) ...
+if (d.BMS_SOC_PERCENT > 50) ...
 
 // 对
-if (d.soc != null && d.soc > 50) ...
+if (d.BMS_SOC_PERCENT != null && d.BMS_SOC_PERCENT > 50) ...
 ```
 
 **② 灯光类不一定是 0/1**
 
-`dayLight` 实测返回过 `3`，是状态枚举值，不要当成布尔用。要显示图标就按区间判断。
+灯光状态是**枚举值**，实测返回过 `3`，不要当成布尔用。要显示图标就按区间判断。
 
 **③ 单位**
 
@@ -392,10 +394,10 @@ adb shell logcat -d -s OVDASH:* | tail -40
     function n(v, d) { return v == null ? '--' : Number(v).toFixed(d || 0); }
 
     window.onData = function (d) {
-      $spd.textContent = n(d.speed, 0);
-      $soc.textContent = n(d.soc, 0);
-      $rng.textContent = n(d.range, 0);
-      $odo.textContent = n(d.odo, 0);
+      $spd.textContent = n(d.SPEED, 0);
+      $soc.textContent = n(d.BMS_SOC_PERCENT, 0);
+      $rng.textContent = n(d.RANGE, 0);
+      $odo.textContent = n(d.ODO_DISP, 0);
     };
   </script>
 </body>
