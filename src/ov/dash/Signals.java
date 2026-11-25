@@ -3,6 +3,7 @@ package ov.dash;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.util.Log;
@@ -329,6 +330,7 @@ final class Signals {
             if (!Float.isNaN(alt)) {
                 o.put("alt", round(alt, 0));
             }
+            putGps(o, lm);
         } catch (Throwable ignore) {
             // GPS 不可用
         }
@@ -371,10 +373,10 @@ final class Signals {
             }
             o.put("mediaPlaying", MediaListener.playing);
             // 窗口状态：无障碍在线才有意义，作为数据源交 HTML 自行判断
-            if (TopWatcher12.connected) {
-                o.put("appWindow", TopWatcher12.hasAppWindow);
-                if (TopWatcher12.topAppPkg != null) {
-                    o.put("appPkg", TopWatcher12.topAppPkg);
+            if (TopWatcher14.connected) {
+                o.put("appWindow", TopWatcher14.hasAppWindow);
+                if (TopWatcher14.topAppPkg != null) {
+                    o.put("appPkg", TopWatcher14.topAppPkg);
                 }
             }
         } catch (Throwable ignore) {
@@ -567,6 +569,63 @@ final class Signals {
             return best != null ? (float) best.getAltitude() : Float.NaN;
         } catch (Throwable t) {
             return Float.NaN;
+        }
+    }
+
+    /** GPS 全量信息。一次 getLastKnownLocation 快照，不持续定位。 */
+    private void putGps(JSONObject o, LocationManager lm) {
+        if (lm == null) {
+            return;
+        }
+        Location best = null;
+        try {
+            for (String p : new String[]{"gps", "network"}) {
+                Location l = lm.getLastKnownLocation(p);
+                if (l != null && (best == null || l.getTime() > best.getTime())) {
+                    best = l;
+                }
+            }
+        } catch (Throwable t) {
+            return;
+        }
+        if (best == null) {
+            return;
+        }
+        try {
+            o.put("lat", round((float) best.getLatitude(), 6));
+            o.put("lon", round((float) best.getLongitude(), 6));
+            if (best.hasSpeed()) {
+                o.put("gpsSpeed", round(best.getSpeed() * 3.6f, 1));   // m/s → km/h
+            }
+            if (best.hasBearing()) {
+                o.put("bearing", round(best.getBearing(), 0));
+            }
+            if (best.hasAccuracy()) {
+                o.put("hAcc", round(best.getAccuracy(), 0));
+            }
+            if (best.hasVerticalAccuracy()) {
+                o.put("vAcc", round(best.getVerticalAccuracyMeters(), 0));
+            }
+            // GPS 时间来自卫星，和系统时钟有偏差，可能为负，取绝对值
+            long age = (System.currentTimeMillis() - best.getTime()) / 1000;
+            o.put("gpsAge", Math.abs(age));
+            Bundle ex = best.getExtras();
+            if (ex != null) {
+                if (ex.containsKey("satellites")) {
+                    o.put("sats", ex.getInt("satellites"));
+                }
+                if (ex.containsKey("meanCn0")) {
+                    o.put("cn0", ex.getInt("meanCn0"));
+                }
+                if (ex.containsKey("gpsStatus")) {
+                    o.put("gpsStatus", ex.getInt("gpsStatus"));
+                }
+                if (ex.containsKey("hdop")) {
+                    o.put("hdop", ex.getFloat("hdop"));
+                }
+            }
+        } catch (Throwable ignore) {
+            // GPS 字段失败不影响其他
         }
     }
 
