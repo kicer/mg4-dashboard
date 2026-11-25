@@ -568,10 +568,10 @@ public class DashService extends Service {
         return topPkg;
     }
 
-    /** 只有主屏配了 onlyOnLauncher 才需要查前台，否则一次都不跑。 */
+    /** 有主屏就必须知道前台状态：onlyOnLauncher 要用，onDesktop 字段也要用。 */
     private boolean needTopCheck() {
         for (Config.Screen s : cfg.screens) {
-            if (s.enabled && s.onlyOnLauncher && s.display == 0) {
+            if (s.enabled && s.display == 0) {
                 return true;
             }
         }

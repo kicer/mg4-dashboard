@@ -8,9 +8,7 @@
       "display": 0,
       "html": "ui-main.html",
       "name": "main",
-      "enabled": true,
-      "onlyOnLauncher": true,
-      "launcherPkg": "com.zone.hmi.launcher"
+      "enabled": true
     },
     {
       "display": 1,

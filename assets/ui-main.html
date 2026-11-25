@@ -74,6 +74,8 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
 <script>
 function n(v,d){return v==null?'--':Number(v).toFixed(d==null?1:d);}
 window.onData=function(d){
+  // 不在桌面就整体隐藏，窗口透明，下面就是 app 自己
+  document.body.style.visibility = (d.onDesktop === false) ? 'hidden' : 'visible';
   var soc=d.BMS_SOC_PERCENT==null?0:d.BMS_SOC_PERCENT;
   document.getElementById('soc').textContent=soc?soc.toFixed(0)+'%':'--';
   document.getElementById('fill').style.width=soc+'%';
