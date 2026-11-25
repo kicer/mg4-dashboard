@@ -94,6 +94,7 @@ public class DashService extends Service {
     /** 一块屏一个 WebView。 */
     private static final class ScreenCtx {
         Config.Screen cfg;
+        String slotName;
         Display disp;
         WebView web;
         WindowManager wm;
@@ -176,8 +177,8 @@ public class DashService extends Service {
                         + " | album=" + MediaCenterReader.album
                         + " | src=" + MediaCenterReader.kind
                         + " | playing=" + MediaListener.playing
-                        + " | appWindow=" + TopWatcher19.hasAppWindow
-                        + " | appPkg=" + TopWatcher19.topAppPkg);
+                        + " | appWindow=" + TopWatcher20.hasAppWindow
+                        + " | appPkg=" + TopWatcher20.topAppPkg);
             }
         }
     };
@@ -209,7 +210,7 @@ public class DashService extends Service {
         // 媒体中心 bind 放在这里发起，不依赖无障碍/通知监听是否连上
         MediaCenterReader.init(this);
         // 无障碍事件到达时直接触发一次检查，不再靠定时轮询
-        TopWatcher19.onChange = new Runnable() {
+        TopWatcher20.onChange = new Runnable() {
             @Override
             public void run() {
                 handler.post(topChecker);
@@ -330,8 +331,9 @@ public class DashService extends Service {
 
         ScreenCtx c = new ScreenCtx();
         c.cfg = s;
+        c.slotName = slotNameOf(s);
         c.disp = d;
-        c.lp = makeLp();
+        c.lp = makeLp(s.height);
         buildWeb(c);
         // onlyOnLauncher 的屏由 topChecker 决定何时挂上去，先加载不显示
         if (!s.onlyOnLauncher || s.launcherPkg.equals(currentTop())) {
@@ -351,10 +353,20 @@ public class DashService extends Service {
         Log.e(TAG, "screen created display=" + s.display + " html=" + s.html + " attached=" + c.attached);
     }
 
-    private WindowManager.LayoutParams makeLp() {
+    /** config 里的 name，没写就用 html 文件名去后缀。 */
+    private static String slotNameOf(Config.Screen s) {
+        if (s.name != null && !s.name.isEmpty()) {
+            return s.name;
+        }
+        String h = s.html == null ? "" : s.html;
+        int p = h.lastIndexOf('.');
+        return p > 0 ? h.substring(0, p) : h;
+    }
+
+    private WindowManager.LayoutParams makeLp(int height) {
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT,
+                height > 0 ? height : ViewGroup.LayoutParams.MATCH_PARENT,
                 TYPE_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                         | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
@@ -462,7 +474,9 @@ public class DashService extends Service {
                 continue;
             }
             try {
-                c.web.evaluateJavascript("window.onData&&window.onData(" + json + ")", null);
+                String per = json.substring(0, json.length() - 1)
+                        + ",\"_slot\":\"" + c.slotName + "\",\"_h\":" + c.cfg.height + "}";
+                c.web.evaluateJavascript("window.onData&&window.onData(" + per + ")", null);
                 c.lastJson = json;
                 c.lastPush = now;
             } catch (Throwable t) {
@@ -496,7 +510,7 @@ public class DashService extends Service {
     private String currentTop() {
         UsageStatsManager usm = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
         if (usm == null) {
-            return TopWatcher19.connected ? TopWatcher19.topPkg : topPkg;
+            return TopWatcher20.connected ? TopWatcher20.topPkg : topPkg;
         }
         long now = System.currentTimeMillis();
         long from = topCheckedAt > 0 ? topCheckedAt - 1000 : now - 3600000L;
@@ -555,7 +569,7 @@ public class DashService extends Service {
                 Log.e(TAG, "topChecker fail: " + t);
             }
             // 无障碍在线时由事件触发，不再定时轮询；没连上才退回定时查询
-            if (!TopWatcher19.connected && active && needTopCheck()) {
+            if (!TopWatcher20.connected && active && needTopCheck()) {
                 handler.postDelayed(this, Math.max(100, cfg.topCheckMs));
             }
         }

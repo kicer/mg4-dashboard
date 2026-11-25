@@ -27,6 +27,10 @@ final class Config {
     static final class Screen {
         int display = 1;
         String html = "ui-cluster.html";
+        /** 给 HTML 用的槽位标识，不写就从 html 文件名去后缀。 */
+        String name;
+        /** 窗口高度（物理像素），0 = 全屏。用于顶部条这类局部 overlay。 */
+        int height = 0;
         boolean enabled = true;
         /** true = 只在 launcherPkg 位于前台时显示，切到别的 app 就隐藏。 */
         boolean onlyOnLauncher = false;
@@ -81,6 +85,8 @@ final class Config {
                 Screen s = new Screen();
                 s.display = so.optInt("display", 1);
                 s.html = so.optString("html", "ui-cluster.html");
+                s.name = so.has("name") ? so.optString("name", null) : null;
+                s.height = so.optInt("height", 0);
                 s.enabled = so.optBoolean("enabled", true);
                 s.onlyOnLauncher = so.optBoolean("onlyOnLauncher", false);
                 s.launcherPkg = so.optString("launcherPkg", "com.zone.hmi.launcher");
@@ -105,6 +111,12 @@ final class Config {
                 JSONObject so = new JSONObject();
                 so.put("display", s.display);
                 so.put("html", s.html);
+                if (s.name != null && !s.name.isEmpty()) {
+                    so.put("name", s.name);
+                }
+                if (s.height > 0) {
+                    so.put("height", s.height);
+                }
                 so.put("enabled", s.enabled);
                 if (s.onlyOnLauncher) {
                     so.put("onlyOnLauncher", true);

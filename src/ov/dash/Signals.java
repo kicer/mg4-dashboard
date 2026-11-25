@@ -397,6 +397,21 @@ final class Signals {
         return p.length >= 2 ? p[p.length - 2] : desc;
     }
 
+    private static void putNum(JSONObject o, String key, Object v) {
+        if (!(v instanceof Number)) {
+            return;
+        }
+        double d = ((Number) v).doubleValue();
+        if (Double.isNaN(d) || Double.isInfinite(d)) {
+            return;
+        }
+        try {
+            o.put(key, d);
+        } catch (Throwable ignore) {
+            // 单个字段失败不影响其他
+        }
+    }
+
     private double round(float f, int dp) {
         double p = Math.pow(10, dp);
         return Math.round(f * p) / p;
@@ -534,18 +549,11 @@ final class Signals {
             o.put("gpsAge", Math.abs(age));
             Bundle ex = best.getExtras();
             if (ex != null) {
-                if (ex.containsKey("satellites")) {
-                    o.put("sats", ex.getInt("satellites"));
-                }
-                if (ex.containsKey("meanCn0")) {
-                    o.put("cn0", ex.getInt("meanCn0"));
-                }
-                if (ex.containsKey("gpsStatus")) {
-                    o.put("gpsStatus", ex.getInt("gpsStatus"));
-                }
-                if (ex.containsKey("hdop")) {
-                    o.put("hdop", ex.getFloat("hdop"));
-                }
+                // extras 里的类型不确定，统一按 Number 处理，避免 ClassCastException 把整个 GPS 块拖死
+                putNum(o, "sats", ex.get("satellites"));
+                putNum(o, "cn0", ex.get("meanCn0"));
+                putNum(o, "gpsStatus", ex.get("gpsStatus"));
+                putNum(o, "hdop", ex.get("hdop"));
             }
         } catch (Throwable ignore) {
             // GPS 字段失败不影响其他
