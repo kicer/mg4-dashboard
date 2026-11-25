@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="a11y_desc">ov.dash 前台应用监听，仅用于判断是否回到桌面，不读取屏幕内容</string>
+</resources>

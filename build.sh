@@ -8,10 +8,13 @@ BT="$SDK/build-tools/35.0.0"
 JAR="$SDK/platforms/android-34/android.jar"
 
 cd "$(dirname "$0")"
-rm -rf gen classes dexout unsigned.apk aligned.apk
-mkdir -p gen classes dexout
+rm -rf gen classes dexout compiled unsigned.apk aligned.apk
+mkdir -p gen classes dexout compiled
 
-"$BT/aapt2" link -I "$JAR" --manifest AndroidManifest.xml -A assets \
+# 无障碍服务需要 res/（xml 配置 + strings），aapt2 必须先 compile
+"$BT/aapt2" compile --dir res -o compiled/
+
+"$BT/aapt2" link -I "$JAR" --manifest AndroidManifest.xml -A assets compiled/*.flat \
     --java gen --min-sdk-version 30 --target-sdk-version 30 -o unsigned.apk
 
 javac -g:none -source 8 -target 8 -Xlint:-options -classpath "$JAR" -d classes \
