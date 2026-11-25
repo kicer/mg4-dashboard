@@ -12,7 +12,7 @@
 
 **数据**：516 个车辆信号（binder 订阅推送）+ 12 个 GPS 字段 + 5 个媒体字段 + 2 个前台状态字段。
 
-详见 `数据字典.md`。
+详见 `docs/数据字典.md`。
 
 ## 硬限制（先看这条）
 
@@ -22,16 +22,16 @@
 - **D 档地图**：显示源切到 Android 的 HDMI(display 1)，浮层才可见。
 
 另外副屏还有两块 QNX 区域盖不住：**上下各 75 物理像素的边栏**、**右侧导航信息栏**。
-详见 `显示规格.md`。
+详见 `docs/显示规格.md`。
 
 ## 安装
 
 ```bash
 # 一键：装包 + 全部授权
-./dev/setup.sh aligned.apk
+./dev/setup.sh
 
 # 或者手动
-adb push aligned.apk /sdcard/Download/dash.apk
+adb push build/aligned.apk /sdcard/Download/dash.apk
 adb shell pm install -r -i com.zone.hmi.appstore /sdcard/Download/dash.apk
 adb shell appops set ov.dash SYSTEM_ALERT_WINDOW allow
 adb shell appops set ov.dash GET_USAGE_STATS allow
@@ -73,7 +73,7 @@ adb shell cmd notification allow_listener ov.dash/ov.dash.MediaListener
 }
 ```
 
-保存后自动热重载。字段说明见 `HTML设计指南.md` 第 6.3 节。
+保存后自动热重载。字段说明见 `docs/HTML设计指南.md` 第 6.3 节。
 
 ## 广播
 
@@ -97,8 +97,8 @@ src/ov/dash/     源码
 
 | 文件 | 面向 | 内容 |
 |---|---|---|
-| **`HTML设计指南.md`** | 写页面的人 | 骨架、接口、config、硬性规则、部署 |
-| **`数据字典.md`** | 写页面的人 | 539 个字段的完整清单 |
-| **`显示规格.md`** | 写页面的人 | 画布尺寸、QNX 三块禁区 |
-| **`数据源.md`** | 维护者 | 4 个数据源的协议、权限、触发方式 |
-| **`技术笔记.md`** | 维护者 | 逆向全过程、实测数据、踩过的坑 |
+| **`docs/HTML设计指南.md`** | 写页面的人 | 骨架、接口、config、硬性规则、部署 |
+| **`docs/数据字典.md`** | 写页面的人 | 539 个字段的完整清单 |
+| **`docs/显示规格.md`** | 写页面的人 | 画布尺寸、QNX 三块禁区 |
+| **`docs/数据源.md`** | 维护者 | 4 个数据源的协议、权限、触发方式 |
+| **`docs/技术笔记.md`** | 维护者 | 逆向全过程、实测数据、踩过的坑 |

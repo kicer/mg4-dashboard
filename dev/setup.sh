@@ -1,9 +1,9 @@
 #!/bin/bash
 # ov.dash 一键部署：推送 + 安装 + 全部授权
-# 用法：./setup.sh [apk路径]      默认 aligned.apk
+# 用法：./setup.sh [apk路径]      默认 build/aligned.apk
 set -e
 
-APK="${1:-aligned.apk}"
+APK="${1:-build/aligned.apk}"
 PKG=ov.dash
 D=/sdcard/Android/data/ov.dash/files
 
