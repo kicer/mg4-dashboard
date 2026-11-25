@@ -180,7 +180,8 @@ public class DashService extends Service {
                         + " | appWindow=" + TopWatcher20.hasAppWindow
                         + " | appPkg=" + TopWatcher20.topAppPkg
                         + " || onDesktop=" + isOnDesktop()
-                        + " | fgApp=" + topPkg);
+                        + " | fgApp=" + topPkg
+                        + " | pushCount=" + Signals.pushCount.get());
             }
         }
     };

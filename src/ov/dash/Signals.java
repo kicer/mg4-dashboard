@@ -78,6 +78,9 @@ final class Signals {
     /** 保住监听器引用，否则会被 GC 回收导致回调断掉。 */
     private final java.util.List<Binder> listeners = new java.util.ArrayList<>();
     private volatile boolean subscribed;
+    /** 调试用：服务端推送回调次数。 */
+    static final java.util.concurrent.atomic.AtomicLong pushCount =
+            new java.util.concurrent.atomic.AtomicLong();
 
     private static final String DESC_LISTENER = "com.zone.api.vehicle.common.listener.IDataChangeListener";
     private static final int TX_REGISTER = 1;
@@ -102,6 +105,7 @@ final class Signals {
                     data.readValue(null);           // mExtra
                     if (flag != null && val != null) {
                         cache.put(flag, val);
+                        pushCount.incrementAndGet();
                     }
                 }
             } catch (Throwable t) {
