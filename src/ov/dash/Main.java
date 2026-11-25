@@ -159,7 +159,7 @@ public class Main extends Activity {
                     JSONObject o = new JSONObject();
                     o.put("path", f.getAbsolutePath());
                     o.put("name", f.getAbsolutePath().substring(base.length() + 1));
-                    o.put("dir", base.contains("/Download") ? "Download" : "共享目录");
+                    o.put("dir", Paths.label(this, dir));
                     o.put("size", f.length());
                     arr.put(o);
                 } catch (Throwable ignore) {
@@ -170,9 +170,9 @@ public class Main extends Activity {
         return arr.toString();
     }
 
-    /** 递归最多 maxDepth 层，跳过隐藏目录。 */
+    /** 递归最多 maxDepth 层，跳过隐藏目录。U 盘里文件可能很多，封顶 300 个。 */
     private void collect(File dir, List<File> out, int maxDepth) {
-        if (dir == null || !dir.isDirectory()) {
+        if (dir == null || !dir.isDirectory() || out.size() >= 300) {
             return;
         }
         File[] fs;
@@ -185,6 +185,9 @@ public class Main extends Activity {
             return;
         }
         for (File f : fs) {
+            if (out.size() >= 300) {
+                return;
+            }
             String name = f.getName();
             if (name.startsWith(".")) {
                 continue;
@@ -231,9 +234,9 @@ public class Main extends Activity {
             if (s == null) {
                 return false;
             }
-            // 系统里存的是短名 ov.dash/.TopWatcher25，dumpsys 才展开成全名
-            String full = getPackageName() + "/" + TopWatcher25.class.getName();
-            String brief = getPackageName() + "/." + TopWatcher25.class.getSimpleName();
+            // 系统里存的是短名 ov.dash/.TopWatcher26，dumpsys 才展开成全名
+            String full = getPackageName() + "/" + TopWatcher26.class.getName();
+            String brief = getPackageName() + "/." + TopWatcher26.class.getSimpleName();
             return s.contains(full) || s.contains(brief);
         } catch (Throwable t) {
             return false;
