@@ -178,7 +178,9 @@ public class DashService extends Service {
                         + " | src=" + MediaCenterReader.kind
                         + " | playing=" + MediaListener.playing
                         + " | appWindow=" + TopWatcher20.hasAppWindow
-                        + " | appPkg=" + TopWatcher20.topAppPkg);
+                        + " | appPkg=" + TopWatcher20.topAppPkg
+                        + " || onDesktop=" + isOnDesktop()
+                        + " | fgApp=" + topPkg);
             }
         }
     };
@@ -453,6 +455,16 @@ public class DashService extends Service {
             JSONObject o = signals.collect(lm);
             tick++;
             o.put("_tick", tick);
+            // 当前是否在桌面，以及前台包名，作为数据源交给 HTML 自行处理
+            try {
+                boolean desktop = isOnDesktop();
+                o.put("onDesktop", desktop);
+                if (topPkg != null) {
+                    o.put("fgApp", topPkg);
+                }
+            } catch (Throwable ignore) {
+                // 前台状态取不到不影响其他字段
+            }
             return o.toString();
         } catch (Throwable t) {
             Log.e(TAG, "collect fail: " + t);
@@ -503,6 +515,20 @@ public class DashService extends Service {
     /** 缓存的前台包名，由 topChecker 维护。 */
     private String topPkg;
     private long topCheckedAt;
+
+    /** 当前是否在桌面。取配置里第一个 onlyOnLauncher 屏的 launcherPkg 作为基准。 */
+    private boolean isOnDesktop() {
+        String top = topPkg;
+        if (top == null) {
+            return false;
+        }
+        for (Config.Screen s : cfg.screens) {
+            if (s.onlyOnLauncher && s.launcherPkg != null) {
+                return s.launcherPkg.equals(top);
+            }
+        }
+        return "com.zone.hmi.launcher".equals(top);
+    }
 
     /** 取当前前台包名：无障碍事件只当触发器，实际值仍用 queryEvents 确认。
      *  因为 launcher 的常驻浮层也会发 TYPE_WINDOW_STATE_CHANGED，包名是 launcher，
