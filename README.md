@@ -67,6 +67,26 @@ app 会自动从 APK 里重新复制一份原版。
 
 **可以带附件**：共享目录下放 css / js / 图片 / 字体，页面里用相对路径引用即可。
 
+## 设置界面
+
+点开 app 图标就是设置页，不用 adb 也能改配置：
+
+| 区域 | 内容 |
+|---|---|
+| 顶部 | 共享目录、本机 IP、无障碍开关状态 |
+| 采集 | 刷新周期 500 / 1000 / 2000 / 5000 ms |
+| 每屏一张卡 | 选页面（扫共享目录 / Download / U 盘）、启用、仅桌面显示 |
+| 底部 | 「保存并应用」→ 写 `config.json` → 服务热重载 |
+| 右上角 | `×` 关闭，Activity 和 WebView 一起销毁 |
+
+**页面扫描范围**：共享目录、`/sdcard/Download/`、U 盘 / SD 卡（动态枚举，插拔后重开设置页可见）。
+每个目录最多收 300 个 `.html`，递归 2 层，所以 `my-hud/index.html` 这种带引用的整包也能选。
+
+设置页打开时主屏浮层会主动让开（`Main.visible` + `ov.dash.check` 广播），关掉就恢复。
+
+> 首屏不扫描：`info()` 只回环境信息，页面列表走单独的 `pages()` 接口，
+> 因为扫 U 盘可能很慢。所以下拉会比界面晚一点出现。
+
 ## 硬限制（先看这条）
 
 **副屏有三种模式**：P 档、D 档信息流、D 档地图。
@@ -100,9 +120,13 @@ app 会自动从 APK 里重新复制一份原版。
 ```bash
 adb shell am broadcast -a ov.dash.reload   # 重载配置和页面
 adb shell am broadcast -a ov.dash.stop     # 停止服务
+adb shell am broadcast -a ov.dash.check    # 重新判定浮层显隐（设置页自己用）
 adb shell am broadcast -a ov.dash.json     # 打印当前 JSON
 adb shell am broadcast -a ov.dash.media    # 打印媒体/前台状态
 ```
+
+还有几个开发用的：`ov.dash.probe`（枚举 binder pool）、`ov.dash.scan`（扫全部 key）、
+`ov.dash.top`（打印前台包名）、`ov.dash.mc`（强制刷媒体）。
 
 ## 目录
 
