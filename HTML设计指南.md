@@ -271,11 +271,19 @@ box.innerHTML = '<div>...</div>';
 ```bash
 adb push 新页面.html /sdcard/Download/x.html
 adb shell "cp /sdcard/Download/x.html /sdcard/Android/data/ov.dash/files/ui-cluster.html"
+adb shell "chmod 666 /sdcard/Android/data/ov.dash/files/ui-cluster.html"
 ```
 
-**关键**：`cp` 必须**覆盖已存在的文件**。覆盖时属主保持为 app；如果 cp 成新文件，属主会变成 shell（权限 600），app 读不到，页面会白屏。
+**第三条 `chmod` 不能省：**
 
-`FileObserver` 会监听目录，保存后**自动热重载**，不用广播。保险起见也可以：
+- 覆盖**已存在**的 app 属主文件 → 属主不变，本来就能读
+- 但如果是**新建**文件（比如新加一个 `ui-top.html`），`cp` 出来的属主是 `shell`、权限 `600`，
+  app 读不到，页面直接白屏
+- `chmod 666` 之后两种情况都能读
+
+对 app 属主文件执行 `chmod` 会报 `Operation not permitted`，正常——那种文件不需要改。
+
+**全程不需要编译 APK。** `FileObserver` 监听目录，保存后自动热重载，保险起见也可以：
 
 ```bash
 adb shell am broadcast -a ov.dash.reload
