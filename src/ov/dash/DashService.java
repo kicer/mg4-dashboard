@@ -68,6 +68,7 @@ public class DashService extends Service {
     static final String ACTION_TOP = "ov.dash.top";
     static final String ACTION_MC = "ov.dash.mc";
     static final String ACTION_JSON = "ov.dash.json";
+    static final String ACTION_MEDIA = "ov.dash.media";
     private static final long WATCHDOG_MS = 120_000L;
     private static final int TYPE_OVERLAY = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
 
@@ -169,6 +170,14 @@ public class DashService extends Service {
                         }
                     }
                 }).start();
+            } else if (ACTION_MEDIA.equals(a)) {
+                Log.e(TAG, "media: title=" + MediaCenterReader.title
+                        + " | artist=" + MediaCenterReader.artist
+                        + " | album=" + MediaCenterReader.album
+                        + " | src=" + MediaCenterReader.kind
+                        + " | playing=" + MediaListener.playing
+                        + " | appWindow=" + TopWatcher19.hasAppWindow
+                        + " | appPkg=" + TopWatcher19.topAppPkg);
             }
         }
     };
@@ -200,7 +209,7 @@ public class DashService extends Service {
         // 媒体中心 bind 放在这里发起，不依赖无障碍/通知监听是否连上
         MediaCenterReader.init(this);
         // 无障碍事件到达时直接触发一次检查，不再靠定时轮询
-        TopWatcher16.onChange = new Runnable() {
+        TopWatcher19.onChange = new Runnable() {
             @Override
             public void run() {
                 handler.post(topChecker);
@@ -259,6 +268,7 @@ public class DashService extends Service {
         f.addAction(ACTION_TOP);
         f.addAction(ACTION_MC);
         f.addAction(ACTION_JSON);
+        f.addAction(ACTION_MEDIA);
         return f;
     }
 
@@ -486,7 +496,7 @@ public class DashService extends Service {
     private String currentTop() {
         UsageStatsManager usm = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
         if (usm == null) {
-            return TopWatcher16.connected ? TopWatcher16.topPkg : topPkg;
+            return TopWatcher19.connected ? TopWatcher19.topPkg : topPkg;
         }
         long now = System.currentTimeMillis();
         long from = topCheckedAt > 0 ? topCheckedAt - 1000 : now - 3600000L;
@@ -545,7 +555,7 @@ public class DashService extends Service {
                 Log.e(TAG, "topChecker fail: " + t);
             }
             // 无障碍在线时由事件触发，不再定时轮询；没连上才退回定时查询
-            if (!TopWatcher16.connected && active && needTopCheck()) {
+            if (!TopWatcher19.connected && active && needTopCheck()) {
                 handler.postDelayed(this, Math.max(100, cfg.topCheckMs));
             }
         }

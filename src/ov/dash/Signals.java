@@ -300,13 +300,6 @@ final class Signals {
                 o.put("mediaSource", MediaCenterReader.kind);
             }
             o.put("mediaPlaying", MediaListener.playing);
-            // 窗口状态：无障碍在线才有意义，作为数据源交 HTML 自行判断
-            if (TopWatcher16.connected) {
-                o.put("appWindow", TopWatcher16.hasAppWindow);
-                if (TopWatcher16.topAppPkg != null) {
-                    o.put("appPkg", TopWatcher16.topAppPkg);
-                }
-            }
         } catch (Throwable ignore) {
             // JSON 构造失败不影响其他字段
         }

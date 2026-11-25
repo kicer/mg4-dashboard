@@ -12,7 +12,7 @@ import android.view.accessibility.AccessibilityWindowInfo;
  *
  * 作用：替代 UsageStatsManager 轮询，切应用瞬间就能知道。
  */
-public class TopWatcher16 extends AccessibilityService {
+public class TopWatcher19 extends AccessibilityService {
 
     private static final String TAG = "OVDASH";
 
@@ -47,23 +47,24 @@ public class TopWatcher16 extends AccessibilityService {
             if (wins == null) {
                 return;
             }
+            StringBuilder sb = new StringBuilder("wins(" + wins.size() + ")：");
             String top = null;
+            int bestLayer = -1;
             for (AccessibilityWindowInfo w : wins) {
-                if (w.getType() != AccessibilityWindowInfo.TYPE_APPLICATION) {
-                    continue;
-                }
                 AccessibilityNodeInfo root = w.getRoot();
-                if (root == null) {
-                    continue;
-                }
-                CharSequence p = root.getPackageName();
-                if (p != null) {
-                    top = p.toString();
-                    break;   // getWindows 按层级从高到低，第一个就是最顶层
+                String pkg = root == null ? "null-root" : String.valueOf(root.getPackageName());
+                if (w.getType() == AccessibilityWindowInfo.TYPE_APPLICATION) {
+                    sb.append(" APP[").append(pkg).append(" L=").append(w.getLayer()).append(']');
+                    if (root != null && w.getLayer() > bestLayer) {
+                        bestLayer = w.getLayer();
+                        top = pkg;
+                    }
                 }
             }
+            Log.e(TAG, sb.toString());
             topAppPkg = top;
             hasAppWindow = top != null && !top.equals("com.zone.hmi.launcher");
+            Log.e(TAG, "wins -> top=" + top + " hasAppWindow=" + hasAppWindow);
         } catch (Throwable t) {
             Log.e(TAG, "scanWindows fail: " + t);
         }
