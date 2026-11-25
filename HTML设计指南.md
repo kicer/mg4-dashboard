@@ -294,22 +294,43 @@ adb shell am broadcast -a ov.dash.reload
 ```json
 {
   "refresh": 1000,
+  "topCheckMs": 500,
   "pushOnChange": true,
   "forcePushMs": 30000,
   "screens": [
-    { "display": 0, "html": "ui-main.html",    "enabled": true  },
-    { "display": 1, "html": "ui-cluster.html", "enabled": true  }
+    { "display": 0, "html": "ui-main.html",    "name": "main",    "enabled": true },
+    { "display": 1, "html": "ui-cluster.html", "name": "cluster", "enabled": true }
   ]
 }
 ```
 
-| 字段 | 说明 |
-|---|---|
-| `refresh` | 采集周期 ms，最小 500 |
-| `pushOnChange` | 值变化才推 |
-| `forcePushMs` | 强制推送间隔 ms |
-| `screens[].display` | 0 = 主屏，1 = 副屏 |
-| `screens[].enabled` | `false` 时不创建 WebView，零内存 |
+**全局字段**
+
+| 字段 | 默认 | 说明 |
+|---|---|---|
+| `refresh` | 1000 | 采集周期 ms |
+| `topCheckMs` | 500 | 前台应用检查间隔 ms（无障碍在线时靠事件，不跑定时） |
+| `pushOnChange` | true | 值没变就不推 |
+| `forcePushMs` | 30000 | 即使没变也至少这么久推一次，保活 |
+
+**每个屏**
+
+| 字段 | 默认 | 说明 |
+|---|---|---|
+| `display` | 1 | 0 = 主屏，1 = 副屏 |
+| `html` | — | 页面文件名，放在 `files/` 目录 |
+| `name` | html 去后缀 | 注入给 HTML 的 `_slot` 值 |
+| `enabled` | true | `false` 时不创建 WebView，零内存 |
+| `onlyOnLauncher` | false | `true` = 只在桌面显示（整个窗口销毁重建） |
+| `launcherPkg` | `com.zone.hmi.launcher` | 判定「桌面」的包名 |
+| `height` | 0 | 窗口高度（物理像素），`0` = 全屏。**当前方案不用** |
+
+**两种隐藏方式，别混用：**
+
+| 方式 | 配置 | 效果 |
+|---|---|---|
+| **窗口级** | `onlyOnLauncher: true` | 不在桌面就 `destroy()` WebView，回桌面重新创建（约 60ms 白屏） |
+| **页面级**（推荐） | `onlyOnLauncher: false` + HTML 里判 `onDesktop` | 窗口常驻，HTML 自己 `visibility:hidden`，无延迟、无重建、只有一个 WebView |
 
 ### 6.4 看日志
 
