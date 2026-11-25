@@ -35,7 +35,7 @@
 </html>
 ```
 
-就这么点东西。文件名随意，在 `config.json` 里指名它，丢进 `files/` 目录即可。
+就这么点东西。文件名随意，在 `config.json` 里指名它，丢进共享目录即可。
 
 ---
 
@@ -222,12 +222,34 @@ if (d.BMS_SOC_PERCENT != null && d.BMS_SOC_PERCENT > 50) ...
 | 2 | **不要写死 `width`/`height`**，用 `100%` | 实际视口 1139×684，写 1280×768 会溢出裁切 |
 | 3 | **不要用 `screen.width/height`** | 副屏上它返回主屏的 1707×960 |
 | 4 | **不要用 `inset`** | 车机 WebView 版本旧（Chrome <87），不认，元素会变 0 尺寸。用 `left/top/right/bottom` |
-| 5 | 用 ES5 语法（`var`、`function`） | 避免 `?.` `??` `let` 在老 WebView 上的兼容问题 |
+| 5 | ES2020 可用（`?.` `??`），但别用更新的语法 | `Array.at` / `structuredClone` 在 Chrome 83 上不存在 |
 | 6 | 不要用 `alert` / `confirm` / `prompt` | 车机可能不弹，且会卡住线程 |
 | 7 | 不要引用外网资源（CDN、字体、图片） | 车机不一定有网 |
 | 8 | 同目录资源用相对路径（`./a.png`） | app 用 `file://` 加载，相对路径可用 |
 | 9 | **副屏右侧不要放重要内容** | QNX 导航信息栏会盖遮罩，数值完全读不出来 |
 | 10 | **不要拿 screencap 截图当视觉依据** | 截图只有 Android 层，QNX 边栏和信息栏在截图里是透明的 |
+
+### 4.1 车机 WebView 是 Chrome 83（2020 年）
+
+`com.android.webview 83.0.4103.120`。在电脑上新版 Chrome 调好的页面，到车上会**静默失效**——
+不报错，就是不生效。
+
+| 不能用 | 最低版本 | 改成 |
+|---|---|---|
+| flex 的 `gap` | 84 | 用 `margin` |
+| `inset` | 87 | `left/top/right/bottom` |
+| `aspect-ratio` | 88 | `padding-bottom` 撑高 |
+| `Array.at()` | 92 | `arr[i]` |
+| `structuredClone` | 98 | `JSON.parse(JSON.stringify(x))` |
+| `@layer` | 99 | 不要用 |
+| `:has()` | 105 | 加一个 class |
+| `@container` | 105 | `@media` |
+| `color-mix()` | 111 | 写死颜色 |
+
+确认版本的办法：页面里打印 `navigator.userAgent`。
+
+> 自带的 `ui-main.html` 里 `.card::before{inset:0}` 就是这个坑——那层高光从来没渲染出来过，
+> 但因为是额外装饰，不去看代码发现不了。
 
 ---
 
@@ -262,30 +284,26 @@ box.innerHTML = '<div>...</div>';
 ### 6.1 目录
 
 ```
-/sdcard/Android/data/ov.dash/files/
+/sdcard/Android/media/ov.dash/
   config.json        配置
   ui-main.html       主屏页面
   ui-cluster.html    副屏页面
+  my-hud/index.html  带 css/js/图片的整包页面
 ```
+
+这个目录是公共的：文件管理器、U 盘工具、adb 都能直接访问，**不需要 chmod**。
 
 ### 6.2 改页面的正确姿势
 
 ```bash
-adb push 新页面.html /sdcard/Download/x.html
-adb shell "cp /sdcard/Download/x.html /sdcard/Android/data/ov.dash/files/ui-cluster.html"
-adb shell "chmod 666 /sdcard/Android/data/ov.dash/files/ui-cluster.html"
+adb push 新页面.html /sdcard/Android/media/ov.dash/ui-cluster.html
 ```
 
-**第三条 `chmod` 不能省：**
+一条命令就完事，`FileObserver` 监听到文件变动会自动热重载。
+页面也可以放在别处，把 `config.json` 的 `html` 写成绝对路径
+（如 `/sdcard/Download/x.html`，需要 `MANAGE_EXTERNAL_STORAGE`，已默认授权）。
 
-- 覆盖**已存在**的 app 属主文件 → 属主不变，本来就能读
-- 但如果是**新建**文件（比如新加一个 `ui-top.html`），`cp` 出来的属主是 `shell`、权限 `600`，
-  app 读不到，页面直接白屏
-- `chmod 666` 之后两种情况都能读
-
-对 app 属主文件执行 `chmod` 会报 `Operation not permitted`，正常——那种文件不需要改。
-
-**全程不需要编译 APK。** `FileObserver` 监听目录，保存后自动热重载，保险起见也可以：
+**全程不需要编译 APK。** 保险起见也可以手动触发：
 
 ```bash
 adb shell am broadcast -a ov.dash.reload
@@ -316,7 +334,7 @@ adb shell am broadcast -a ov.dash.reload
 | 字段 | 默认 | 说明 |
 |---|---|---|
 | `display` | 1 | 0 = 主屏，1 = 副屏 |
-| `html` | — | 页面文件名，放在 `files/` 目录 |
+| `html` | — | 页面文件名，相对共享目录；以 `/` 开头则当绝对路径 |
 | `name` | html 去后缀 | 注入给 HTML 的 `_slot` 值 |
 | `enabled` | true | `false` 时不创建 WebView，零内存 |
 | `onlyOnDesktop` | false | `true` = 只在桌面显示（整个窗口销毁重建） |

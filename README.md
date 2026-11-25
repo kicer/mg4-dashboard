@@ -16,6 +16,7 @@ adb shell appops set ov.dash SYSTEM_ALERT_WINDOW allow
 adb shell appops set ov.dash GET_USAGE_STATS allow
 adb shell pm grant ov.dash android.permission.ACCESS_FINE_LOCATION
 adb shell pm grant ov.dash android.permission.ACCESS_COARSE_LOCATION
+adb shell appops set ov.dash MANAGE_EXTERNAL_STORAGE allow
 adb shell cmd notification allow_listener ov.dash/ov.dash.MediaListener
 adb shell am start -n ov.dash/.Main
 ```
@@ -23,25 +24,21 @@ adb shell am start -n ov.dash/.Main
 **换页面**（随时，不用重装）：
 
 ```bash
-adb push 我的页面.html /sdcard/Download/_tmp.html
-adb shell "cp /sdcard/Download/_tmp.html /sdcard/Android/data/ov.dash/files/ui-main.html"
-adb shell "chmod 666 /sdcard/Android/data/ov.dash/files/ui-main.html"
-adb shell am broadcast -a ov.dash.reload
+adb push 我的页面.html /sdcard/Android/media/ov.dash/ui-main.html
 ```
 
-两个不能省的坑：
-
-- **不能直 push 到 `files/`**，会报 `remote fchown failed`，必须经 `Download/` 中转再 `cp`
-- **`chmod 666` 不能省**：新建文件属主是 `shell`、权限 600，app 读不到会白屏
+一条命令，push 完自动热重载。也可以推到任意位置，在设置页里选中它，
+或把 `config.json` 的 `html` 写成绝对路径（需 `MANAGE_EXTERNAL_STORAGE`）。
 
 装包那几条里，`-i com.zone.hmi.appstore` 不能省（否则收不到开机广播），
-`SYSTEM_ALERT_WINDOW` 不能省（否则浮层不显示，车机没有授权界面）。
+`SYSTEM_ALERT_WINDOW` 不能省（否则浮层不显示，车机没有授权界面），
+`MANAGE_EXTERNAL_STORAGE` 不能省（否则只能读共享目录，读不到 `Download`）。
 
 **可选：无障碍**（桌面切换检测延迟更低）。顺序敏感，先关、设列表、再开：
 
 ```bash
 adb shell "settings put secure accessibility_enabled 0"
-adb shell "settings put secure enabled_accessibility_services 'com.zone.service.speech.viewcmd/.ViewCmdAccessibilityService:ov.dash/.TopWatcher20'"
+adb shell "settings put secure enabled_accessibility_services 'com.zone.service.speech.viewcmd/.ViewCmdAccessibilityService:ov.dash/.TopWatcher22'"
 adb shell "settings put secure accessibility_enabled 1"
 ```
 
@@ -65,10 +62,10 @@ adb shell "settings put secure accessibility_enabled 1"
 
 这两个是**自定义的起点**，内容还在持续完善。照着改、整个换掉、或者从空文件重写都行。
 
-**改坏了怎么恢复**：删掉 `files/` 下的那个文件，发 `am broadcast -a ov.dash.reload`，
+**改坏了怎么恢复**：删掉共享目录下的那个文件，发 `am broadcast -a ov.dash.reload`，
 app 会自动从 APK 里重新复制一份原版。
 
-**可以带附件**：`files/` 下放 css / js / 图片 / 字体，页面里用相对路径引用即可。
+**可以带附件**：共享目录下放 css / js / 图片 / 字体，页面里用相对路径引用即可。
 
 ## 硬限制（先看这条）
 
@@ -82,7 +79,7 @@ app 会自动从 APK 里重新复制一份原版。
 
 ## 配置
 
-`/sdcard/Android/data/ov.dash/files/config.json`
+`/sdcard/Android/media/ov.dash/config.json`
 
 ```json
 {
