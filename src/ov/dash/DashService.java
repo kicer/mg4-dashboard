@@ -72,6 +72,8 @@ public class DashService extends Service {
     static final String ACTION_MC = "ov.dash.mc";
     static final String ACTION_JSON = "ov.dash.json";
     static final String ACTION_MEDIA = "ov.dash.media";
+    /** 设置页开合时自己发，让主屏浮层立刻让开/回来。 */
+    static final String ACTION_CHECK = "ov.dash.check";
     private static final long WATCHDOG_MS = 120_000L;
     private static final int TYPE_OVERLAY = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
 
@@ -134,6 +136,8 @@ public class DashService extends Service {
                 stopSelf();
             } else if (ACTION_RELOAD.equals(a)) {
                 reloadAll();
+            } else if (ACTION_CHECK.equals(a)) {
+                handler.post(topChecker);
             } else if (ACTION_PROBE.equals(a)) {
                 // binder 扫描不能跑主线程
                 new Thread(new Runnable() {
@@ -178,8 +182,8 @@ public class DashService extends Service {
                         + " | album=" + MediaCenterReader.album
                         + " | src=" + MediaCenterReader.kind
                         + " | playing=" + MediaListener.playing
-                        + " | appWindow=" + TopWatcher22.hasAppWindow
-                        + " | appPkg=" + TopWatcher22.topAppPkg
+                        + " | appWindow=" + TopWatcher24.hasAppWindow
+                        + " | appPkg=" + TopWatcher24.topAppPkg
                         + " || onDesktop=" + isOnDesktop()
                         + " | fgApp=" + topPkg
                         + " | pushCount=" + Signals.pushCount.get());
@@ -214,7 +218,7 @@ public class DashService extends Service {
         // 媒体中心 bind 放在这里发起，不依赖无障碍/通知监听是否连上
         MediaCenterReader.init(this);
         // 无障碍事件到达时直接触发一次检查，不再靠定时轮询
-        TopWatcher22.onChange = new Runnable() {
+        TopWatcher24.onChange = new Runnable() {
             @Override
             public void run() {
                 handler.post(topChecker);
@@ -274,6 +278,7 @@ public class DashService extends Service {
         f.addAction(ACTION_MC);
         f.addAction(ACTION_JSON);
         f.addAction(ACTION_MEDIA);
+        f.addAction(ACTION_CHECK);
         return f;
     }
 
@@ -583,7 +588,7 @@ public class DashService extends Service {
     private String currentTop() {
         UsageStatsManager usm = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
         if (usm == null) {
-            return TopWatcher22.connected ? TopWatcher22.topPkg : topPkg;
+            return TopWatcher24.connected ? TopWatcher24.topPkg : topPkg;
         }
         long now = System.currentTimeMillis();
         long from = topCheckedAt > 0 ? topCheckedAt - 1000 : now - 3600000L;
@@ -600,8 +605,8 @@ public class DashService extends Service {
                         p = e.getPackageName();
                     }
                 }
-                // 过滤自己，否则打开 Main 会被误判成“离开桌面”
-                if (p != null && !getPackageName().equals(p)) {
+                // 自己在前台（设置页）也算离开桌面，浮层要让开
+                if (p != null) {
                     if (!p.equals(topPkg)) {
                         Log.e(TAG, "top -> " + p);
                     }
@@ -631,18 +636,27 @@ public class DashService extends Service {
         public void run() {
             handler.removeCallbacks(this);   // 防止重复排队
             try {
-                String top = currentTop();
-                for (ScreenCtx c : screens) {
-                    if (!c.cfg.onlyOnDesktop) {
-                        continue;
+                if (Main.visible) {
+                    // 设置页自己在前台，主屏浮层直接让开，不看前台包名
+                    for (ScreenCtx c : screens) {
+                        if (c.cfg.display == 0) {
+                            setScreenVisible(c, false);
+                        }
                     }
-                    setScreenVisible(c, c.cfg.launcherPkg.equals(top));
+                } else {
+                    String top = currentTop();
+                    for (ScreenCtx c : screens) {
+                        if (!c.cfg.onlyOnDesktop) {
+                            continue;
+                        }
+                        setScreenVisible(c, c.cfg.launcherPkg.equals(top));
+                    }
                 }
             } catch (Throwable t) {
                 Log.e(TAG, "topChecker fail: " + t);
             }
             // 无障碍在线时由事件触发，不再定时轮询；没连上才退回定时查询
-            if (!TopWatcher22.connected && active && needTopCheck()) {
+            if (!TopWatcher24.connected && active && needTopCheck()) {
                 handler.postDelayed(this, Math.max(100, cfg.topCheckMs));
             }
         }

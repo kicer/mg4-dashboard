@@ -184,7 +184,7 @@ function load() {
   if (!cfg.screens) cfg.screens = [];
 
   var env = document.getElementById('env');
-  env.innerHTML = '共享目录 <b>' + info.root + '</b>　·　IP <b>' + (info.ip || '未联网') + '</b>　·　无障碍 <b class="' +
+  env.innerHTML = '共享目录 <b>' + info.root + '</b>　·　IP <b>' + (info.ip || '无局域网 IP') + '</b>　·　无障碍 <b class="' +
     (info.a11y ? 'ok' : 'warn') + '">' + (info.a11y ? '已开启' : '未开启') + '</b>';
 
   document.getElementById('refresh').value = String(cfg.refresh || 1000);

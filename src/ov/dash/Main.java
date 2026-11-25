@@ -30,13 +30,16 @@ import java.util.List;
 public class Main extends Activity {
 
     private static final String TAG = "OVDASH";
+    /** 设置页是否在前台。Service 靠它决定主屏浮层让不让开。 */
+    static volatile boolean visible;
+    private WebView web;
 
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         startForegroundService(new Intent(this, DashService.class));
 
-        WebView web = new WebView(this);
+        web = new WebView(this);
         WebSettings ws = web.getSettings();
         ws.setJavaScriptEnabled(true);
         ws.setAllowFileAccess(true);
@@ -44,6 +47,35 @@ public class Main extends Activity {
         web.addJavascriptInterface(new Bridge(), "dash");
         web.loadUrl("file:///android_asset/ui-settings.html");
         setContentView(web);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        visible = true;
+        ping();
+    }
+
+    @Override
+    protected void onPause() {
+        visible = false;
+        ping();
+        super.onPause();
+    }
+
+    /** 告诉服务重新判定浮层显隐，不依赖无障碍事件是否及时。 */
+    private void ping() {
+        sendBroadcast(new Intent(DashService.ACTION_CHECK).setPackage(getPackageName()));
+    }
+
+    @Override
+    protected void onDestroy() {
+        // 设置页是独立 WebView，Activity 退出就销毁，不拖内存
+        if (web != null) {
+            web.destroy();
+            web = null;
+        }
+        super.onDestroy();
     }
 
     /** JS 接口。被 WebView 的 JS 线程调用，同步 IO 都是小文件。 */
@@ -185,7 +217,13 @@ public class Main extends Activity {
         try {
             String s = Settings.Secure.getString(getContentResolver(),
                     Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-            return s != null && s.contains(getPackageName() + "/" + TopWatcher22.class.getName());
+            if (s == null) {
+                return false;
+            }
+            // 系统里存的是短名 ov.dash/.TopWatcher24，dumpsys 才展开成全名
+            String full = getPackageName() + "/" + TopWatcher24.class.getName();
+            String brief = getPackageName() + "/." + TopWatcher24.class.getSimpleName();
+            return s.contains(full) || s.contains(brief);
         } catch (Throwable t) {
             return false;
         }
