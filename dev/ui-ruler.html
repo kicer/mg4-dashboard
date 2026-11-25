@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:transparent;
+            font-family:monospace;color:#fff}
+  /* 外框：确认 overlay 的 Android 可见边界 */
+  #f{position:fixed;left:0;top:0;right:0;bottom:0;box-sizing:border-box;
+     border:6px solid #00e5ff;pointer-events:none}
+  .band{position:fixed;top:0;bottom:0;display:flex;align-items:center;justify-content:center;
+        font-size:26px;font-weight:bold;text-shadow:0 0 6px #000}
+  #hint{position:fixed;left:50%;top:46%;transform:translate(-50%,-50%);
+        background:rgba(0,0,0,.85);padding:16px 22px;border-radius:12px;
+        font-size:22px;line-height:1.6;white-space:nowrap;border:2px solid #00e5ff}
+  #hint b{color:#ffd60a}
+</style>
+</head>
+<body>
+<div id="f"></div>
+<div id="bands"></div>
+<div id="hint">
+  <b>右侧色带测试</b><br>
+  从右往左，每 100 物理像素一条<br>
+  报一下：<b>能看到到第几条</b>
+</div>
+<script>
+(function(){
+  var colors = ['#ff2d55','#ff9f0a','#ffd60a','#30d158','#0a84ff','#bf5af2','#ff2d55'];
+  var wrap = document.getElementById('bands');
+  var dpr = window.devicePixelRatio || 1;
+  var w = window.innerWidth;              // CSS 宽
+  var physW = Math.round(w * dpr);
+  var bandCss = 100 / dpr;                // 100 物理像素对应的 CSS 宽
+  for (var i = 0; i < 7; i++) {
+    var d = document.createElement('div');
+    d.className = 'band';
+    d.style.right = (i * bandCss) + 'px';
+    d.style.width = bandCss + 'px';
+    d.style.background = colors[i] + '55';
+    d.style.borderLeft = '2px solid ' + colors[i];
+    d.textContent = (i + 1) * 100;
+    wrap.appendChild(d);
+  }
+  document.getElementById('hint').innerHTML =
+    '<b>右侧色带测试</b><br>从右往左每 100 物理像素一条<br>' +
+    '物理 ' + physW + ' x ' + Math.round(window.innerHeight * dpr) + '<br>' +
+    '报一下：<b>能看到到第几条</b>';
+})();
+</script>
+</body>
+</html>
