@@ -17,6 +17,8 @@ final class Config {
     private static final String TAG = "OVDASH";
 
     int refresh = 1000;
+    /** 前台应用检查间隔，配多少用多少（不搞 0 特殊值）。 */
+    int topCheckMs = 500;
     boolean pushOnChange = true;
     int forcePushMs = 30_000;
 
@@ -26,6 +28,9 @@ final class Config {
         int display = 1;
         String html = "ui-cluster.html";
         boolean enabled = true;
+        /** true = 只在 launcherPkg 位于前台时显示，切到别的 app 就隐藏。 */
+        boolean onlyOnLauncher = false;
+        String launcherPkg = "com.zone.hmi.launcher";
     }
 
     static Config defaults() {
@@ -63,6 +68,7 @@ final class Config {
         Config c = defaults();
         c.screens.clear();
         c.refresh = o.optInt("refresh", c.refresh);
+        c.topCheckMs = o.optInt("topCheckMs", c.topCheckMs);
         c.pushOnChange = o.optBoolean("pushOnChange", c.pushOnChange);
         c.forcePushMs = o.optInt("forcePushMs", c.forcePushMs);
         JSONArray arr = o.optJSONArray("screens");
@@ -76,6 +82,8 @@ final class Config {
                 s.display = so.optInt("display", 1);
                 s.html = so.optString("html", "ui-cluster.html");
                 s.enabled = so.optBoolean("enabled", true);
+                s.onlyOnLauncher = so.optBoolean("onlyOnLauncher", false);
+                s.launcherPkg = so.optString("launcherPkg", "com.zone.hmi.launcher");
                 c.screens.add(s);
             }
         }
@@ -89,6 +97,7 @@ final class Config {
         try {
             JSONObject o = new JSONObject();
             o.put("refresh", refresh);
+            o.put("topCheckMs", topCheckMs);
             o.put("pushOnChange", pushOnChange);
             o.put("forcePushMs", forcePushMs);
             JSONArray arr = new JSONArray();
@@ -97,6 +106,10 @@ final class Config {
                 so.put("display", s.display);
                 so.put("html", s.html);
                 so.put("enabled", s.enabled);
+                if (s.onlyOnLauncher) {
+                    so.put("onlyOnLauncher", true);
+                    so.put("launcherPkg", s.launcherPkg);
+                }
                 arr.put(so);
             }
             o.put("screens", arr);

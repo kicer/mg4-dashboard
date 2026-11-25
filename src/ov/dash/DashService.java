@@ -6,6 +6,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.app.usage.UsageEvents;
+import android.app.usage.UsageStatsManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -63,6 +65,7 @@ public class DashService extends Service {
     static final String ACTION_RELOAD = "ov.dash.reload";
     static final String ACTION_PROBE = "ov.dash.probe";
     static final String ACTION_SCAN = "ov.dash.scan";
+    static final String ACTION_TOP = "ov.dash.top";
     private static final long WATCHDOG_MS = 120_000L;
     private static final int TYPE_OVERLAY = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
 
@@ -88,8 +91,11 @@ public class DashService extends Service {
     /** 一块屏一个 WebView。 */
     private static final class ScreenCtx {
         Config.Screen cfg;
+        Display disp;
         WebView web;
         WindowManager wm;
+        WindowManager.LayoutParams lp;
+        boolean attached;
         String lastJson = "";
         long lastPush;
     }
@@ -136,6 +142,13 @@ public class DashService extends Service {
                     @Override
                     public void run() {
                         doScan();
+                    }
+                }).start();
+            } else if (ACTION_TOP.equals(a)) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        probeTop();
                     }
                 }).start();
             }
@@ -206,6 +219,7 @@ public class DashService extends Service {
         f.addAction(ACTION_RELOAD);
         f.addAction(ACTION_PROBE);
         f.addAction(ACTION_SCAN);
+        f.addAction(ACTION_TOP);
         return f;
     }
 
@@ -222,6 +236,10 @@ public class DashService extends Service {
         }
         active = !screens.isEmpty();
         Log.e(TAG, "active screens=" + screens.size() + " active=" + active);
+        handler.removeCallbacks(topChecker);
+        if (active && needTopCheck()) {
+            handler.post(topChecker);
+        }
     }
 
     private void createScreen(final Config.Screen s) {
@@ -261,13 +279,48 @@ public class DashService extends Service {
             return;
         }
 
-        Context ctx = createDisplayContext(d);
         ScreenCtx c = new ScreenCtx();
         c.cfg = s;
+        c.disp = d;
+        c.lp = makeLp();
+        buildWeb(c);
+        // onlyOnLauncher 的屏由 topChecker 决定何时挂上去，先加载不显示
+        if (!s.onlyOnLauncher || s.launcherPkg.equals(currentTop())) {
+            try {
+                c.wm.addView(c.web, c.lp);
+                c.attached = true;
+            } catch (Throwable t) {
+                Log.e(TAG, "addView fail display=" + s.display + ": " + t);
+                c.web.destroy();
+                c.web = null;
+                return;
+            }
+        }
+        screens.add(c);
+        // 副屏可能晚于 buildScreens 就绪，这里必须同步一次，否则采集被 active 短路
+        active = !screens.isEmpty();
+        Log.e(TAG, "screen created display=" + s.display + " html=" + s.html + " attached=" + c.attached);
+    }
+
+    private WindowManager.LayoutParams makeLp() {
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                TYPE_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                        | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                        | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                PixelFormat.TRANSLUCENT);
+        lp.gravity = Gravity.TOP | Gravity.START;
+        return lp;
+    }
+
+    /** 建一套 WebView（含该 display 的 WindowManager），并开始加载 html。 */
+    private void buildWeb(ScreenCtx c) {
+        Context ctx = createDisplayContext(c.disp);
         c.wm = (WindowManager) ctx.getSystemService(WINDOW_SERVICE);
         c.web = new WebView(ctx);
-        // 排查用：确认这块屏的 WebView 到底拿到了什么 density，副屏应该是 1.0
-        Log.e(TAG, "display=" + s.display + " density="
+        Log.e(TAG, "display=" + c.cfg.display + " density="
                 + ctx.getResources().getDisplayMetrics().density
                 + " dpi=" + ctx.getResources().getDisplayMetrics().densityDpi);
         c.web.setBackgroundColor(Color.TRANSPARENT);
@@ -281,28 +334,8 @@ public class DashService extends Service {
         c.web.setWebViewClient(new WebViewClient());
         c.web.setVerticalScrollBarEnabled(false);
         c.web.setHorizontalScrollBarEnabled(false);
-
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                TYPE_OVERLAY,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                        | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-                        | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-                PixelFormat.TRANSLUCENT);
-        lp.gravity = Gravity.TOP | Gravity.START;
-        try {
-            c.wm.addView(c.web, lp);
-        } catch (Throwable t) {
-            Log.e(TAG, "addView fail display=" + s.display + ": " + t);
-            c.web.destroy();
-            return;
-        }
+        c.lastJson = "";
         loadScreen(c);
-        screens.add(c);
-        // 副屏可能晚于 buildScreens 就绪，这里必须同步一次，否则采集被 active 短路
-        active = !screens.isEmpty();
-        Log.e(TAG, "screen created display=" + s.display + " html=" + s.html + " active=" + active);
     }
 
     /** file:// 加载，同目录相对路径的图片/CSS/JS 自动可用。 */
@@ -317,10 +350,12 @@ public class DashService extends Service {
     }
 
     private void destroyAll() {
+        handler.removeCallbacks(topChecker);
         for (ScreenCtx c : screens) {
             try {
-                if (c.wm != null && c.web != null) {
-                    c.wm.removeView(c.web);
+                if (c.attached && c.wm != null && c.web != null) {
+                    c.wm.removeViewImmediate(c.web);
+                    c.attached = false;
                 }
             } catch (Throwable ignore) {
                 // 已移除
@@ -399,6 +434,157 @@ public class DashService extends Service {
         File kf = new File(baseDir, "keys.txt");
         if (!kf.exists()) {
             copyAsset("keys.txt", kf);
+        }
+    }
+
+    /** 缓存的前台包名，由 topChecker 维护。 */
+    private String topPkg;
+    private long topCheckedAt;
+
+    /** 取当前前台包名，带缓存：首次查 1 小时事件，之后只查增量。 */
+    private String currentTop() {
+        UsageStatsManager usm = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
+        if (usm == null) {
+            return topPkg;
+        }
+        long now = System.currentTimeMillis();
+        long from = topCheckedAt > 0 ? topCheckedAt - 1000 : now - 3600000L;
+        try {
+            UsageEvents ev = usm.queryEvents(from, now);
+            if (ev != null) {
+                UsageEvents.Event e = new UsageEvents.Event();
+                String p = null;
+                long t = 0;
+                while (ev.hasNextEvent()) {
+                    ev.getNextEvent(e);
+                    if (e.getEventType() == UsageEvents.Event.ACTIVITY_RESUMED && e.getTimeStamp() >= t) {
+                        t = e.getTimeStamp();
+                        p = e.getPackageName();
+                    }
+                }
+                // 过滤自己，否则打开 Main 会被误判成“离开桌面”
+                if (p != null && !getPackageName().equals(p)) {
+                    if (!p.equals(topPkg)) {
+                        Log.e(TAG, "top -> " + p);
+                    }
+                    topPkg = p;
+                }
+            }
+        } catch (Throwable t) {
+            Log.e(TAG, "currentTop fail: " + t);
+        }
+        topCheckedAt = now;
+        return topPkg;
+    }
+
+    /** 只有主屏配了 onlyOnLauncher 才需要查前台，否则一次都不跑。 */
+    private boolean needTopCheck() {
+        for (Config.Screen s : cfg.screens) {
+            if (s.enabled && s.onlyOnLauncher && s.display == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** 按 topCheckMs 对 onlyOnLauncher 的屏做显示/隐藏判断。 */
+    private final Runnable topChecker = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                String top = currentTop();
+                for (ScreenCtx c : screens) {
+                    if (!c.cfg.onlyOnLauncher) {
+                        continue;
+                    }
+                    setScreenVisible(c, c.cfg.launcherPkg.equals(top));
+                }
+            } catch (Throwable t) {
+                Log.e(TAG, "topChecker fail: " + t);
+            }
+            if (active && needTopCheck()) {
+                handler.postDelayed(this, Math.max(100, cfg.topCheckMs));
+            }
+        }
+    };
+
+    private void setScreenVisible(ScreenCtx c, boolean show) {
+        if (c.attached == show) {
+            return;
+        }
+        if (show) {
+            try {
+                buildWeb(c);
+                c.wm.addView(c.web, c.lp);
+                c.attached = true;
+                Log.e(TAG, "display=" + c.cfg.display + " attached top=" + topPkg);
+            } catch (Throwable t) {
+                Log.e(TAG, "show display=" + c.cfg.display + " fail: " + t);
+            }
+        } else {
+            try {
+                c.wm.removeViewImmediate(c.web);
+            } catch (Throwable ignore) {
+                // 已移除
+            }
+            try {
+                c.web.destroy();
+            } catch (Throwable ignore) {
+                // 已销毁
+            }
+            c.web = null;
+            c.wm = null;
+            c.attached = false;
+            c.lastJson = "";
+            Log.e(TAG, "display=" + c.cfg.display + " destroyed top=" + topPkg);
+        }
+    }
+
+    /** 调试：查当前前台包名（需要 GET_USAGE_STATS appop）。 */
+    private void probeTop() {
+        try {
+            UsageStatsManager usm = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
+            if (usm == null) {
+                Log.e(TAG, "top: usm null");
+                return;
+            }
+            long now = System.currentTimeMillis();
+            // 方案 A：事件流，窗口拉大到 60 秒
+            UsageEvents ev = usm.queryEvents(now - 3600000L, now);
+            if (ev == null) {
+                Log.e(TAG, "top(events) null, 权限没生效?");
+            } else {
+                UsageEvents.Event e = new UsageEvents.Event();
+                String pkg = null;
+                long t = 0;
+                int n = 0;
+                while (ev.hasNextEvent()) {
+                    ev.getNextEvent(e);
+                    n++;
+                    if (e.getEventType() == UsageEvents.Event.ACTIVITY_RESUMED && e.getTimeStamp() >= t) {
+                        t = e.getTimeStamp();
+                        pkg = e.getPackageName();
+                    }
+                }
+                Log.e(TAG, "top(events) pkg=" + pkg + " n=" + n);
+            }
+            // 方案 B：使用统计，取 lastTimeUsed 最大那个
+            java.util.List<android.app.usage.UsageStats> list =
+                    usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, now - 86400000L, now);
+            if (list == null) {
+                Log.e(TAG, "top(stats) null");
+                return;
+            }
+            android.app.usage.UsageStats best = null;
+            for (android.app.usage.UsageStats u : list) {
+                if (u.getLastTimeUsed() > 0 && (best == null || u.getLastTimeUsed() > best.getLastTimeUsed())) {
+                    best = u;
+                }
+            }
+            Log.e(TAG, "top(stats) size=" + list.size() + " best="
+                    + (best == null ? "null" : best.getPackageName() + " ago=" + (now - best.getLastTimeUsed()) + "ms"));
+        } catch (Throwable t) {
+            Log.e(TAG, "top fail: " + t);
         }
     }
 
