@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>ov.dash cluster</title>
+<style>
+/* 副屏 1139×684（CSS）。上下各 67px 是 QNX 边栏，右侧有 QNX 信息栏，
+   所以内容全部压在 y:70~615、x:60~900 这块安全区里 */
+:root{--g:#22d3ee;--g2:#34d399;--dim:rgba(34,211,238,.42)}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden;
+  font-family:'Helvetica Neue',Arial,'Noto Sans CJK SC',sans-serif;
+  -webkit-user-select:none;color:#d6f7ff}
+#fx{position:absolute;left:0;top:0;width:100%;height:100%}
+#hud{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+
+/* ---- 中央圆表 ---- */
+#gauge{position:absolute;left:104px;top:134px;width:392px;height:392px}
+#spd{position:absolute;left:0;top:50%;width:100%;text-align:center;margin-top:-48px;
+  font-size:96px;font-weight:800;line-height:1;letter-spacing:-4px;color:#fff;
+  text-shadow:0 0 22px rgba(34,211,238,.85),0 0 70px rgba(34,211,238,.4)}
+#unit{position:absolute;left:0;top:50%;width:100%;text-align:center;margin-top:54px;
+  font-size:12px;letter-spacing:9px;text-indent:9px;color:rgba(34,211,238,.5)}
+#aec{position:absolute;left:0;top:50%;width:100%;text-align:center;margin-top:78px;
+  font-size:13px;letter-spacing:1px;color:rgba(52,211,153,.9)}
+
+/* ---- 右侧数据列 ---- */
+#side{position:absolute;left:556px;top:150px;width:344px}
+.row{position:relative;margin-bottom:24px}
+.row .k{font-size:11px;letter-spacing:2px;color:rgba(34,211,238,.45)}
+.row .v{font-size:26px;font-weight:700;letter-spacing:-.5px;color:#e6fbff;
+  text-shadow:0 0 14px rgba(34,211,238,.45)}
+.row .v small{font-size:12px;font-weight:400;letter-spacing:1px;
+  color:rgba(34,211,238,.5);margin-left:4px}
+.bar{height:3px;margin-top:5px;background:rgba(34,211,238,.12);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:2px;
+  background:-webkit-linear-gradient(left,#22d3ee,#34d399);
+  background:linear-gradient(90deg,#22d3ee,#34d399);
+  box-shadow:0 0 10px rgba(34,211,238,.7);transition:width .5s ease}
+
+/* ---- 底部条 ---- */
+#foot{position:absolute;left:60px;top:566px;width:840px;height:46px;
+  border-top:1px solid rgba(34,211,238,.16);
+  display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center}
+#foot div{-webkit-flex:1;flex:1;font-size:12px;letter-spacing:1px;color:rgba(34,211,238,.45)}
+#foot div b{display:block;font-size:19px;font-weight:700;letter-spacing:0;margin-top:2px;
+  color:#e6fbff;text-shadow:0 0 12px rgba(34,211,238,.4)}
+#foot div+div{margin-left:18px}
+
+/* ---- 四角装饰 ---- */
+.corner{position:absolute;width:26px;height:26px;border:1px solid rgba(34,211,238,.3)}
+#c1{left:52px;top:74px;border-right:0;border-bottom:0}
+#c2{left:52px;top:614px;border-right:0;border-top:0}
+#c3{left:900px;top:74px;border-left:0;border-bottom:0}
+#c4{left:900px;top:614px;border-left:0;border-top:0}
+</style></head>
+<body>
+<canvas id="fx"></canvas>
+<div class="corner" id="c1"></div>
+<div class="corner" id="c2"></div>
+<div class="corner" id="c3"></div>
+<div class="corner" id="c4"></div>
+
+<div id="hud">
+  <div id="gauge">
+    <div id="spd">--</div>
+    <div id="unit">KM/H</div>
+    <div id="aec">-- kWh/100</div>
+  </div>
+
+  <div id="side">
+    <div class="row">
+      <div class="k">SOC</div>
+      <div class="v"><span id="soc">--</span><small>%</small></div>
+      <div class="bar"><i id="socbar"></i></div>
+    </div>
+    <div class="row">
+      <div class="k">RANGE</div>
+      <div class="v"><span id="rng">--</span><small>km</small></div>
+      <div class="bar"><i id="rngbar"></i></div>
+    </div>
+    <div class="row">
+      <div class="k">PACK</div>
+      <div class="v"><span id="volt">--</span><small>V</small>
+        <span id="curr" style="margin-left:14px">--</span><small>A</small></div>
+      <div class="bar"><i id="pwrbar"></i></div>
+    </div>
+    <div class="row">
+      <div class="k">TIRE  FL / FR / RL / RR</div>
+      <div class="v" style="font-size:22px">
+        <span id="tfl">--</span><small style="margin:0 6px 0 2px">/</small><span id="tfr">--</span><small style="margin:0 6px 0 2px">/</small><span id="trl">--</span><small style="margin:0 6px 0 2px">/</small><span id="trr">--</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="foot">
+    <div>ODO<b id="odo">--</b></div>
+    <div>TRIP 1<b id="trip1">--</b></div>
+    <div>IN / OUT<b id="temp">-- / --</b></div>
+    <div>ENERGY<b id="energy">--</b></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var TAU = Math.PI * 2;
+  var W = 1139, H = 684, S = 0.5;
+  var CX = 300, CY = 330, R = 196;
+  var A0 = Math.PI * 0.75, SWEEP = Math.PI * 1.5;
+  var TICKS = 60;
+  var SAFE_T = 67, SAFE_B = 617;
+
+  var cv = document.getElementById('fx');
+  var ctx = cv.getContext('2d');
+  cv.width = W * S; cv.height = H * S;
+
+  /* ---------- 六边形网格：一次性画到离屏画布 ---------- */
+  var hexCv = document.createElement('canvas');
+  hexCv.width = W * S; hexCv.height = H * S;
+  (function buildHex() {
+    var c = hexCv.getContext('2d');
+    c.setTransform(S, 0, 0, S, 0, 0);
+    c.strokeStyle = 'rgba(34,211,238,.075)';
+    c.lineWidth = 1;
+    var rad = 42, dx = rad * 1.5, dy = rad * Math.sqrt(3);
+    for (var x = -rad; x < W + rad; x += dx) {
+      for (var y = -rad; y < H + rad; y += dy) {
+        var ox = (Math.round(x / dx) % 2) ? dy / 2 : 0;
+        c.beginPath();
+        for (var k = 0; k < 6; k++) {
+          var ang = Math.PI / 3 * k;
+          var px = x + Math.cos(ang) * rad;
+          var py = y + ox + Math.sin(ang) * rad;
+          if (k === 0) c.moveTo(px, py); else c.lineTo(px, py);
+        }
+        c.closePath();
+        c.stroke();
+      }
+    }
+  })();
+
+  /* ---------- 状态 ---------- */
+  var spdCur = 0, spdTgt = 0, f = 0, soc = 0, socTgt = 0;
+  var t0 = 0, lastT = 0, scan = 0;
+
+  var spdEl = document.getElementById('spd');
+  var aecEl = document.getElementById('aec');
+  var socEl = document.getElementById('soc');
+  var rngEl = document.getElementById('rng');
+  var voltEl = document.getElementById('volt');
+  var currEl = document.getElementById('curr');
+  var socBar = document.getElementById('socbar');
+  var rngBar = document.getElementById('rngbar');
+  var pwrBar = document.getElementById('pwrbar');
+
+  function hue() { return 186 + f * 26; }
+
+  function frame(now) {
+    if (!lastT) lastT = now;
+    var dt = Math.min(80, now - lastT); lastT = now;
+
+    /* 扫描线不需要 60fps，限到 ~30fps 省 CPU */
+    if (dt < 30) { requestAnimationFrame(frame); return; }
+    t0 += dt;
+
+    spdCur += (spdTgt - spdCur) * Math.min(1, dt / 220);
+    soc += (socTgt - soc) * Math.min(1, dt / 400);
+    f = Math.max(0, Math.min(1, spdCur / 160));
+
+    ctx.setTransform(S, 0, 0, S, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+
+    /* 网格底 */
+    ctx.drawImage(hexCv, 0, 0, W, H);
+
+    /* 上下安全区外压暗，避免内容贴边 */
+    var vg = ctx.createLinearGradient(0, 0, 0, H);
+    vg.addColorStop(0, 'rgba(3,10,16,.55)');
+    vg.addColorStop(SAFE_T / H, 'rgba(3,10,16,0)');
+    vg.addColorStop(SAFE_B / H, 'rgba(3,10,16,0)');
+    vg.addColorStop(1, 'rgba(3,10,16,.55)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, W, H);
+
+    /* 扫描带 */
+    scan = (scan + dt / 1000 * 90) % (H + 240);
+    var sg = ctx.createLinearGradient(0, scan - 120, 0, scan + 120);
+    sg.addColorStop(0, 'rgba(34,211,238,0)');
+    sg.addColorStop(0.5, 'rgba(34,211,238,.055)');
+    sg.addColorStop(1, 'rgba(34,211,238,0)');
+    ctx.fillStyle = sg;
+    ctx.fillRect(0, scan - 120, W, 240);
+
+    var h = hue();
+
+    /* 外圈刻度 */
+    var lit = f * (TICKS - 1);
+    for (var k = 0; k < TICKS; k++) {
+      var ang = A0 + SWEEP * k / (TICKS - 1);
+      var on = k <= lit;
+      var big = (k % 5 === 0);
+      var r1 = R + 5, r2 = R + (big ? 24 : 13);
+      ctx.beginPath();
+      ctx.moveTo(CX + Math.cos(ang) * r1, CY + Math.sin(ang) * r1);
+      ctx.lineTo(CX + Math.cos(ang) * r2, CY + Math.sin(ang) * r2);
+      ctx.lineWidth = big ? 2.2 : 1.1;
+      ctx.strokeStyle = on ? 'hsla(' + h + ',100%,70%,.9)' : 'hsla(' + h + ',90%,72%,.13)';
+      ctx.stroke();
+    }
+
+    /* 速度弧 */
+    if (f > 0.002) {
+      var e = A0 + SWEEP * f;
+      ctx.beginPath(); ctx.arc(CX, CY, R - 3, A0, e, false);
+      ctx.lineWidth = 14; ctx.strokeStyle = 'hsla(' + h + ',100%,60%,.10)'; ctx.stroke();
+      ctx.beginPath(); ctx.arc(CX, CY, R - 3, A0, e, false);
+      ctx.lineWidth = 4; ctx.strokeStyle = 'hsla(' + h + ',100%,70%,.92)'; ctx.stroke();
+    }
+
+    /* 内圈电量环 */
+    ctx.beginPath();
+    ctx.arc(CX, CY, 160, 0, TAU, false);
+    ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(52,211,153,.13)'; ctx.stroke();
+    if (soc > 0.5) {
+      ctx.beginPath();
+      ctx.arc(CX, CY, 160, -Math.PI / 2, -Math.PI / 2 + TAU * soc / 100, false);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = soc < 15 ? 'rgba(251,113,133,.95)' : 'rgba(52,211,153,.9)';
+      ctx.stroke();
+    }
+
+    /* 中心呼吸光 */
+    var cg = ctx.createRadialGradient(CX, CY, 0, CX, CY, 180);
+    cg.addColorStop(0, 'hsla(' + h + ',100%,60%,' + (0.05 + f * 0.08).toFixed(3) + ')');
+    cg.addColorStop(1, 'hsla(' + h + ',100%,60%,0)');
+    ctx.fillStyle = cg;
+    ctx.fillRect(CX - 190, CY - 190, 380, 380);
+
+    spdEl.style.textShadow = '0 0 22px hsla(' + h + ',100%,70%,.85),0 0 70px hsla(' + h + ',100%,60%,.4)';
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  /* ---------- 数据入口 ---------- */
+  function n(v, d) { return (v == null || isNaN(v)) ? '--' : Number(v).toFixed(d == null ? 1 : d); }
+  function pct(v, max) {
+    if (v == null || isNaN(v)) return 0;
+    return Math.max(0, Math.min(100, v / max * 100));
+  }
+
+  window.onData = function (d) {
+    var v = (d.SPEED == null || isNaN(d.SPEED)) ? 0 : Number(d.SPEED);
+    spdTgt = v;
+    spdEl.textContent = (d.SPEED == null) ? '--' : Math.round(v);
+
+    if (d.BMS_SOC_PERCENT != null) {
+      socTgt = Number(d.BMS_SOC_PERCENT);
+      socEl.textContent = socTgt.toFixed(0);
+      socBar.style.width = pct(socTgt, 100) + '%';
+    }
+    if (d.RANGE != null) {
+      rngEl.textContent = Math.round(d.RANGE);
+      rngBar.style.width = pct(d.RANGE, 420) + '%';
+    }
+
+    voltEl.textContent = n(d.BMS_DISP_PACK_VOL_ORG, 0);
+    currEl.textContent = n(d.BMS_DISP_PACK_CURRENT_ORG, 1);
+
+    /* 功率条：电压×电流，按 60kW 满量程 */
+    var pw = (d.BMS_DISP_PACK_VOL_ORG && d.BMS_DISP_PACK_CURRENT_ORG)
+      ? d.BMS_DISP_PACK_VOL_ORG * d.BMS_DISP_PACK_CURRENT_ORG / 1000 : null;
+    pwrBar.style.width = pct(pw, 60) + '%';
+
+    var a = d.IPK_AVERAGE_PC_AEC1;
+    aecEl.textContent = (a == null || isNaN(a) ? '--' : Number(a).toFixed(1)) + ' kWh/100';
+
+    document.getElementById('tfl').textContent = n(d.FL_TIRE_PRESSURE, 1);
+    document.getElementById('tfr').textContent = n(d.FR_TIRE_PRESSURE, 1);
+    document.getElementById('trl').textContent = n(d.RL_TIRE_PRESSURE, 1);
+    document.getElementById('trr').textContent = n(d.RR_TIRE_PRESSURE, 1);
+
+    document.getElementById('odo').textContent = (d.ODO_DISP == null ? '--' : Math.round(d.ODO_DISP) + ' km');
+    document.getElementById('trip1').textContent = n(d.IPK_TRIPMETER_TRIP1, 1) + ' km';
+    document.getElementById('temp').textContent = n(d.IACINCARTEM, 1) + ' / ' + n(d.OUTSIDE_TEP, 1) + ' C';
+    document.getElementById('energy').textContent = n(d.BMS_TOTAL_CONSMP_AFT_START, 2) + ' kWh';
+  };
+})();
+</script>
+</body></html>
