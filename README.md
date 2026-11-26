@@ -48,8 +48,13 @@ adb shell am start -n ov.dash/.Main
 **换页面**（随时，不用重装）：
 
 ```bash
-./dev/push-page.sh 自定义.html ui-main.html
+adb push 自定义.html /sdcard/Android/media/ov.dash/ui-main.html
 ```
+
+一条命令，push 完自动热重载（`FileObserver` 监听目录）。也可以推到任意位置，
+把 `config.json` 的 `html` 写成绝对路径。
+
+> 仓库里的 `dev/push-page.sh` 是自用脚本（多加了 chmod 和广播），不用的话可以忽略。
 
 一条命令，push 完自动热重载。脚本内部：推到 `/sdcard/Download` 中转 → 拷进
 共享目录 → `chmod 666` → 发 `ov.dash.reload`。
