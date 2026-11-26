@@ -7,42 +7,62 @@ app 只做两件事：**采集车辆数据** → **推给你自己写的网页**
 
 ## 快速开始
 
-**装包 + 授权**（一次性）：
+**编译 + 装包**：
 
 ```bash
+./build.sh                                    # 产物在 build/aligned.apk
 adb push build/aligned.apk /sdcard/Download/dash.apk
+# 以应用商店名义安装，方能在桌面显示
 adb shell pm install -r -i com.zone.hmi.appstore /sdcard/Download/dash.apk
+```
+
+装包那几条里，`-i com.zone.hmi.appstore` 不能省（否则收不到开机广播）。
+
+**授权**（一次性）：
+
+```bash
 adb shell appops set ov.dash SYSTEM_ALERT_WINDOW allow
 adb shell appops set ov.dash GET_USAGE_STATS allow
 adb shell pm grant ov.dash android.permission.ACCESS_FINE_LOCATION
 adb shell pm grant ov.dash android.permission.ACCESS_COARSE_LOCATION
 adb shell appops set ov.dash MANAGE_EXTERNAL_STORAGE allow
 adb shell cmd notification allow_listener ov.dash/ov.dash.MediaListener
+
+# 建议打开无障碍，桌面切换检测延迟更低。
+# 注意以下操作顺序敏感，先关、设列表、再开：
+adb shell "settings put secure accessibility_enabled 0"
+adb shell "settings put secure enabled_accessibility_services 'com.zone.service.speech.viewcmd/.ViewCmdAccessibilityService:ov.dash/.TopWatcher'"
+adb shell "settings put secure accessibility_enabled 1"
+
+# 启动放最后：先让无障碍上线，app 一启动就能拿到已连接的监听器，
+# 否则开头几秒会退回轮询
 adb shell am start -n ov.dash/.Main
 ```
+
+顺序敏感（先关、设列表、再开），三步漏一步就不生效。嫌麻烦直接跑
+`./dev/enable-a11y.sh`，脚本里把顺序和等待都写好了。
 
 **换页面**（随时，不用重装）：
 
 ```bash
-adb push 我的页面.html /sdcard/Android/media/ov.dash/ui-main.html
+./dev/push-page.sh 自定义.html ui-main.html
 ```
 
-一条命令，push 完自动热重载。也可以推到任意位置，在设置页里选中它，
-或把 `config.json` 的 `html` 写成绝对路径（需 `MANAGE_EXTERNAL_STORAGE`）。
+一条命令，push 完自动热重载。脚本内部：推到 `/sdcard/Download` 中转 → 拷进
+共享目录 → `chmod 666` → 发 `ov.dash.reload`。
 
-装包那几条里，`-i com.zone.hmi.appstore` 不能省（否则收不到开机广播），
-`SYSTEM_ALERT_WINDOW` 不能省（否则浮层不显示，车机没有授权界面），
-`MANAGE_EXTERNAL_STORAGE` 不能省（否则只能读共享目录，读不到 `Download`）。
+`chmod 666` 不能省：adb 新建的文件属主是 `shell`、权限 `600`，app 读不到会白屏。
 
-**可选：无障碍**（桌面切换检测延迟更低）。顺序敏感，先关、设列表、再开：
+也可以推到任意位置，在设置页里选中它，或把 `config.json` 的 `html` 写成绝对路径
+（需 `MANAGE_EXTERNAL_STORAGE`）。
 
-```bash
-adb shell "settings put secure accessibility_enabled 0"
-adb shell "settings put secure enabled_accessibility_services 'com.zone.service.speech.viewcmd/.ViewCmdAccessibilityService:ov.dash/.TopWatcher30'"
-adb shell "settings put secure accessibility_enabled 1"
-```
+**共享目录**指 `/sdcard/Android/media/ov.dash/`，放 `config.json`、`keys.txt`
+和各个页面。下面提到「共享目录」都是指这里。
 
-`pm install -r` / `am force-stop` 会让系统移除这一项，需重跑。
+几条不能省的授权：`SYSTEM_ALERT_WINDOW`（否则浮层不显示，车机没有授权界面）、
+`MANAGE_EXTERNAL_STORAGE`（否则只能读共享目录，读不到 `Download`）。
+
+`pm install -r` / `am force-stop` 会把无障碍服务从系统里移除，需重跑 `dev/enable-a11y.sh`。
 
 ## 写你的页面
 
@@ -87,6 +107,49 @@ app 会自动从 APK 里重新复制一份原版。
 > 首屏不扫描：`info()` 只回环境信息，页面列表走单独的 `pages()` 接口，
 > 因为扫 U 盘可能很慢。所以下拉会比界面晚一点出现。
 
+## 本地预览（不上车机）
+
+```bash
+python3 dev/preview.py           # 打开 http://127.0.0.1:8765
+```
+
+- 首页按 `dev/config.json` 自动绑屏，点「预览」直接进对应屏幕（主屏 1708×880 / 副屏 1139×684）
+- **背景是实车截图**（在 `dev/bg/`），页面真的叠在车机画面上：
+
+  | 文件 | 用于 |
+  |---|---|
+  | `main.png` | 主屏桌面 |
+  | `cluster.png` | 副屏 |
+  | `app.png` | 主屏的「设置页」场景 |
+
+  截图就是实车画面，不再额外画 QNX 边栏/导航栏遮罩。
+- 顶部按钮：`桌面 / 设置页`（切背景 + `onDesktop`，只主屏有）；
+  `一直显示 / 只桌面显示`（模拟 `onlyOnDesktop`：选“只桌面”时切到设置页，页面直接隐藏）
+- 滑块：`车速` `0~180`、`电量` `0~100`，拖动即时生效
+- 假数据每秒推一次 `window.onData`，**500+ 个字段，key 就是真实 key**（从 `assets/keys.txt` 生成）
+- 改完 HTML 自动刷新，不用手动重启服务
+- 页面放 `assets/` 或 `dev/pages/`（后者不存在就跳过），`ui-settings.html` 不列入
+
+> 本地是新版 Chrome，**测不出车机 WebView 83 的兼容问题**。
+> 上线前对照一下 `docs/HTML设计指南.md` 4.1 的不能用清单。
+
+### 页面改哪一份？
+
+| 位置 | 作用 |
+|---|---|
+| **`dev/pages/`** | 开发版，**预览优先读这里**，同名时盖住 assets 的，随便改 |
+| `assets/` | 出厂默认页，会被打进 APK |
+
+上车流程：
+
+```bash
+# 1. 改 dev/pages/ui-main.html，浏览器里看效果
+# 2. 推到车机（共享目录）
+adb push dev/pages/ui-main.html /sdcard/Android/media/ov.dash/ui-main.html
+# 3. 定稿后同步回 assets/，下次编译进 APK
+cp dev/pages/ui-main.html assets/ui-main.html
+```
+
 ## 硬限制（先看这条）
 
 **副屏有三种模式**：P 档、D 档信息流、D 档地图。
@@ -107,7 +170,8 @@ app 会自动从 APK 里重新复制一份原版。
   "topCheckMs": 500,
   "screens": [
     { "display": 0, "html": "ui-main.html", "name": "main",
-      "enabled": true, "onlyOnDesktop": true },
+      "enabled": true, "onlyOnDesktop": true,
+      "launcherPkg": "com.zone.hmi.launcher" },
     { "display": 1, "html": "ui-cluster.html", "name": "cluster", "enabled": true }
   ]
 }
@@ -132,8 +196,15 @@ adb shell am broadcast -a ov.dash.media    # 打印媒体/前台状态
 
 ```
 assets/          打进 APK 的默认页面和 keys.txt
+dev/             开发期脚本和本地预览
+  setup.sh         一键装包 + 全部授权
+  push-page.sh     推页面到共享目录并热重载
+  enable-a11y.sh   启用无障碍（顺序敏感）
+  preview.py       本地预览服务，见「本地预览」
+  pages/           开发版页面，预览优先读这里
+  bg/              预览用实车背景图
+  config.json      预览用的配置
 build/           构建产物（aligned.apk）
-dev/             开发期脚本（setup.sh / push-page.sh 等），自用
 docs/            文档
 res/             无障碍服务配置
 src/ov/dash/     源码

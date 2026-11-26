@@ -37,8 +37,12 @@ final class Config {
 
     static Config defaults() {
         Config c = new Config();
+        // 双屏默认都开：主屏只在桌面显示，副屏常显
+        Screen main = screen(0, "ui-main.html", true);
+        main.onlyOnDesktop = true;
+        main.launcherPkg = "com.zone.hmi.launcher";
+        c.screens.add(main);
         c.screens.add(screen(1, "ui-cluster.html", true));
-        c.screens.add(screen(0, "ui-main.html", false));
         return c;
     }
 

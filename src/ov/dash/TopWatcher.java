@@ -12,7 +12,7 @@ import android.view.accessibility.AccessibilityWindowInfo;
  *
  * 作用：替代 UsageStatsManager 轮询，切应用瞬间就能知道。
  */
-public class TopWatcher30 extends AccessibilityService {
+public class TopWatcher extends AccessibilityService {
 
     private static final String TAG = "OVDASH";
 
@@ -53,6 +53,11 @@ public class TopWatcher30 extends AccessibilityService {
             for (AccessibilityWindowInfo w : wins) {
                 AccessibilityNodeInfo root = w.getRoot();
                 String pkg = root == null ? "null-root" : String.valueOf(root.getPackageName());
+                // 跳过自己的浮层窗口，否则会被当成「有 app 在前台」，
+                // 导致浮层显示 → 被自己判断为不在桌面 → 销毁 → 再显示 的死循环
+                if (getPackageName().equals(pkg)) {
+                    continue;
+                }
                 if (w.getType() == AccessibilityWindowInfo.TYPE_APPLICATION) {
                     sb.append(" APP[").append(pkg).append(" L=").append(w.getLayer()).append(']');
                     if (root != null && w.getLayer() > bestLayer) {
