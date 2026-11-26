@@ -29,14 +29,21 @@ adb shell cmd notification allow_listener ov.dash/ov.dash.MediaListener
 
 # 建议打开无障碍，桌面切换检测延迟更低。
 # 注意以下操作顺序敏感，先关、设列表、再开：
-adb shell "settings put secure accessibility_enabled 0"
-adb shell "settings put secure enabled_accessibility_services 'com.zone.service.speech.viewcmd/.ViewCmdAccessibilityService:ov.dash/.TopWatcher'"
-adb shell "settings put secure accessibility_enabled 1"
+adb shell settings put secure accessibility_enabled 0
+adb shell settings put secure enabled_accessibility_services 'com.zone.service.speech.viewcmd/.ViewCmdAccessibilityService:ov.dash/.TopWatcher'
+adb shell settings put secure accessibility_enabled 1
 
 # 启动放最后：先让无障碍上线，app 一启动就能拿到已连接的监听器，
 # 否则开头几秒会退回轮询
 adb shell am start -n ov.dash/.Main
 ```
+
+关于无障碍那三行的两个坑：
+
+- **值里的单引号必须保留**（里面带冒号），但整条命令不用再包一层双引号
+- 这条是**追加**到现有列表，不能直接覆盖 —— 车机自带的「所见即可说」语音服务也在里面
+
+> 如果上面整段是一次性粘贴执行的（mg4shell 等工具），以 `#` 开头的注释行会被跳过，不用手动删。
 
 顺序敏感（先关、设列表、再开），三步漏一步就不生效。嫌麻烦直接跑
 `./dev/enable-a11y.sh`，脚本里把顺序和等待都写好了。
@@ -80,6 +87,9 @@ adb shell am start -n ov.dash/.Main
 | `ui-cluster.html` | 副屏 display 1 |
 
 这两个是**自定义的起点**，内容还在持续完善。照着改、整个换掉、或者从空文件重写都行。
+
+装好后**两个屏默认都显示**：主屏只在桌面出现（进 app 自动隐藏），副屏常显。
+如果只要一个屏，把 `config.json` 里对应那条的 `enabled` 改成 `false` 就行。
 
 **改坏了怎么恢复**：删掉共享目录下的那个文件，发 `am broadcast -a ov.dash.reload`，
 app 会自动从 APK 里重新复制一份原版。
