@@ -7,13 +7,12 @@ app 只做两件事：**采集车辆数据** → **推给你自己写的网页**
 
 ## 快速开始
 
-**编译 + 装包**：
+**装包**：
 
 ```bash
-./build.sh                                    # 产物在 build/aligned.apk
-adb push build/aligned.apk /sdcard/Download/dash.apk
+adb push ovdash.apk /sdcard/Download/ovdash.apk
 # 以应用商店名义安装，方能在桌面显示
-adb shell pm install -r -i com.zone.hmi.appstore /sdcard/Download/dash.apk
+adb shell pm install -r -i com.zone.hmi.appstore /sdcard/Download/ovdash.apk
 ```
 
 装包那几条里，`-i com.zone.hmi.appstore` 不能省（否则收不到开机广播）。
@@ -204,7 +203,8 @@ dev/             开发期脚本和本地预览
   pages/           开发版页面，预览优先读这里
   bg/              预览用实车背景图
   config.json      预览用的配置
-build/           构建产物（aligned.apk）
+build/           构建中间产物
+ovdash.apk       构建产物，每次 ./build.sh 自动刷新，直接 adb push 这个
 docs/            文档
 res/             无障碍服务配置
 src/ov/dash/     源码

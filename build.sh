@@ -29,4 +29,7 @@ javac -g:none -source 8 -target 8 -Xlint:-options -classpath "$JAR" -d build/cla
 "$BT/apksigner" sign --ks "$HOME/.android/debug.keystore" \
     --ks-pass pass:android --key-pass pass:android \
     --ks-key-alias androiddebugkey build/aligned.apk
-ls -la build/aligned.apk
+
+# 根目录放一份，方便直接 adb push ovdash.apk
+cp build/aligned.apk ovdash.apk
+ls -la ovdash.apk

@@ -8,11 +8,11 @@ set -e
 SRC="$1"
 [ -z "$SRC" ] && { echo "用法: $0 <本地html> [目标文件名]"; exit 1; }
 DST="${2:-$(basename "$SRC")}"
-DIR=/sdcard/Android/data/ov.dash/files
+DIR=/sdcard/Android/media/ov.dash
 
 adb push "$SRC" /sdcard/Download/_ovdash_tmp.html >/dev/null
-# chmod 不能省：新建文件的属主是 shell，权限 600，app 读不到
-adb shell "cp /sdcard/Download/_ovdash_tmp.html $DIR/$DST; chmod 666 $DIR/$DST" 2>/dev/null
+# 经 Download 中转再 cp：cp 出来的属主是 shell，app 读不到，要放开权限
+adb shell "cp /sdcard/Download/_ovdash_tmp.html $DIR/$DST && chmod 666 $DIR/$DST"
 adb shell "am broadcast -a ov.dash.reload" >/dev/null
 echo "已部署 $DST"
 adb shell "ls -la $DIR/$DST"

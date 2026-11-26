@@ -24,4 +24,4 @@ adb shell "settings put secure accessibility_enabled 1"
 sleep 3
 
 echo "==> 结果"
-adb shell "dumpsys accessibility | grep -E 'Enabled services|Bound services|Crashed'" 2>&1 | head -5
+adb shell "dumpsys accessibility | grep -E 'Enabled services|Bound services|Crashed'" 2>&1 | head -5 || true
