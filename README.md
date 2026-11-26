@@ -1,96 +1,108 @@
 # ov.dash — MG4 车机数据 HUD
 
-在上汽 MG4（德赛西威 8155 / Android 11 AAOS）的主屏和副屏上叠加浮层。
+在上汽 MG4（德赛西威 8155 / Android 11 AAOS）的主屏和副屏上叠一层浮层。
 
 app 只做两件事：**采集车辆数据** → **推给你自己写的网页**。
-界面长什么样完全由 HTML 决定，改页面不用重编 APK、不用重装。
+界面长什么样完全由 HTML 决定，**改页面不用重编 APK、不用重装**。
 
-## 快速开始
+## 一键安装（推荐）
 
-**装包**：
+不用敲命令，手机上装个 app 就能装完。
+
+1. 手机装 [**mg4shell**](https://github.com/kicer/mg4-adb-shell/releases) —— 一个手机端的 adb 客户端
+2. 打开它，顶部填车机 IP `xxx.xxx.xxx.xxx:5555`，点「连接」
+3. 切到 **批量** 页，长按 `ovdash hud` 那条 → 选「执行」
+
+剩下的它会自己跑完：下载 APK → 推车机 → 安装 → 等装好 → 六项授权 → 开无障碍 → 启动。
+中途想停，点红色「停止」就行。
+
+> **前提是车机已经能用 adb 连**。无线 ADB 怎么开见 [esp32-mg4](https://github.com/kicer/esp32-mg4)，
+> 烧好开发板插上去就有，不需要 USB 线。
+
+装完回到桌面，浮层就在上面了。
+
+---
+
+## 手动装（不想装 mg4shell 的话）
+
+**第 1 步，装包**
 
 ```bash
 adb push ovdash.apk /sdcard/Download/ovdash.apk
-# 以应用商店名义安装，方能在桌面显示
 adb shell pm install -r -i com.zone.hmi.appstore /sdcard/Download/ovdash.apk
 ```
 
-装包那几条里，`-i com.zone.hmi.appstore` 不能省（否则收不到开机广播）。
+`-i com.zone.hmi.appstore` 不能省，伪装成商店来源，否则收不到开机广播。
 
-> **确认装成功再往下走**。`pm install` 走的是增量安装，输出 `Success` 只表示命令下发成功，
+> **必须确认装成功再往下走。** `pm install` 走增量安装，输出 `Success` 只代表命令下发成功，
 > 包在系统里还在后台注册。这时候跑授权会**静默失败**（日志里只有 `Unknown package: ov.dash`，
-> 命令本身不报错），结果就是装上了但浮层加不上，日志报
-> `permission denied for window type 2038`。
+> 命令本身不报错），最后表现为浮层加不上、日志报 `permission denied for window type 2038`。
 >
-> 先确认包已注册，有输出再继续：
+> 等到有输出再继续：
 >
 > ```bash
 > adb shell pm list packages | grep ov.dash
 > ```
 
-**授权**（一次性）：
+**第 2 步，授权**
 
 ```bash
 adb shell appops set ov.dash SYSTEM_ALERT_WINDOW allow
 adb shell appops set ov.dash GET_USAGE_STATS allow
+adb shell appops set ov.dash MANAGE_EXTERNAL_STORAGE allow
 adb shell pm grant ov.dash android.permission.ACCESS_FINE_LOCATION
 adb shell pm grant ov.dash android.permission.ACCESS_COARSE_LOCATION
-adb shell appops set ov.dash MANAGE_EXTERNAL_STORAGE allow
 adb shell cmd notification allow_listener ov.dash/ov.dash.MediaListener
 
-# 建议打开无障碍，桌面切换检测延迟更低。
-# 注意以下操作顺序敏感，先关、设列表、再开：
+# 无障碍：顺序敏感，先关、设列表、再开
 adb shell settings put secure accessibility_enabled 0
 adb shell settings put secure enabled_accessibility_services 'com.zone.service.speech.viewcmd/.ViewCmdAccessibilityService:ov.dash/.TopWatcher'
 adb shell settings put secure accessibility_enabled 1
-
-# 启动放最后：先让无障碍上线，app 一启动就能拿到已连接的监听器，
-# 否则开头几秒会退回轮询
-adb shell am start -n ov.dash/.Main
 ```
 
-关于无障碍那三行的两个坑：
+关于无障碍那三行，两个坑：
 
 - **值里的单引号必须保留**（里面带冒号），但整条命令不用再包一层双引号
 - 这条是**追加**到现有列表，不能直接覆盖 —— 车机自带的「所见即可说」语音服务也在里面
 
-> 如果上面整段是一次性粘贴执行的（mg4shell 等工具），以 `#` 开头的注释行会被跳过，不用手动删。
+**第 3 步，启动**
 
-**重装 APK 后授权会全部丢失**。`appops` 和 `pm grant` 的授权都挂在包上，`pm install -r`
-或卸载重装都会清掉，需要把上面整段重新跑一遍。只重启车机或重启 app 不影响。
+```bash
+adb shell am start -n ov.dash/.Main
+```
 
-**换页面**（随时，不用重装）：
+启动放最后：先让无障碍上线，app 一启动就能拿到已连接的监听器，否则开头几秒会退回轮询。
+
+> **重装 APK 后授权会全部丢。** `appops` 和 `pm grant` 都挂在包上，`pm install -r`
+> 或卸载重装都会清掉，需要把第 2 步整段重新跑一遍。只重启车机或重启 app 不影响。
+
+## 换个页面
 
 ```bash
 adb push 自定义.html /sdcard/Android/media/ov.dash/ui-main.html
 ```
 
-一条命令，push 完自动热重载（`FileObserver` 监听目录）。也可以推到任意位置，
-把 `config.json` 的 `html` 写成绝对路径。
-
-> 仓库里的 `dev/push-page.sh` 是自用脚本（多加了 chmod 和广播），不用的话可以忽略。
-
-一条命令，push 完自动热重载。脚本内部：推到 `/sdcard/Download` 中转 → 拷进
-共享目录 → `chmod 666` → 发 `ov.dash.reload`。
-
-`chmod 666` 不能省：adb 新建的文件属主是 `shell`、权限 `600`，app 读不到会白屏。
+一条命令，push 完自动热重载（`FileObserver` 监听目录）。
 
 也可以推到任意位置，在设置页里选中它，或把 `config.json` 的 `html` 写成绝对路径
 （需 `MANAGE_EXTERNAL_STORAGE`）。
 
-**共享目录**指 `/sdcard/Android/media/ov.dash/`，放 `config.json`、`keys.txt`
-和各个页面。下面提到「共享目录」都是指这里。
+**共享目录**指 `/sdcard/Android/media/ov.dash/`，放 `config.json`、`keys.txt` 和各个页面。
+下面提到「共享目录」都是指这里。
 
-几条不能省的授权：`SYSTEM_ALERT_WINDOW`（否则浮层不显示，车机没有授权界面）、
-`MANAGE_EXTERNAL_STORAGE`（否则只能读共享目录，读不到 `Download`）。
+> 仓库里的 `dev/push-page.sh` 是自用脚本，内部多做了 `chmod 666` 和广播。
+> `chmod` 不能省：adb 新建的文件属主是 `shell`、权限 `600`，app 读不到会白屏。
 
-`pm install -r` / `am force-stop` 会把无障碍服务从系统里移除，需重跑 `dev/enable-a11y.sh`。
+---
+
+# 技术细节
 
 ## 写你的页面
 
 页面就是一个普通 HTML，靠 `window.onData(d)` 拿数据：
 
-- `window.onData(d)` 每个 `refresh` 周期调用一次，`d` 里的值全是 number
+- `window.onData(d)` 每个 `refresh` 周期调用一次
+- 绝大部分字段是 number，少数是字符串（`mediaTitle` `fgApp` 等）和布尔（`onDesktop`）
 - 字段清单 → `docs/数据字典.md`（500+ 个）
 - 画布尺寸、副屏禁区 → `docs/显示规格.md`
 - 最小骨架、性能、config 全解 → `docs/HTML设计指南.md`
@@ -105,7 +117,7 @@ adb push 自定义.html /sdcard/Android/media/ov.dash/ui-main.html
 这两个是**自定义的起点**，内容还在持续完善。照着改、整个换掉、或者从空文件重写都行。
 
 装好后**两个屏默认都显示**：主屏只在桌面出现（进 app 自动隐藏），副屏常显。
-如果只要一个屏，把 `config.json` 里对应那条的 `enabled` 改成 `false` 就行。
+如果只要一个屏，把 `config.json` 里对应那条的 `enabled` 改成 `false`。
 
 **改坏了怎么恢复**：删掉共享目录下的那个文件，发 `am broadcast -a ov.dash.reload`，
 app 会自动从 APK 里重新复制一份原版。
@@ -245,3 +257,8 @@ src/ov/dash/     源码
 | **`docs/显示规格.md`** | 写页面的人 | 画布尺寸、QNX 禁区 |
 | **`docs/数据源.md`** | 维护者 | 4 个数据源的协议、权限 |
 | **`docs/技术笔记.md`** | 维护者 | 逆向过程、实测数据、踩过的坑 |
+
+## 相关项目
+
+- [**mg4shell**](https://github.com/kicer/mg4-adb-shell) — 手机端 adb 客户端，本项目的安装就是用它一键跑的
+- [**esp32-mg4**](https://github.com/kicer/esp32-mg4) — 无线 ADB 硬件方案
