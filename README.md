@@ -17,6 +17,17 @@ adb shell pm install -r -i com.zone.hmi.appstore /sdcard/Download/ovdash.apk
 
 装包那几条里，`-i com.zone.hmi.appstore` 不能省（否则收不到开机广播）。
 
+> **确认装成功再往下走**。`pm install` 走的是增量安装，输出 `Success` 只表示命令下发成功，
+> 包在系统里还在后台注册。这时候跑授权会**静默失败**（日志里只有 `Unknown package: ov.dash`，
+> 命令本身不报错），结果就是装上了但浮层加不上，日志报
+> `permission denied for window type 2038`。
+>
+> 先确认包已注册，有输出再继续：
+>
+> ```bash
+> adb shell pm list packages | grep ov.dash
+> ```
+
 **授权**（一次性）：
 
 ```bash
@@ -44,6 +55,9 @@ adb shell am start -n ov.dash/.Main
 - 这条是**追加**到现有列表，不能直接覆盖 —— 车机自带的「所见即可说」语音服务也在里面
 
 > 如果上面整段是一次性粘贴执行的（mg4shell 等工具），以 `#` 开头的注释行会被跳过，不用手动删。
+
+**重装 APK 后授权会全部丢失**。`appops` 和 `pm grant` 的授权都挂在包上，`pm install -r`
+或卸载重装都会清掉，需要把上面整段重新跑一遍。只重启车机或重启 app 不影响。
 
 **换页面**（随时，不用重装）：
 
