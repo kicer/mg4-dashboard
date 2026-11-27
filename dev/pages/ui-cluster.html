@@ -13,43 +13,67 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
 
 /* ---- 中央圆表 ---- */
 #gauge{position:absolute;left:104px;top:134px;width:392px;height:392px}
-#spd{position:absolute;left:0;top:50%;width:100%;text-align:center;margin-top:-48px;
-  font-size:96px;font-weight:800;line-height:1;letter-spacing:-4px;color:#fff;
+/* 字号档位：9 微标签 / 12 标签 / 15 次级数值 / 17 数值 / 21 大数值 / 108 主数值 */
+#spd{position:absolute;left:0;top:50%;width:100%;text-align:center;margin-top:-54px;
+  font-size:108px;font-weight:800;line-height:1;letter-spacing:-4px;color:#fff;
   text-shadow:0 0 22px rgba(34,211,238,.85),0 0 70px rgba(34,211,238,.4)}
-#unit{position:absolute;left:0;top:50%;width:100%;text-align:center;margin-top:54px;
+#unit{position:absolute;left:0;top:50%;width:100%;text-align:center;margin-top:56px;
   font-size:12px;letter-spacing:9px;text-indent:9px;color:rgba(34,211,238,.5)}
-#aec{position:absolute;left:0;top:50%;width:100%;text-align:center;margin-top:78px;
-  font-size:13px;letter-spacing:1px;color:rgba(52,211,153,.9)}
+#aec{position:absolute;left:0;top:50%;width:100%;text-align:center;margin-top:80px;
+  font-size:15px;letter-spacing:1px;color:rgba(52,211,153,.9)}
 
-/* ---- 右侧数据列 ---- */
-#side{position:absolute;left:556px;top:150px;width:344px}
-.row{position:relative;margin-bottom:24px}
-.row .k{font-size:11px;letter-spacing:2px;color:rgba(34,211,238,.45)}
-.row .v{font-size:26px;font-weight:700;letter-spacing:-.5px;color:#e6fbff;
-  text-shadow:0 0 14px rgba(34,211,238,.45)}
-.row .v small{font-size:12px;font-weight:400;letter-spacing:1px;
-  color:rgba(34,211,238,.5);margin-left:4px}
-.bar{height:3px;margin-top:5px;background:rgba(34,211,238,.12);border-radius:2px;overflow:hidden}
-.bar i{display:block;height:100%;width:0;border-radius:2px;
-  background:-webkit-linear-gradient(left,#22d3ee,#34d399);
-  background:linear-gradient(90deg,#22d3ee,#34d399);
-  box-shadow:0 0 10px rgba(34,211,238,.7);transition:width .5s ease}
+/* ---- 胎压俯视图 ---- */
+#tire{position:absolute;left:664px;top:215px;width:196px;height:230px}
+#tire .body{position:absolute;left:52px;top:52px;width:92px;height:126px;
+  border:1px dashed rgba(34,211,238,.16);border-radius:18px}
+#tire .wheel{position:absolute;width:44px;height:62px;border-radius:8px;
+  background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.28);
+  display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;
+  -webkit-align-items:center;align-items:center;
+  -webkit-justify-content:space-between;justify-content:space-between;
+  padding:11px 0 6px;transition:border-color .3s,background .3s}
+#tire .wheel.fl{left:0;top:0}
+#tire .wheel.fr{right:0;top:0}
+#tire .wheel.rl{left:0;bottom:0}
+#tire .wheel.rr{right:0;bottom:0}
+#tire .wheel b{font-size:21px;font-weight:700;line-height:1;letter-spacing:-.8px;
+  color:#e6fbff;text-shadow:0 0 12px rgba(34,211,238,.4)}
+#tire .wheel span{font-size:9px;line-height:1;letter-spacing:1.2px;
+  color:rgba(34,211,238,.42)}
+#tire .wheel.bad{border-color:rgba(251,113,133,.75);background:rgba(251,113,133,.10)}
+#tire .wheel.bad b{color:#fb7185;text-shadow:0 0 12px rgba(251,113,133,.6)}
+
+/* ---- 电流竖条：零线在 25% 处，向上=放电，向下=回收 ---- */
+#amp{position:absolute;left:1040px;top:210px;width:56px;text-align:center}
+#amp .track{position:relative;width:9px;height:250px;margin:0 auto;
+  background:rgba(34,211,238,.10);border-radius:5px;overflow:hidden}
+#amp .track i{position:absolute;left:0;bottom:25%;width:100%;height:0;
+  border-radius:3px;box-shadow:0 0 10px rgba(34,211,238,.7);
+  transition:height .35s ease,bottom .35s ease}
+/* 零线：上方 0~200A 放电，下方 0~60A 回收 */
+#amp .track .zero{position:absolute;left:0;bottom:25%;width:100%;height:1px;
+  background:rgba(230,251,255,.45)}
+#amp .val{margin-top:10px;font-size:17px;font-weight:600;letter-spacing:-.3px;
+  color:rgba(230,251,255,.85);white-space:nowrap}
+#amp .val small{font-size:12px;font-weight:400;color:rgba(34,211,238,.45);margin-left:2px}
 
 /* ---- 底部条 ---- */
-#foot{position:absolute;left:60px;top:566px;width:840px;height:46px;
+#foot{position:absolute;left:60px;top:566px;width:1020px;height:46px;
   border-top:1px solid rgba(34,211,238,.16);
-  display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center}
-#foot div{-webkit-flex:1;flex:1;font-size:12px;letter-spacing:1px;color:rgba(34,211,238,.45)}
-#foot div b{display:block;font-size:19px;font-weight:700;letter-spacing:0;margin-top:2px;
+  display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;
+  -webkit-justify-content:space-between;justify-content:space-between}
+/* 四项两端对齐、中间等分，首项贴左、末项贴右 */
+#foot div{font-size:12px;letter-spacing:1px;color:rgba(34,211,238,.45)}
+#foot div b{display:block;font-size:21px;font-weight:700;letter-spacing:0;margin-top:2px;
   color:#e6fbff;text-shadow:0 0 12px rgba(34,211,238,.4)}
-#foot div+div{margin-left:18px}
+#foot div:last-child{text-align:right}
 
 /* ---- 四角装饰 ---- */
 .corner{position:absolute;width:26px;height:26px;border:1px solid rgba(34,211,238,.3)}
 #c1{left:52px;top:74px;border-right:0;border-bottom:0}
 #c2{left:52px;top:614px;border-right:0;border-top:0}
-#c3{left:900px;top:74px;border-left:0;border-bottom:0}
-#c4{left:900px;top:614px;border-left:0;border-top:0}
+#c3{left:1080px;top:74px;border-left:0;border-bottom:0}
+#c4{left:1080px;top:614px;border-left:0;border-top:0}
 </style></head>
 <body>
 <canvas id="fx"></canvas>
@@ -62,39 +86,29 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
   <div id="gauge">
     <div id="spd">--</div>
     <div id="unit">KM/H</div>
-    <div id="aec">-- kWh/100</div>
+    <div id="aec">-- kWh/100km</div>
   </div>
 
-  <div id="side">
-    <div class="row">
-      <div class="k">SOC</div>
-      <div class="v"><span id="soc">--</span><small>%</small></div>
-      <div class="bar"><i id="socbar"></i></div>
-    </div>
-    <div class="row">
-      <div class="k">RANGE</div>
-      <div class="v"><span id="rng">--</span><small>km</small></div>
-      <div class="bar"><i id="rngbar"></i></div>
-    </div>
-    <div class="row">
-      <div class="k">PACK</div>
-      <div class="v"><span id="volt">--</span><small>V</small>
-        <span id="curr" style="margin-left:14px">--</span><small>A</small></div>
-      <div class="bar"><i id="pwrbar"></i></div>
-    </div>
-    <div class="row">
-      <div class="k">TIRE  FL / FR / RL / RR</div>
-      <div class="v" style="font-size:22px">
-        <span id="tfl">--</span><small style="margin:0 6px 0 2px">/</small><span id="tfr">--</span><small style="margin:0 6px 0 2px">/</small><span id="trl">--</span><small style="margin:0 6px 0 2px">/</small><span id="trr">--</span>
-      </div>
-    </div>
+  <!-- 胎压：俯视图，四个轮子对应实际位置 -->
+  <div id="tire">
+    <div class="body"></div>
+    <div class="wheel fl"><b id="tfl">--</b><span>FL</span></div>
+    <div class="wheel fr"><b id="tfr">--</b><span>FR</span></div>
+    <div class="wheel rl"><b id="trl">--</b><span>RL</span></div>
+    <div class="wheel rr"><b id="trr">--</b><span>RR</span></div>
+  </div>
+
+  <!-- 电流：零线上下双向，向上放电 / 向下回收 -->
+  <div id="amp">
+    <div class="track"><i id="ampfill"></i><span class="zero"></span></div>
+    <div class="val"><span id="curr">--</span><small>A</small></div>
   </div>
 
   <div id="foot">
-    <div>ODO<b id="odo">--</b></div>
     <div>TRIP 1<b id="trip1">--</b></div>
     <div>IN / OUT<b id="temp">-- / --</b></div>
-    <div>ENERGY<b id="energy">--</b></div>
+    <div>ALT<b id="alt">--</b></div>
+    <div>VOLT<b id="volt">--</b></div>
   </div>
 </div>
 
@@ -105,6 +119,8 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
   var CX = 300, CY = 330, R = 196;
   var A0 = Math.PI * 0.75, SWEEP = Math.PI * 1.5;
   var TICKS = 60;
+  /* 电流告警阈值（A）：≤WARN 青色，WARN~HOT 琥珀，>HOT 红 */
+  var AMP_WARN = 60, AMP_HOT = 120;
   var SAFE_T = 67, SAFE_B = 617;
 
   var cv = document.getElementById('fx');
@@ -136,28 +152,60 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
     }
   })();
 
+  /* 竖向晕影烘进离屏画布，省掉每帧一次全屏 fillRect */
+  (function bakeVignette() {
+    var c = hexCv.getContext('2d');
+    var vg = c.createLinearGradient(0, 0, 0, H);
+    vg.addColorStop(0, 'rgba(3,10,16,.55)');
+    vg.addColorStop(SAFE_T / H, 'rgba(3,10,16,0)');
+    vg.addColorStop(SAFE_B / H, 'rgba(3,10,16,0)');
+    vg.addColorStop(1, 'rgba(3,10,16,.55)');
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.fillStyle = vg;
+    c.fillRect(0, 0, hexCv.width, hexCv.height);
+  })();
+
+  /* 刻度端点预计算：60 条永不变化，不必每帧算三角函数 */
+  var TICK_GEO = [];
+  for (var tk = 0; tk < TICKS; tk++) {
+    var ta = A0 + SWEEP * tk / (TICKS - 1);
+    var tb = (tk % 5 === 0);
+    var tr2 = R + (tb ? 24 : 13);
+    TICK_GEO.push([
+      CX + Math.cos(ta) * (R + 5), CY + Math.sin(ta) * (R + 5),
+      CX + Math.cos(ta) * tr2,     CY + Math.sin(ta) * tr2,
+      tb
+    ]);
+  }
+
+  /* 静态渐变只建一次，不在渲染循环里 new */
+  var SCAN_GRAD = ctx.createLinearGradient(0, -120, 0, 120);
+  SCAN_GRAD.addColorStop(0, 'rgba(34,211,238,0)');
+  SCAN_GRAD.addColorStop(0.5, 'rgba(34,211,238,.055)');
+  SCAN_GRAD.addColorStop(1, 'rgba(34,211,238,0)');
+  var GLOW_GRAD = ctx.createRadialGradient(CX, CY, 0, CX, CY, 180);
+  GLOW_GRAD.addColorStop(0, 'hsla(186,100%,60%,1)');
+  GLOW_GRAD.addColorStop(1, 'hsla(186,100%,60%,0)');
+
   /* ---------- 状态 ---------- */
   var spdCur = 0, spdTgt = 0, f = 0, soc = 0, socTgt = 0;
-  var t0 = 0, lastT = 0, scan = 0;
+  var t0 = 0, lastT = 0, scan = 0, lastHue = -999;
 
   var spdEl = document.getElementById('spd');
   var aecEl = document.getElementById('aec');
-  var socEl = document.getElementById('soc');
-  var rngEl = document.getElementById('rng');
   var voltEl = document.getElementById('volt');
   var currEl = document.getElementById('curr');
-  var socBar = document.getElementById('socbar');
-  var rngBar = document.getElementById('rngbar');
-  var pwrBar = document.getElementById('pwrbar');
+  var ampFill = document.getElementById('ampfill');
 
   function hue() { return 186 + f * 26; }
 
   function frame(now) {
     if (!lastT) lastT = now;
-    var dt = Math.min(80, now - lastT); lastT = now;
-
-    /* 扫描线不需要 60fps，限到 ~30fps 省 CPU */
-    if (dt < 30) { requestAnimationFrame(frame); return; }
+    /* 限到 ~30fps：只在真正要画时推进 lastT。
+       否则 60Hz 下 dt 恒为 16.7ms，会被永久跳过一帧也不画 */
+    if (now - lastT < 30) { requestAnimationFrame(frame); return; }
+    var dt = Math.min(80, now - lastT);
+    lastT = now;
     t0 += dt;
 
     spdCur += (spdTgt - spdCur) * Math.min(1, dt / 220);
@@ -170,46 +218,46 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
     /* 网格底 */
     ctx.drawImage(hexCv, 0, 0, W, H);
 
-    /* 上下安全区外压暗，避免内容贴边 */
-    var vg = ctx.createLinearGradient(0, 0, 0, H);
-    vg.addColorStop(0, 'rgba(3,10,16,.55)');
-    vg.addColorStop(SAFE_T / H, 'rgba(3,10,16,0)');
-    vg.addColorStop(SAFE_B / H, 'rgba(3,10,16,0)');
-    vg.addColorStop(1, 'rgba(3,10,16,.55)');
-    ctx.fillStyle = vg;
-    ctx.fillRect(0, 0, W, H);
-
-    /* 扫描带 */
+    /* 扫描带：渐变预建在原点用 translate 移动；竖向晕影已烘进 hexCv */
     scan = (scan + dt / 1000 * 90) % (H + 240);
-    var sg = ctx.createLinearGradient(0, scan - 120, 0, scan + 120);
-    sg.addColorStop(0, 'rgba(34,211,238,0)');
-    sg.addColorStop(0.5, 'rgba(34,211,238,.055)');
-    sg.addColorStop(1, 'rgba(34,211,238,0)');
-    ctx.fillStyle = sg;
-    ctx.fillRect(0, scan - 120, W, 240);
+    ctx.save();
+    ctx.translate(0, scan);
+    ctx.fillStyle = SCAN_GRAD;
+    ctx.fillRect(0, -120, W, 240);
+    ctx.restore();
 
     var h = hue();
 
-    /* 外圈刻度 */
+    /* 外圈底弧：常显，保证任何速度下表盘都是完整的圆 */
+    ctx.beginPath();
+    ctx.arc(CX, CY, R + 2, A0, A0 + SWEEP, false);
+    ctx.lineWidth = 1; ctx.strokeStyle = 'hsla(' + h + ',90%,72%,.24)'; ctx.stroke();
+
+    /* 外圈刻度：60 条合并成 4 条路径（亮/暗 × 长/短），一次 stroke 顶原来 60 次 */
     var lit = f * (TICKS - 1);
-    for (var k = 0; k < TICKS; k++) {
-      var ang = A0 + SWEEP * k / (TICKS - 1);
-      var on = k <= lit;
-      var big = (k % 5 === 0);
-      var r1 = R + 5, r2 = R + (big ? 24 : 13);
+    var cBright = 'hsla(' + h + ',100%,70%,.9)';
+    var cDim = 'hsla(' + h + ',90%,72%,.34)';
+    for (var pi = 0; pi < 4; pi++) {
+      var wantOn = pi < 2, wantBig = (pi % 2) === 0;
       ctx.beginPath();
-      ctx.moveTo(CX + Math.cos(ang) * r1, CY + Math.sin(ang) * r1);
-      ctx.lineTo(CX + Math.cos(ang) * r2, CY + Math.sin(ang) * r2);
-      ctx.lineWidth = big ? 2.2 : 1.1;
-      ctx.strokeStyle = on ? 'hsla(' + h + ',100%,70%,.9)' : 'hsla(' + h + ',90%,72%,.13)';
+      for (var k = 0; k < TICKS; k++) {
+        var g = TICK_GEO[k];
+        if (g[4] !== wantBig || (k <= lit) !== wantOn) continue;
+        ctx.moveTo(g[0], g[1]);
+        ctx.lineTo(g[2], g[3]);
+      }
+      ctx.lineWidth = wantBig ? 2.2 : 1.1;
+      ctx.strokeStyle = wantOn ? cBright : cDim;
       ctx.stroke();
     }
 
-    /* 速度弧 */
+    /* 速度弧：底槽常显，只有亮层随速度增长 */
+    var e = A0 + SWEEP * f;
+    ctx.beginPath(); ctx.arc(CX, CY, R - 3, A0, A0 + SWEEP, false);
+    ctx.lineWidth = 14; ctx.strokeStyle = 'hsla(' + h + ',100%,60%,.08)'; ctx.stroke();
     if (f > 0.002) {
-      var e = A0 + SWEEP * f;
       ctx.beginPath(); ctx.arc(CX, CY, R - 3, A0, e, false);
-      ctx.lineWidth = 14; ctx.strokeStyle = 'hsla(' + h + ',100%,60%,.10)'; ctx.stroke();
+      ctx.lineWidth = 14; ctx.strokeStyle = 'hsla(' + h + ',100%,60%,.16)'; ctx.stroke();
       ctx.beginPath(); ctx.arc(CX, CY, R - 3, A0, e, false);
       ctx.lineWidth = 4; ctx.strokeStyle = 'hsla(' + h + ',100%,70%,.92)'; ctx.stroke();
     }
@@ -226,14 +274,17 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
       ctx.stroke();
     }
 
-    /* 中心呼吸光 */
-    var cg = ctx.createRadialGradient(CX, CY, 0, CX, CY, 180);
-    cg.addColorStop(0, 'hsla(' + h + ',100%,60%,' + (0.05 + f * 0.08).toFixed(3) + ')');
-    cg.addColorStop(1, 'hsla(' + h + ',100%,60%,0)');
-    ctx.fillStyle = cg;
+    /* 中心呼吸光：渐变复用，强度靠 globalAlpha 调 */
+    ctx.globalAlpha = 0.05 + f * 0.08;
+    ctx.fillStyle = GLOW_GRAD;
     ctx.fillRect(CX - 190, CY - 190, 380, 380);
+    ctx.globalAlpha = 1;
 
-    spdEl.style.textShadow = '0 0 22px hsla(' + h + ',100%,70%,.85),0 0 70px hsla(' + h + ',100%,60%,.4)';
+    /* 色相只在 186~212 间飘，变化超过 2° 才重设，避免每帧重绘大号模糊文字 */
+    if (Math.abs(h - lastHue) > 2) {
+      lastHue = h;
+      spdEl.style.textShadow = '0 0 22px hsla(' + h + ',100%,70%,.85),0 0 70px hsla(' + h + ',100%,60%,.4)';
+    }
 
     requestAnimationFrame(frame);
   }
@@ -241,10 +292,6 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
 
   /* ---------- 数据入口 ---------- */
   function n(v, d) { return (v == null || isNaN(v)) ? '--' : Number(v).toFixed(d == null ? 1 : d); }
-  function pct(v, max) {
-    if (v == null || isNaN(v)) return 0;
-    return Math.max(0, Math.min(100, v / max * 100));
-  }
 
   window.onData = function (d) {
     var v = (d.SPEED == null || isNaN(d.SPEED)) ? 0 : Number(d.SPEED);
@@ -252,35 +299,68 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
     spdEl.textContent = (d.SPEED == null) ? '--' : Math.round(v);
 
     if (d.BMS_SOC_PERCENT != null) {
-      socTgt = Number(d.BMS_SOC_PERCENT);
-      socEl.textContent = socTgt.toFixed(0);
-      socBar.style.width = pct(socTgt, 100) + '%';
-    }
-    if (d.RANGE != null) {
-      rngEl.textContent = Math.round(d.RANGE);
-      rngBar.style.width = pct(d.RANGE, 420) + '%';
+      socTgt = Number(d.BMS_SOC_PERCENT);   /* 只用来驱动内圈电量环 */
     }
 
-    voltEl.textContent = n(d.BMS_DISP_PACK_VOL_ORG, 0);
-    currEl.textContent = n(d.BMS_DISP_PACK_CURRENT_ORG, 1);
+    voltEl.textContent = n(d.BMS_DISP_PACK_VOL_ORG, 0) + ' V';
 
-    /* 功率条：电压×电流，按 60kW 满量程 */
-    var pw = (d.BMS_DISP_PACK_VOL_ORG && d.BMS_DISP_PACK_CURRENT_ORG)
-      ? d.BMS_DISP_PACK_VOL_ORG * d.BMS_DISP_PACK_CURRENT_ORG / 1000 : null;
-    pwrBar.style.width = pct(pw, 60) + '%';
+    /* 电流竖条：零线在 25% 处。向上=放电 0~200A，向下=回收 0~60A */
+    var amp = d.BMS_DISP_PACK_CURRENT_ORG;
+    if (amp != null && !isNaN(amp)) {
+      var a = Number(amp);
+      currEl.textContent = a.toFixed(1);
+      if (a >= 0) {
+        ampFill.style.bottom = '25%';
+        ampFill.style.height = Math.min(75, a / 200 * 75).toFixed(2) + '%';
+        /* 负载分级：正常青 → 偏高琥珀 → 高负载红 */
+        var bg, sh, tc;
+        if (a > AMP_HOT) {
+          bg = 'linear-gradient(to top,#e11d48,#fb7185)';
+          sh = '0 0 12px rgba(244,63,94,.85)'; tc = '#fb7185';
+        } else if (a > AMP_WARN) {
+          bg = 'linear-gradient(to top,#d97706,#fbbf24)';
+          sh = '0 0 12px rgba(251,191,36,.8)'; tc = '#fbbf24';
+        } else {
+          bg = 'linear-gradient(to top,#22d3ee,#34d399)';
+          sh = '0 0 10px rgba(34,211,238,.7)'; tc = '';
+        }
+        ampFill.style.background = bg;
+        ampFill.style.boxShadow = sh;
+        currEl.style.color = tc;
+      } else {
+        var hh = Math.min(25, -a / 60 * 25);
+        ampFill.style.bottom = (25 - hh).toFixed(2) + '%';
+        ampFill.style.height = hh.toFixed(2) + '%';
+        ampFill.style.background = 'linear-gradient(to bottom,#34d399,#6ee7b7)';
+        ampFill.style.boxShadow = '0 0 10px rgba(52,211,153,.8)';
+        currEl.style.color = '#6ee7b7';
+      }
+    } else {
+      currEl.textContent = '--';
+      currEl.style.color = '';
+      ampFill.style.bottom = '25%';
+      ampFill.style.height = '0%';
+    }
 
+    /* 电耗 */
     var a = d.IPK_AVERAGE_PC_AEC1;
-    aecEl.textContent = (a == null || isNaN(a) ? '--' : Number(a).toFixed(1)) + ' kWh/100';
+    aecEl.textContent = (a == null || isNaN(a) ? '--' : Number(a).toFixed(1)) + ' kWh/100km';
 
-    document.getElementById('tfl').textContent = n(d.FL_TIRE_PRESSURE, 1);
-    document.getElementById('tfr').textContent = n(d.FR_TIRE_PRESSURE, 1);
-    document.getElementById('trl').textContent = n(d.RL_TIRE_PRESSURE, 1);
-    document.getElementById('trr').textContent = n(d.RR_TIRE_PRESSURE, 1);
+    /* 胎压：异常（<1.8 或 >3.2）时对应轮子变红 */
+    [['tfl', 'fl', d.FL_TIRE_PRESSURE],
+     ['tfr', 'fr', d.FR_TIRE_PRESSURE],
+     ['trl', 'rl', d.RL_TIRE_PRESSURE],
+     ['trr', 'rr', d.RR_TIRE_PRESSURE]].forEach(function (it) {
+      var el = document.getElementById(it[0]);
+      el.textContent = n(it[2], 1);
+      var bad = it[2] != null && !isNaN(it[2]) && (it[2] < 1.8 || it[2] > 3.2);
+      el.parentNode.className = 'wheel ' + it[1] + (bad ? ' bad' : '');
+    });
 
-    document.getElementById('odo').textContent = (d.ODO_DISP == null ? '--' : Math.round(d.ODO_DISP) + ' km');
     document.getElementById('trip1').textContent = n(d.IPK_TRIPMETER_TRIP1, 1) + ' km';
-    document.getElementById('temp').textContent = n(d.IACINCARTEM, 1) + ' / ' + n(d.OUTSIDE_TEP, 1) + ' C';
-    document.getElementById('energy').textContent = n(d.BMS_TOTAL_CONSMP_AFT_START, 2) + ' kWh';
+    document.getElementById('temp').textContent =
+      n(d.IACINCARTEM, 1) + ' / ' + n(d.OUTSIDE_TEP, 1) + ' C';
+    document.getElementById('alt').textContent = (d.alt == null ? '--' : Math.round(d.alt) + ' m');
   };
 })();
 </script>
