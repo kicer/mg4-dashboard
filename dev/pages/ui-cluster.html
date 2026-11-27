@@ -7,7 +7,7 @@
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden;
   font-family:'Helvetica Neue',Arial,'Noto Sans CJK SC',sans-serif;
-  -webkit-user-select:none;color:#d6f7ff}
+  -webkit-user-select:none;color:#e6fbff}
 #fx{position:absolute;left:0;top:0;width:100%;height:100%}
 #hud{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
 
@@ -15,18 +15,26 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
 #gauge{position:absolute;left:104px;top:134px;width:392px;height:392px}
 /* 字号档位：9 微标签 / 12 标签 / 15 次级数值 / 17 数值 / 21 大数值 / 108 主数值 */
 #spd{position:absolute;left:0;top:50%;width:100%;text-align:center;margin-top:-54px;
-  font-size:108px;font-weight:800;line-height:1;letter-spacing:-4px;color:#fff;
-  text-shadow:0 0 22px rgba(34,211,238,.85),0 0 70px rgba(34,211,238,.4)}
-#unit{position:absolute;left:0;top:50%;width:100%;text-align:center;margin-top:56px;
-  font-size:12px;letter-spacing:9px;text-indent:9px;color:rgba(34,211,238,.5)}
-#aec{position:absolute;left:0;top:50%;width:100%;text-align:center;margin-top:80px;
-  font-size:15px;letter-spacing:1px;color:rgba(52,211,153,.9)}
+  font-size:108px;font-weight:800;line-height:1;letter-spacing:-4px;color:#e6fbff;
+  text-shadow:0 0 22px rgba(230,251,255,.6),0 0 70px rgba(230,251,255,.25)}
+#unit{position:absolute;left:0;top:50%;width:100%;text-align:center;margin-top:58px;
+  font-size:18px;letter-spacing:5px;text-indent:5px;color:rgba(230,251,255,.5)}
+#aec{position:absolute;left:0;top:50%;width:100%;text-align:center;margin-top:88px;
+  line-height:1;font-size:0}
+#aec b{font-size:24px;font-weight:600;letter-spacing:0;color:#e6fbff}
+#aec i{font-style:normal;font-size:18px;letter-spacing:5px;
+  color:rgba(230,251,255,.5);margin-left:8px}
+#cap{position:absolute;left:0;top:50%;width:100%;text-align:center;margin-top:-94px;
+  font-size:18px;letter-spacing:5px;text-indent:5px;color:rgba(230,251,255,.5)}
 
 /* ---- 胎压俯视图 ---- */
-#tire{position:absolute;left:664px;top:215px;width:196px;height:230px}
-#tire .body{position:absolute;left:52px;top:52px;width:92px;height:126px;
-  border:1px dashed rgba(34,211,238,.16);border-radius:18px}
-#tire .wheel{position:absolute;width:44px;height:62px;border-radius:8px;
+#tire{position:absolute;left:664px;top:215px;width:220px;height:230px}
+#tire .cap{font-size:12px;letter-spacing:1px;color:rgba(230,251,255,.3)}
+#tire .body{position:absolute;left:62px;top:52px;width:96px;height:126px;
+  border:1px solid rgba(34,211,238,.18);border-radius:6px;
+  display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;
+  -webkit-justify-content:center;justify-content:center}
+#tire .wheel{position:absolute;width:60px;height:62px;border-radius:8px;
   background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.28);
   display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;
   -webkit-align-items:center;align-items:center;
@@ -36,16 +44,16 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
 #tire .wheel.fr{right:0;top:0}
 #tire .wheel.rl{left:0;bottom:0}
 #tire .wheel.rr{right:0;bottom:0}
-#tire .wheel b{font-size:21px;font-weight:700;line-height:1;letter-spacing:-.8px;
-  color:#e6fbff;text-shadow:0 0 12px rgba(34,211,238,.4)}
-#tire .wheel span{font-size:9px;line-height:1;letter-spacing:1.2px;
-  color:rgba(34,211,238,.42)}
+#tire .wheel b{font-size:24px;font-weight:600;line-height:1;letter-spacing:-.5px;
+  color:#e6fbff}
+#tire .wheel span{font-size:14px;line-height:1;letter-spacing:1.2px;
+  color:rgba(230,251,255,.45)}
 #tire .wheel.bad{border-color:rgba(251,113,133,.75);background:rgba(251,113,133,.10)}
-#tire .wheel.bad b{color:#fb7185;text-shadow:0 0 12px rgba(251,113,133,.6)}
+#tire .wheel.warn{border-color:rgba(251,191,36,.7);background:rgba(251,191,36,.08)}
 
 /* ---- 电流竖条：零线在 25% 处，向上=放电，向下=回收 ---- */
-#amp{position:absolute;left:1040px;top:210px;width:56px;text-align:center}
-#amp .track{position:relative;width:9px;height:250px;margin:0 auto;
+#amp{position:absolute;left:1032px;top:210px;width:72px;text-align:center}
+#amp .track{position:relative;width:12px;height:250px;margin:0 auto;
   background:rgba(34,211,238,.10);border-radius:5px;overflow:hidden}
 #amp .track i{position:absolute;left:0;bottom:25%;width:100%;height:0;
   border-radius:3px;box-shadow:0 0 10px rgba(34,211,238,.7);
@@ -53,45 +61,63 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
 /* 零线：上方 0~200A 放电，下方 0~60A 回收 */
 #amp .track .zero{position:absolute;left:0;bottom:25%;width:100%;height:1px;
   background:rgba(230,251,255,.45)}
-#amp .val{margin-top:10px;font-size:17px;font-weight:600;letter-spacing:-.3px;
-  color:rgba(230,251,255,.85);white-space:nowrap}
-#amp .val small{font-size:12px;font-weight:400;color:rgba(34,211,238,.45);margin-left:2px}
+#amp .val{margin-top:10px;font-size:24px;font-weight:600;letter-spacing:-.3px;
+  color:#e6fbff;white-space:nowrap}
+#amp .val small{font-size:16px;font-weight:400;color:rgba(230,251,255,.45);margin-left:2px}
 
-/* ---- 底部条 ---- */
+/* ---- 底部：多媒体，居中 ---- */
 #foot{position:absolute;left:60px;top:566px;width:1020px;height:46px;
   border-top:1px solid rgba(34,211,238,.16);
   display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;
-  -webkit-justify-content:space-between;justify-content:space-between}
-/* 四项两端对齐、中间等分，首项贴左、末项贴右 */
-#foot div{font-size:12px;letter-spacing:1px;color:rgba(34,211,238,.45)}
-#foot div b{display:block;font-size:21px;font-weight:700;letter-spacing:0;margin-top:2px;
-  color:#e6fbff;text-shadow:0 0 12px rgba(34,211,238,.4)}
-#foot div:last-child{text-align:right}
+  -webkit-justify-content:center;justify-content:center}
+#foot .mp{font-size:18px;color:rgba(230,251,255,.7);margin-right:14px}
+#foot .mt{font-size:22px;font-weight:700;letter-spacing:0;color:#e6fbff;
+  max-width:640px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#foot .ma{font-size:17px;color:rgba(230,251,255,.5);margin-left:14px;white-space:nowrap}
+
+/* ---- 海拔 / 室外温度：图标 + 数值，无标签 ---- */
+.mini{position:absolute;width:126px;height:46px;border-radius:8px;
+  background:rgba(2,6,12,.82);border:1px solid rgba(34,211,238,.16);
+  display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;
+  -webkit-justify-content:center;justify-content:center}
+.mini svg{width:18px;height:18px;margin-right:8px;fill:none;
+  stroke:rgba(230,251,255,.55);stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round}
+.mini b{font-size:24px;font-weight:600;line-height:1;color:#e6fbff}
+#m-alt{left:18px;top:70px}
+#m-out{right:18px;top:70px}
 
 /* ---- 四角装饰 ---- */
 .corner{position:absolute;width:26px;height:26px;border:1px solid rgba(34,211,238,.3)}
-#c1{left:52px;top:74px;border-right:0;border-bottom:0}
 #c2{left:52px;top:614px;border-right:0;border-top:0}
-#c3{left:1080px;top:74px;border-left:0;border-bottom:0}
 #c4{left:1080px;top:614px;border-left:0;border-top:0}
 </style></head>
 <body>
 <canvas id="fx"></canvas>
-<div class="corner" id="c1"></div>
 <div class="corner" id="c2"></div>
-<div class="corner" id="c3"></div>
 <div class="corner" id="c4"></div>
 
 <div id="hud">
-  <div id="gauge">
-    <div id="spd">--</div>
-    <div id="unit">KM/H</div>
-    <div id="aec">-- kWh/100km</div>
+  <!-- 左上：海拔；右上：室外温度 -->
+  <div class="mini" id="m-alt">
+    <svg viewBox="0 0 24 24"><path d="M2.5 19h19L14 7 9.5 15.5 7 11z"/></svg>
+    <b id="alt">--</b>
+  </div>
+  <div class="mini" id="m-out">
+    <svg viewBox="0 0 24 24"><path d="M12 4.5a2 2 0 0 1 2 2v7.2a4.4 4.4 0 1 1-4 0V6.5a2 2 0 0 1 2-2z"/><path d="M12 10.5v6"/></svg>
+    <b id="intemp">--</b>
   </div>
 
-  <!-- 胎压：俯视图，四个轮子对应实际位置 -->
+  <div id="gauge">
+    <div id="cap">Trip1</div>
+    <div id="spd">--</div>
+    <div id="unit">km</div>
+    <div id="aec"><b id="aecv">--</b><i>kWh/100km</i></div>
+  </div>
+
+  <!-- 胎压：俯视图，四个轮子对应实际位置。单位 kPa，推荐 250 -->
   <div id="tire">
-    <div class="body"></div>
+    <div class="body"><span class="cap">kPa</span></div>
     <div class="wheel fl"><b id="tfl">--</b><span>FL</span></div>
     <div class="wheel fr"><b id="tfr">--</b><span>FR</span></div>
     <div class="wheel rl"><b id="trl">--</b><span>RL</span></div>
@@ -105,10 +131,9 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
   </div>
 
   <div id="foot">
-    <div>TRIP 1<b id="trip1">--</b></div>
-    <div>IN / OUT<b id="temp">-- / --</b></div>
-    <div>ALT<b id="alt">--</b></div>
-    <div>VOLT<b id="volt">--</b></div>
+    <span class="mp" id="mplay">♪</span>
+    <span class="mt" id="mtitle">--</span>
+    <span class="ma" id="martist"></span>
   </div>
 </div>
 
@@ -121,49 +146,10 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
   var TICKS = 60;
   /* 电流告警阈值（A）：≤WARN 青色，WARN~HOT 琥珀，>HOT 红 */
   var AMP_WARN = 60, AMP_HOT = 120;
-  var SAFE_T = 67, SAFE_B = 617;
 
   var cv = document.getElementById('fx');
   var ctx = cv.getContext('2d');
   cv.width = W * S; cv.height = H * S;
-
-  /* ---------- 六边形网格：一次性画到离屏画布 ---------- */
-  var hexCv = document.createElement('canvas');
-  hexCv.width = W * S; hexCv.height = H * S;
-  (function buildHex() {
-    var c = hexCv.getContext('2d');
-    c.setTransform(S, 0, 0, S, 0, 0);
-    c.strokeStyle = 'rgba(34,211,238,.075)';
-    c.lineWidth = 1;
-    var rad = 42, dx = rad * 1.5, dy = rad * Math.sqrt(3);
-    for (var x = -rad; x < W + rad; x += dx) {
-      for (var y = -rad; y < H + rad; y += dy) {
-        var ox = (Math.round(x / dx) % 2) ? dy / 2 : 0;
-        c.beginPath();
-        for (var k = 0; k < 6; k++) {
-          var ang = Math.PI / 3 * k;
-          var px = x + Math.cos(ang) * rad;
-          var py = y + ox + Math.sin(ang) * rad;
-          if (k === 0) c.moveTo(px, py); else c.lineTo(px, py);
-        }
-        c.closePath();
-        c.stroke();
-      }
-    }
-  })();
-
-  /* 竖向晕影烘进离屏画布，省掉每帧一次全屏 fillRect */
-  (function bakeVignette() {
-    var c = hexCv.getContext('2d');
-    var vg = c.createLinearGradient(0, 0, 0, H);
-    vg.addColorStop(0, 'rgba(3,10,16,.55)');
-    vg.addColorStop(SAFE_T / H, 'rgba(3,10,16,0)');
-    vg.addColorStop(SAFE_B / H, 'rgba(3,10,16,0)');
-    vg.addColorStop(1, 'rgba(3,10,16,.55)');
-    c.setTransform(1, 0, 0, 1, 0, 0);
-    c.fillStyle = vg;
-    c.fillRect(0, 0, hexCv.width, hexCv.height);
-  })();
 
   /* 刻度端点预计算：60 条永不变化，不必每帧算三角函数 */
   var TICK_GEO = [];
@@ -179,23 +165,23 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
   }
 
   /* 静态渐变只建一次，不在渲染循环里 new */
-  var SCAN_GRAD = ctx.createLinearGradient(0, -120, 0, 120);
-  SCAN_GRAD.addColorStop(0, 'rgba(34,211,238,0)');
-  SCAN_GRAD.addColorStop(0.5, 'rgba(34,211,238,.055)');
-  SCAN_GRAD.addColorStop(1, 'rgba(34,211,238,0)');
   var GLOW_GRAD = ctx.createRadialGradient(CX, CY, 0, CX, CY, 180);
   GLOW_GRAD.addColorStop(0, 'hsla(186,100%,60%,1)');
   GLOW_GRAD.addColorStop(1, 'hsla(186,100%,60%,0)');
 
   /* ---------- 状态 ---------- */
   var spdCur = 0, spdTgt = 0, f = 0, soc = 0, socTgt = 0;
-  var t0 = 0, lastT = 0, scan = 0, lastHue = -999;
+  var t0 = 0, lastT = 0, settle = 90;
 
   var spdEl = document.getElementById('spd');
-  var aecEl = document.getElementById('aec');
-  var voltEl = document.getElementById('volt');
+  var aecEl = document.getElementById('aecv');
   var currEl = document.getElementById('curr');
   var ampFill = document.getElementById('ampfill');
+  var altEl = document.getElementById('alt');
+  var inEl = document.getElementById('intemp');
+  var mTitle = document.getElementById('mtitle');
+  var mArtist = document.getElementById('martist');
+  var mPlay = document.getElementById('mplay');
 
   function hue() { return 186 + f * 26; }
 
@@ -208,23 +194,16 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
     lastT = now;
     t0 += dt;
 
+    /* 没新数据、过渡也收敛了：整帧跳过，停车时几乎不耗 CPU */
+    if (settle <= 0) { requestAnimationFrame(frame); return; }
+    settle--;
+
     spdCur += (spdTgt - spdCur) * Math.min(1, dt / 220);
     soc += (socTgt - soc) * Math.min(1, dt / 400);
     f = Math.max(0, Math.min(1, spdCur / 160));
 
     ctx.setTransform(S, 0, 0, S, 0, 0);
     ctx.clearRect(0, 0, W, H);
-
-    /* 网格底 */
-    ctx.drawImage(hexCv, 0, 0, W, H);
-
-    /* 扫描带：渐变预建在原点用 translate 移动；竖向晕影已烘进 hexCv */
-    scan = (scan + dt / 1000 * 90) % (H + 240);
-    ctx.save();
-    ctx.translate(0, scan);
-    ctx.fillStyle = SCAN_GRAD;
-    ctx.fillRect(0, -120, W, 240);
-    ctx.restore();
 
     var h = hue();
 
@@ -280,12 +259,6 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
     ctx.fillRect(CX - 190, CY - 190, 380, 380);
     ctx.globalAlpha = 1;
 
-    /* 色相只在 186~212 间飘，变化超过 2° 才重设，避免每帧重绘大号模糊文字 */
-    if (Math.abs(h - lastHue) > 2) {
-      lastHue = h;
-      spdEl.style.textShadow = '0 0 22px hsla(' + h + ',100%,70%,.85),0 0 70px hsla(' + h + ',100%,60%,.4)';
-    }
-
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
@@ -294,15 +267,15 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
   function n(v, d) { return (v == null || isNaN(v)) ? '--' : Number(v).toFixed(d == null ? 1 : d); }
 
   window.onData = function (d) {
+    settle = 60;   /* 有数据进来就画 2 秒，足够平滑过渡收敛 */
     var v = (d.SPEED == null || isNaN(d.SPEED)) ? 0 : Number(d.SPEED);
-    spdTgt = v;
-    spdEl.textContent = (d.SPEED == null) ? '--' : Math.round(v);
+    spdTgt = v;   /* 车速只驱动外圈刻度与弧 */
+    spdEl.textContent = (d.IPK_TRIPMETER_TRIP1 == null || isNaN(d.IPK_TRIPMETER_TRIP1))
+      ? '--' : Number(d.IPK_TRIPMETER_TRIP1).toFixed(1);
 
     if (d.BMS_SOC_PERCENT != null) {
       socTgt = Number(d.BMS_SOC_PERCENT);   /* 只用来驱动内圈电量环 */
     }
-
-    voltEl.textContent = n(d.BMS_DISP_PACK_VOL_ORG, 0) + ' V';
 
     /* 电流竖条：零线在 25% 处。向上=放电 0~200A，向下=回收 0~60A */
     var amp = d.BMS_DISP_PACK_CURRENT_ORG;
@@ -312,55 +285,61 @@ html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden
       if (a >= 0) {
         ampFill.style.bottom = '25%';
         ampFill.style.height = Math.min(75, a / 200 * 75).toFixed(2) + '%';
-        /* 负载分级：正常青 → 偏高琥珀 → 高负载红 */
-        var bg, sh, tc;
+        /* 负载分级：绿 → 黄 → 红 */
+        var bg, sh;
         if (a > AMP_HOT) {
           bg = 'linear-gradient(to top,#e11d48,#fb7185)';
-          sh = '0 0 12px rgba(244,63,94,.85)'; tc = '#fb7185';
+          sh = '0 0 12px rgba(244,63,94,.85)';
         } else if (a > AMP_WARN) {
-          bg = 'linear-gradient(to top,#d97706,#fbbf24)';
-          sh = '0 0 12px rgba(251,191,36,.8)'; tc = '#fbbf24';
+          bg = 'linear-gradient(to top,#ca8a04,#facc15)';
+          sh = '0 0 12px rgba(250,204,21,.8)';
         } else {
-          bg = 'linear-gradient(to top,#22d3ee,#34d399)';
-          sh = '0 0 10px rgba(34,211,238,.7)'; tc = '';
+          bg = 'linear-gradient(to top,#059669,#34d399)';
+          sh = '0 0 10px rgba(52,211,153,.75)';
         }
         ampFill.style.background = bg;
         ampFill.style.boxShadow = sh;
-        currEl.style.color = tc;
       } else {
         var hh = Math.min(25, -a / 60 * 25);
         ampFill.style.bottom = (25 - hh).toFixed(2) + '%';
         ampFill.style.height = hh.toFixed(2) + '%';
-        ampFill.style.background = 'linear-gradient(to bottom,#34d399,#6ee7b7)';
-        ampFill.style.boxShadow = '0 0 10px rgba(52,211,153,.8)';
-        currEl.style.color = '#6ee7b7';
+        /* 动能回收：蓝色，和放电的绿/黄/红分开 */
+        ampFill.style.background = 'linear-gradient(to bottom,#3b82f6,#93c5fd)';
+        ampFill.style.boxShadow = '0 0 12px rgba(96,165,250,.85)';
       }
     } else {
       currEl.textContent = '--';
-      currEl.style.color = '';
       ampFill.style.bottom = '25%';
       ampFill.style.height = '0%';
     }
 
     /* 电耗 */
     var a = d.IPK_AVERAGE_PC_AEC1;
-    aecEl.textContent = (a == null || isNaN(a) ? '--' : Number(a).toFixed(1)) + ' kWh/100km';
+    aecEl.textContent = (a == null || isNaN(a) ? '--' : Number(a).toFixed(1));
 
-    /* 胎压：异常（<1.8 或 >3.2）时对应轮子变红 */
+    /* 胎压（kPa，推荐 250）：<200 或 >300 红，230~270 之外琥珀 */
     [['tfl', 'fl', d.FL_TIRE_PRESSURE],
      ['tfr', 'fr', d.FR_TIRE_PRESSURE],
      ['trl', 'rl', d.RL_TIRE_PRESSURE],
      ['trr', 'rr', d.RR_TIRE_PRESSURE]].forEach(function (it) {
       var el = document.getElementById(it[0]);
-      el.textContent = n(it[2], 1);
-      var bad = it[2] != null && !isNaN(it[2]) && (it[2] < 1.8 || it[2] > 3.2);
-      el.parentNode.className = 'wheel ' + it[1] + (bad ? ' bad' : '');
+      var pv = it[2];
+      var ok = pv != null && !isNaN(pv);
+      el.textContent = ok ? Math.round(pv) : '--';
+      var cls = 'wheel ' + it[1];
+      if (ok && (pv < 200 || pv > 300)) cls += ' bad';
+      else if (ok && (pv < 230 || pv > 270)) cls += ' warn';
+      el.parentNode.className = cls;
     });
 
-    document.getElementById('trip1').textContent = n(d.IPK_TRIPMETER_TRIP1, 1) + ' km';
-    document.getElementById('temp').textContent =
-      n(d.IACINCARTEM, 1) + ' / ' + n(d.OUTSIDE_TEP, 1) + ' C';
-    document.getElementById('alt').textContent = (d.alt == null ? '--' : Math.round(d.alt) + ' m');
+    altEl.textContent = (d.alt == null || isNaN(d.alt)) ? '--' : Math.round(d.alt) + ' m';
+    inEl.textContent = (d.IACINCARTEM == null || isNaN(d.IACINCARTEM))
+      ? '--' : Math.round(d.IACINCARTEM) + ' °C';
+
+    /* 多媒体：标题居中，艺术家跟在后面，播放中音符亮、暂停变暗 */
+    mTitle.textContent = d.mediaTitle || '--';
+    mArtist.textContent = d.mediaArtist || '';
+    mPlay.style.opacity = d.mediaPlaying ? 1 : 0.3;
   };
 })();
 </script>

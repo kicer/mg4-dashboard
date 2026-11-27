@@ -682,7 +682,11 @@ public class DashService extends Service {
         }
         if (show) {
             try {
-                buildWeb(c);
+                if (c.web == null) {
+                    buildWeb(c);
+                } else {
+                    c.web.onResume();
+                }
                 c.wm.addView(c.web, c.lp);
                 c.attached = true;
                 Log.e(TAG, "display=" + c.cfg.display + " attached top=" + topPkg);
@@ -690,20 +694,19 @@ public class DashService extends Service {
                 Log.e(TAG, "show display=" + c.cfg.display + " fail: " + t);
             }
         } else {
+            /* 只摘下来不销毁：WebView 一销毁，回到桌面时曲线和轨迹全没了 */
             try {
                 c.wm.removeViewImmediate(c.web);
             } catch (Throwable ignore) {
                 // 已移除
             }
             try {
-                c.web.destroy();
+                c.web.onPause();   // 停掉 rAF 和定时器，不在前台时不烧电
             } catch (Throwable ignore) {
-                // 已销毁
+                // ignore
             }
-            c.web = null;
-            c.wm = null;
             c.attached = false;
-            Log.e(TAG, "display=" + c.cfg.display + " destroyed top=" + topPkg);
+            Log.e(TAG, "display=" + c.cfg.display + " hidden top=" + topPkg);
         }
     }
 

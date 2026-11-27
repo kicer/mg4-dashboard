@@ -143,7 +143,7 @@ def mock(slot, tick, speed=None, soc=None, desktop=True, aec=None):
     for k in KEYS:
         v = stable(k)
         if "TIRE" in k and "PRESSURE" in k:
-            d[k] = round(2.2 + (v % 40) / 100.0, 2)
+            d[k] = 230 + (v % 41)          # kPa，推荐 250
         elif "ODO" in k:
             d[k] = round(12000 + (v % 5000) / 10.0, 1)
         elif "TEMP" in k:
@@ -179,6 +179,7 @@ def mock(slot, tick, speed=None, soc=None, desktop=True, aec=None):
         d["BMS_DISP_PACK_CURRENT_ORG"] = round(cur_sim, 1)
         d["IPK_AVERAGE_PC_AEC1"] = 15.2
     d["IPK_TRIPMETER_TRIP1"] = round(42.3 + sim_t * 0.02, 1)
+    d["RANGE"] = round(d["BMS_SOC_PERCENT"] * 4.2)   # 满电约 420km
     d["IACINCARTEM"] = 22.5
     d["OUTSIDE_TEP"] = 18.3
 
