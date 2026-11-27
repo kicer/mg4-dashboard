@@ -80,6 +80,15 @@ public class Main extends Activity {
         super.onDestroy();
     }
 
+    /** 当前包版本号，设置页显示用。 */
+    private String verName() {
+        try {
+            return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (Throwable t) {
+            return "";
+        }
+    }
+
     /** JS 接口。被 WebView 的 JS 线程调用，同步 IO 都是小文件。 */
     private class Bridge {
 
@@ -91,6 +100,7 @@ public class Main extends Activity {
                 o.put("root", Paths.root(Main.this).getAbsolutePath());
                 o.put("ip", localIp());
                 o.put("a11y", a11yOn());
+                o.put("ver", verName());
                 o.put("config", readConfigText());
                 return o.toString();
             } catch (Throwable t) {

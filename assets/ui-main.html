@@ -39,6 +39,10 @@ var lastSpeed = 0, lastTs = null;
 var speed = 0, targetSpeed = 0;
 var soc = 78, range = 0, accel = 0, trip = 0;
 var current = 0, voltage = 0, alt = 0;
+var mapScale = 0;             /* 轨迹图比例尺（像素/米） */
+var mapCx = 0, mapCy = 0;     /* 轨迹图中心（米，相对轨迹第一个点） */
+var dotX = null, dotY = null; /* 当前位置的屏幕坐标 */
+var gpsFirst = null, gpsLast = null;  /* 首/末个有定位的采样，缓存起来免每帧扫全表 */
 var tp = [0, 0, 0, 0];        /* FL FR RL RR 胎压 */
 var trip1 = 0;                /* 小记里程 1 */
 var drivingSec = 0;           /* 行车时长（秒） */
@@ -60,6 +64,21 @@ function roundRect(x, y, w, h, r) {
   ctx.closePath();
 }
 
+/* 分段绘制：数值段白色，标签/单位淡白，拉开层次 */
+function drawSegs(segs, x, y, align) {
+  var w = 0, i;
+  for (i = 0; i < segs.length; i++) w += ctx.measureText(segs[i][0]).width;
+  var sx = align === 'right' ? x - w : align === 'center' ? x - w / 2 : x;
+  var old = ctx.textAlign;
+  ctx.textAlign = 'left';
+  for (i = 0; i < segs.length; i++) {
+    ctx.fillStyle = segs[i][1] ? 'rgba(255,255,255,.92)' : 'rgba(255,255,255,.48)';
+    ctx.fillText(segs[i][0], sx, y);
+    sx += ctx.measureText(segs[i][0]).width;
+  }
+  ctx.textAlign = old;
+}
+
 function card(x, y, w, h) {
   roundRect(x, y, w, h, 16);
   ctx.fillStyle = 'rgba(6,13,22,.82)';
@@ -73,13 +92,13 @@ function drawSeries(s, x, y, w, h) {
   card(x, y, w, h);
 
   var inX = x + 20, inW = w - 40;
-  var topPad = 46, botPad = 14;
+  var topPad = 58, botPad = 14;
   var mid = y + topPad + (h - topPad - botPad) / 2;
   var half = (h - topPad - botPad) * 0.38;
 
   /* 标题 + 当前值 */
   ctx.textAlign = 'left';
-  ctx.font = '500 16px -apple-system, "Noto Sans CJK SC", sans-serif';
+  ctx.font = '500 18px -apple-system, "Noto Sans CJK SC", sans-serif';
   ctx.fillStyle = 'rgba(' + s.c + ',.7)';
   ctx.fillText(s.name, x + 20, y + 28);
 
@@ -87,13 +106,13 @@ function drawSeries(s, x, y, w, h) {
   ctx.textAlign = 'right';
   ctx.font = '700 28px -apple-system, "Noto Sans CJK SC", sans-serif';
   ctx.fillStyle = 'rgba(' + s.c + ',.95)';
-  ctx.fillText(cv.toFixed(s.dec) + ' ' + s.unit, x + w - 20, y + 30);
+  ctx.fillText(cv.toFixed(s.dec) + ' ' + s.unit, x + w - 20, y + 42);
 
   /* 电流卡片右下角显示电压 */
   if (s.key === 'current') {
-    ctx.font = '500 14px -apple-system, sans-serif';
-    ctx.fillStyle = 'rgba(' + s.c + ',.55)';
-    ctx.fillText(voltage ? '电压 ' + voltage.toFixed(1) + 'V' : '--', x + w - 20, y + h - 14);
+    ctx.font = '500 18px -apple-system, "Noto Sans CJK SC", sans-serif';
+    drawSegs([['电压 ', 0], [(voltage ? voltage.toFixed(1) : '--'), 1], ['V', 0]],
+             x + w - 20, y + h - 14, 'right');
   }
 
   /* 中线 */
@@ -131,6 +150,23 @@ function drawSeries(s, x, y, w, h) {
   ctx.stroke();
 }
 
+/* 航向角转成可读方位。8 个象限，偏角始终 ≤45°，不会出现「北偏东 89°」这种别扭说法 */
+function bearingText(b) {
+  var d = Math.round(((b % 360) + 360) % 360) % 360;
+  if (d === 0) return '正北';
+  if (d === 90) return '正东';
+  if (d === 180) return '正南';
+  if (d === 270) return '正西';
+  if (d <= 45) return '北偏东 ' + d + '°';
+  if (d < 90) return '东偏北 ' + (90 - d) + '°';
+  if (d <= 135) return '东偏南 ' + (d - 90) + '°';
+  if (d < 180) return '南偏东 ' + (180 - d) + '°';
+  if (d <= 225) return '南偏西 ' + (d - 180) + '°';
+  if (d < 270) return '西偏南 ' + (270 - d) + '°';
+  if (d <= 315) return '西偏北 ' + (d - 270) + '°';
+  return '北偏西 ' + (360 - d) + '°';
+}
+
 function drawCompass(x, y, w, h) {
   card(x, y, w, h);
 
@@ -139,9 +175,9 @@ function drawCompass(x, y, w, h) {
   var r = Math.min(w, h) / 2 - 52;
 
   ctx.textAlign = 'center';
-  ctx.font = '500 16px -apple-system, "Noto Sans CJK SC", sans-serif';
-  ctx.fillStyle = 'rgba(0,229,255,.72)';
-  ctx.fillText('方向', cx, y + 30);
+  ctx.font = '500 18px -apple-system, "Noto Sans CJK SC", sans-serif';
+  ctx.fillStyle = 'rgba(255,167,38,.8)';
+  ctx.fillText('轨迹', cx, y + 30);
 
   ctx.strokeStyle = 'rgba(0,229,255,.32)';
   ctx.lineWidth = 1.3;
@@ -161,42 +197,94 @@ function drawCompass(x, y, w, h) {
   ctx.fillText('W', cx - r + 9, cy + 4);
   ctx.fillText('E', cx + r - 9, cy + 4);
 
-  var step = Math.max(1, Math.floor(samples.length / 300));
-  ctx.beginPath();
-  var started = false;
-  for (var i = 0; i < samples.length; i += step) {
-    var sm = samples[i];
-    if (sm.bearing == null || !isFinite(sm.bearing)) { started = false; continue; }
-    var a = sm.bearing * Math.PI / 180;
-    var rr = r * (0.22 + 0.72 * Math.min(1, sm.speed / 110));
-    var px = cx + Math.sin(a) * rr;
-    var py = cy - Math.cos(a) * rr;
-    /* 每段从圆心起笔，看起来是「从中心射出去」的轨迹 */
-    if (!started) { ctx.moveTo(cx, cy); ctx.lineTo(px, py); started = true; }
-    else ctx.lineTo(px, py);
+  /* ---- 轨迹：经纬度投影成米，整条路线自动缩放居中，北向上 ---- */
+  var first = gpsFirst, last = gpsLast;
+  if (!last) {
+    ctx.textAlign = 'center';
+    ctx.font = '400 12px -apple-system, sans-serif';
+    ctx.fillStyle = 'rgba(120,190,215,.3)';
+    ctx.fillText('无定位数据', cx, cy + r + 36);
+    return;
   }
-  ctx.strokeStyle = 'rgba(255,167,38,.85)';
-  ctx.lineWidth = 2.2;
-  ctx.stroke();
 
-  var last = null;
-  for (var i = samples.length - 1; i >= 0; i--) {
-    if (samples[i].bearing != null && isFinite(samples[i].bearing)) { last = samples[i]; break; }
+  /* 以第一个点为基准投影。基准永不变，所以轨迹本身不会滑动 */
+  var mLat = 110540, mLon = 111320 * Math.cos(first.lat * Math.PI / 180);
+  var step = Math.max(1, Math.floor(samples.length / 300));
+  var pts = [];
+  var minE = 1e9, maxE = -1e9, minN = 1e9, maxN = -1e9;
+  function addPt(s) {
+    if (s.lat == null || s.lon == null) return;
+    var e = (s.lon - first.lon) * mLon, n = (s.lat - first.lat) * mLat;
+    if (e < minE) minE = e;
+    if (e > maxE) maxE = e;
+    if (n < minN) minN = n;
+    if (n > maxN) maxN = n;
+    pts.push(e, n);
   }
-  if (last) {
-    var la = last.bearing * Math.PI / 180;
-    var lx = cx + Math.sin(la) * r * 0.92;
-    var ly = cy - Math.cos(la) * r * 0.92;
-    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(lx, ly);
-    ctx.strokeStyle = 'rgba(0,229,255,.2)';
-    ctx.lineWidth = 8;
+  for (var i = 0; i < samples.length; i += step) addPt(samples[i]);
+  addPt(last);
+
+  /* 中心 + 比例尺：整条轨迹包进半径 0.92r 的圆里（按外接对角线算） */
+  var cE = (minE + maxE) / 2, cN = (minN + maxN) / 2;
+  var halfE = (maxE - minE) / 2, halfN = (maxN - minN) / 2;
+  var far = Math.max(Math.sqrt(halfE * halfE + halfN * halfN), 60);
+  var target = (r * 0.92) / far;
+  if (mapScale === 0) { mapScale = target; mapCx = cE; mapCy = cN; }
+  else {
+    /* 中心/比例尺只慢慢跟，新点进来不会引起跳变 */
+    mapScale += (target - mapScale) * 0.08;
+    mapCx += (cE - mapCx) * 0.08;
+    mapCy += (cN - mapCy) * 0.08;
+  }
+
+  if (pts.length >= 4) {
+    ctx.beginPath();
+    for (var k = 0; k < pts.length; k += 2) {
+      var px = cx + (pts[k] - mapCx) * mapScale;
+      var py = cy - (pts[k + 1] - mapCy) * mapScale;
+      if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = 'rgba(255,167,38,.78)';
+    ctx.lineWidth = 2;
     ctx.stroke();
-    ctx.strokeStyle = 'rgba(0,229,255,.9)';
-    ctx.lineWidth = 2.4;
+  }
+
+  /* 当前位置：跟着地图走，位置再平滑一层 */
+  var tX = cx + ((last.lon - first.lon) * mLon - mapCx) * mapScale;
+  var tY = cy - ((last.lat - first.lat) * mLat - mapCy) * mapScale;
+  if (dotX === null) { dotX = tX; dotY = tY; }
+  else { dotX += (tX - dotX) * 0.2; dotY += (tY - dotY) * 0.2; }
+  var curX = dotX, curY = dotY;
+
+  /* 当前航向：地图上的导航箭头，跟着航向转 */
+  var brg = last.bearing;
+  ctx.textAlign = 'center';
+  if (brg != null && isFinite(brg)) {
+    var a = brg * Math.PI / 180;
+    ctx.beginPath();
+    ctx.arc(curX, curY, 11, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,229,255,.10)';
+    ctx.fill();
+
+    ctx.save();
+    ctx.translate(curX, curY);
+    ctx.rotate(a);
+    ctx.beginPath();
+    ctx.moveTo(0, -10);
+    ctx.lineTo(7, 7.5);
+    ctx.lineTo(0, 3.8);
+    ctx.lineTo(-7, 7.5);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(0,229,255,.95)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(4,10,18,.85)';
+    ctx.lineWidth = 1.2;
     ctx.stroke();
-    ctx.font = '500 13px -apple-system, sans-serif';
-    ctx.fillStyle = 'rgba(0,229,255,.7)';
-    ctx.fillText(Math.round(last.bearing) + '°', cx, cy + r + 26);
+    ctx.restore();
+    ctx.font = '500 18px -apple-system, "Noto Sans CJK SC", sans-serif';
+    ctx.fillStyle = 'rgba(255,167,38,.85)';
+    ctx.fillText(bearingText(brg), cx, cy + r + 38);
   } else {
     ctx.font = '400 12px -apple-system, sans-serif';
     ctx.fillStyle = 'rgba(120,190,215,.3)';
@@ -205,9 +293,9 @@ function drawCompass(x, y, w, h) {
 
   /* 海拔：放卡片右下角 */
   ctx.textAlign = 'right';
-  ctx.font = '500 13px -apple-system, "Noto Sans CJK SC", sans-serif';
-  ctx.fillStyle = 'rgba(120,190,215,.58)';
-  ctx.fillText('海拔 ' + (alt ? Math.round(alt) + ' m' : '--'), x + w - 20, y + h - 16);
+  ctx.font = '500 18px -apple-system, "Noto Sans CJK SC", sans-serif';
+  drawSegs([['海拔 ', 0], [(alt ? Math.round(alt) : '--'), 1], [' m', 0]],
+           x + w - 20, y + h - 16, 'right');
 }
 
 function drawInfo() {
@@ -220,28 +308,43 @@ function drawInfo() {
   else if (mins < 60) dur = mins + ' 分钟';
   else dur = Math.floor(mins / 60) + ' 小时 ' + (mins % 60) + ' 分钟';
 
-  ctx.font = '500 14px -apple-system, "Noto Sans CJK SC", sans-serif';
+  ctx.font = '500 18px -apple-system, "Noto Sans CJK SC", sans-serif';
 
   /* 左：行车时长 + 累计里程 */
   ctx.textAlign = 'left';
-  ctx.fillStyle = 'rgba(120,180,205,.62)';
-  ctx.fillText('本次行车 ' + dur + '，累计 ' + trip.toFixed(1) + ' km', PAD + 20, y + 29);
+  drawSegs([['本次行车 ', 0], [dur, 1], ['，累计 ', 0], [trip.toFixed(1), 1], [' km', 0]],
+           PAD + 20, y + 29, 'left');
 
   /* 中：车内 / 室外温度 */
   ctx.textAlign = 'center';
-  ctx.fillText('车内 ' + (inTemp ? inTemp.toFixed(1) + '°' : '--') +
-               '　室外 ' + (outTemp ? outTemp.toFixed(1) + '°' : '--'), W / 2, y + 29);
+  drawSegs([['车内 ', 0], [(inTemp ? Math.round(inTemp) + '°' : '--'), 1],
+            ['　室外 ', 0], [(outTemp ? Math.round(outTemp) + '°' : '--'), 1]],
+           W / 2, y + 29, 'center');
 
-  /* 右：四轮胎压，异常整体变红 */
+  /* 右：四轮胎压（kPa，250 是推荐值）。<200 或 >300 红，230~270 之外琥珀 */
   var parts = [];
-  var bad = false;
+  var bad = false, warn = false;
   for (var i = 0; i < 4; i++) {
-    parts.push(tp[i] ? tp[i].toFixed(2) : '--');
-    if (tp[i] > 0 && (tp[i] < 1.8 || tp[i] > 3.2)) bad = true;
+    parts.push(tp[i] ? Math.round(tp[i]) : '--');
+    if (tp[i] > 0) {
+      if (tp[i] < 200 || tp[i] > 300) bad = true;
+      else if (tp[i] < 230 || tp[i] > 270) warn = true;
+    }
   }
   ctx.textAlign = 'right';
-  ctx.fillStyle = bad ? 'rgba(255,90,90,.9)' : 'rgba(120,180,205,.62)';
-  ctx.fillText('胎压 ' + parts.join('/'), W - PAD - 20, y + 29);
+  if (bad || warn) {
+    /* 异常时整行变色，状态优先于层次 */
+    ctx.fillStyle = bad ? 'rgba(255,90,90,.9)' : 'rgba(251,191,36,.9)';
+    ctx.fillText('胎压 ' + parts.join('/') + ' kPa', W - PAD - 20, y + 29);
+  } else {
+    var tsegs = [['胎压 ', 0]];
+    for (var ti = 0; ti < 4; ti++) {
+      if (ti) tsegs.push(['/', 0]);
+      tsegs.push([parts[ti], 1]);
+    }
+    tsegs.push([' kPa', 0]);
+    drawSegs(tsegs, W - PAD - 20, y + 29, 'right');
+  }
 }
 
 function draw() {
@@ -253,7 +356,7 @@ function draw() {
   drawInfo();
 }
 
-var last = 0;
+var last = 0, settle = 90;
 function loop(ts) {
   if (!last) last = ts;
   /* 限到 ~30fps：只在真正要画时推进 last，否则 60Hz 下会被永久跳过 */
@@ -261,12 +364,16 @@ function loop(ts) {
   var dt = Math.min(0.05, (ts - last) / 1000) || 0.016;
   last = ts;
   speed += (targetSpeed - speed) * Math.min(1, dt * 2.6);
+  /* 没新数据、过渡也收敛了：整帧跳过，停车时几乎不耗 CPU */
+  if (settle <= 0) { requestAnimationFrame(loop); return; }
+  settle--;
   draw();
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
 
 window.onData = function (d) {
+  settle = 60;   /* 有数据进来就画 2 秒，足够平滑过渡收敛 */
   targetSpeed = d.SPEED == null ? 0 : d.SPEED;
   if (d.BMS_SOC_PERCENT != null) soc = d.BMS_SOC_PERCENT;
   if (d.RANGE != null) range = d.RANGE;
@@ -282,6 +389,16 @@ window.onData = function (d) {
   if (d.RL_TIRE_PRESSURE != null) tp[2] = d.RL_TIRE_PRESSURE;
   if (d.RR_TIRE_PRESSURE != null) tp[3] = d.RR_TIRE_PRESSURE;
 
+  /* GPS：不管动不动都记下当前位置，停车时也能显示位置和朝向 */
+  if (d.lat != null && d.lon != null && isFinite(d.lat) && isFinite(d.lon)) {
+    var fix = {
+      lat: d.lat, lon: d.lon,
+      bearing: (d.bearing == null || !isFinite(d.bearing)) ? null : d.bearing
+    };
+    if (!gpsFirst) gpsFirst = fix;   /* 投影基准取第一个有定位的点 */
+    gpsLast = fix;
+  }
+
   var spd = d.SPEED == null ? 0 : d.SPEED;
   accel = (spd - lastSpeed) / 3.6;
   lastSpeed = spd;
@@ -293,11 +410,14 @@ window.onData = function (d) {
   if (spd > 1) {
     trip += spd / 3600 * dtSec;
     drivingSec += dtSec;
-    samples.push({
+    var sm = {
       speed: spd,
       current: current,
+      lat: (d.lat == null || !isFinite(d.lat)) ? null : d.lat,
+      lon: (d.lon == null || !isFinite(d.lon)) ? null : d.lon,
       bearing: (d.bearing == null || !isFinite(d.bearing)) ? null : d.bearing
-    });
+    };
+    samples.push(sm);
     if (samples.length > MAX_SAMPLES) samples.splice(0, 2000);
   }
 };
