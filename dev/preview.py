@@ -29,6 +29,16 @@ ASSETS = os.path.join(ROOT, "assets")
 EXTRA = os.path.join(ROOT, "dev", "pages")
 KEYS_FILE = os.path.join(ASSETS, "keys.txt")
 
+# 页面相对资源的 Content-Type
+MIME = {
+    ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+    ".gif": "image/gif", ".webp": "image/webp", ".svg": "image/svg+xml",
+    ".css": "text/css; charset=utf-8",
+    ".js": "application/javascript; charset=utf-8",
+    ".json": "application/json; charset=utf-8",
+    ".woff2": "font/woff2", ".ttf": "font/ttf",
+}
+
 # 预览背景：实车截图，已拉进 dev/bg/，仓库自包含
 #   main.png    主屏桌面（1920×1080）
 #   cluster.png 副屏（1280×768）
@@ -71,6 +81,57 @@ def stable(key):
     return int.from_bytes(hashlib.md5(key.encode()).digest()[:4], "big")
 
 
+# GPS 模拟：真实道路那种「直道 → 缓弯 → 直道 → 急弯」循环
+_GPS = {"lat": 35.39629, "lon": 116.99190, "bearing": 0.0, "last_t": 0.0}
+
+# 每 7 秒换一段路，角度是相对初始朝向的目标偏角
+_ROAD_PLAN = [0.0, 38.0, 0.0, -62.0, 12.0, -25.0, 0.0]
+
+
+def gps_advance(speed_kmh):
+    """推进模拟车辆位置，返回 (lat, lon, bearing, gpsSpeed)。"""
+    g = _GPS
+    now = time.time()
+    dt = 1.0 if not g["last_t"] else max(0.0, min(2.0, now - g["last_t"]))
+    if dt < 0.5:
+        return g["lat"], g["lon"], g["bearing"], speed_kmh
+    g["last_t"] = now
+
+    # 目标朝向平滑过渡，不像直角那么生硬
+    target = _ROAD_PLAN[int(now / 7) % len(_ROAD_PLAN)]
+    g["bearing"] += (target - g["bearing"]) * min(1.0, 0.55 * dt)
+    while g["bearing"] > 180.0:
+        g["bearing"] -= 360.0
+    while g["bearing"] < -180.0:
+        g["bearing"] += 360.0
+
+    # 60km/h ≈ 0.00015 度/秒；预览里再放大 5 倍，让轨迹快点铺开
+    step = max(0.0, speed_kmh) * 0.000012 * dt
+    rad = math.radians(g["bearing"])
+    g["lat"] += step * math.cos(rad)
+    g["lon"] += step * math.sin(rad)
+    return g["lat"], g["lon"], g["bearing"], speed_kmh
+
+
+_SIM = {"t": 0}
+
+
+def trip_curve(t):
+    """360 秒一轮的行程：起步 → 巡航 → 减速回收 → 刹停。返回 (车速, 电流)。"""
+    t = t % 360
+    if t < 12:
+        return t * 7.5, 190.0
+    if t < 70:
+        return 90 - (70 - t) * 0.3, 90 + math.sin(t / 6) * 50
+    if t < 200:
+        return 88 + math.sin(t / 14) * 12, 35 + math.sin(t / 9) * 35
+    if t < 260:
+        return max(0.0, 88 - (t - 200) * 1.45), -35 - math.sin(t / 8) * 10
+    if t < 300:
+        return max(0.0, 4 - (t - 260) * 0.4), -12.0
+    return 0.0, 0.0
+
+
 def mock(slot, tick, speed=None, soc=None, desktop=True, aec=None):
     """造一份和车机同形状的数据：key 就是 keys.txt 里的原始 key。
 
@@ -90,26 +151,39 @@ def mock(slot, tick, speed=None, soc=None, desktop=True, aec=None):
         else:
             d[k] = round((v % 1000) / 10.0, 1)
 
-    # 两个会被顶部滑块覆盖的字段
-    d["SPEED"] = (float(speed) if speed is not None
-                  else round(70 + 25 * math.sin(tick / 8.0)))
+    # 行程曲线驱动：每请求一次推进 1 秒
+    _SIM["t"] += 1
+    sim_t = _SIM["t"]
+    spd_sim, cur_sim = trip_curve(sim_t)
+
+    d["SPEED"] = float(speed) if speed is not None else round(spd_sim, 1)
     d["BMS_SOC_PERCENT"] = (float(soc) if soc is not None
-                            else round(78 - (tick % 900) / 90.0, 1))
+                            else round(80 - (sim_t % 360) * 0.012, 1))
 
     # 门锁给正常值，否则随机数会让车图一直报警
     d["DOOR_OPEN_COND"] = 0
     d["DOOR_LOCK_STATUS"] = 1
 
-    # 电池电压固定，电流按目标电耗反算：P = aec * v * 10 (W)
-    d["BMS_DISP_PACK_VOL_ORG"] = 380.0
-    spd_now = d["SPEED"]
+    # 电压随负载轻微浮动；电流默认来自行程曲线
+    volt = round(398 + math.sin(sim_t / 40) * 3, 1)
+    d["BMS_DISP_PACK_VOL_ORG"] = volt
+
     if aec is not None:
-        d["IPK_AVERAGE_PC_AEC1"] = float(aec)
-        d["BMS_DISP_PACK_CURRENT_ORG"] = (
-            round(float(aec) * spd_now * 10 / 380.0, 1) if spd_now > 3 else 0.0)
+        # 电耗滑杆优先：P(kW) = AEC × v / 100，I = P × 1000 / V
+        d["IPK_AVERAGE_PC_AEC1"] = round(aec, 1)
+        if cur_sim < 0:
+            d["BMS_DISP_PACK_CURRENT_ORG"] = round(cur_sim, 1)   # 回收段保留负值
+        else:
+            d["BMS_DISP_PACK_CURRENT_ORG"] = round(aec * d["SPEED"] * 10.0 / volt, 1)
     else:
-        d["BMS_DISP_PACK_CURRENT_ORG"] = round(10 + (stable("AEC") % 200) / 10.0, 1)
-        d["IPK_AVERAGE_PC_AEC1"] = round(12 + (stable("AEC1") % 90) / 10.0, 1)
+        d["BMS_DISP_PACK_CURRENT_ORG"] = round(cur_sim, 1)
+        d["IPK_AVERAGE_PC_AEC1"] = 15.2
+    d["IPK_TRIPMETER_TRIP1"] = round(42.3 + sim_t * 0.02, 1)
+    d["IACINCARTEM"] = 22.5
+    d["OUTSIDE_TEP"] = 18.3
+
+    # GPS 按当前车速推进，模拟真实行驶
+    g_lat, g_lon, g_brg, g_spd = gps_advance(d["SPEED"])
 
     d.update({
         "_slot": "main" if slot == "0" else "cluster",
@@ -122,14 +196,15 @@ def mock(slot, tick, speed=None, soc=None, desktop=True, aec=None):
         "mediaAlbum": "成吉思汗的传说",
         "mediaSource": "bt_music",
         "mediaPlaying": True,
-        "lat": 35.39629,
-        "lon": 116.991898,
-        "gpsSpeed": d.get("SPEED", 0),
-        "bearing": 90,
+        "lat": round(g_lat, 6),
+        "lon": round(g_lon, 6),
+        "gpsSpeed": round(g_spd, 1),
+        # 每秒转 0.55°，罗盘会画出一圈螺旋
+        "bearing": round((sim_t * 0.55) % 360, 1),
         "hAcc": 5,
         "vAcc": 8,
         "gpsAge": 1200,
-        "alt": 48,
+        "alt": round(82 + math.sin(sim_t / 45) * 18),
     })
     return d
 
@@ -184,9 +259,18 @@ SHIM = """
   var SLOT = %s;
   var OV = {};
   var lastPull = 0;
+  var TIMER = null;
+
+  function startTimer(ms) {
+    if (TIMER) clearInterval(TIMER);
+    TIMER = setInterval(pull, ms);
+  }
 
   window.addEventListener('message', function (e) {
-    if (!e.data || !e.data.__ovdash) return;
+    if (!e.data) return;
+    /* 容器页顶部的快进滑块改采样间隔 */
+    if (e.data.interval) startTimer(e.data.interval);
+    if (!e.data.__ovdash) return;
     OV = e.data.__ovdash;
     /* 拖滑块时 input 每像素触发一次，节流到 250ms，别把采样窗口刷掉 */
     var now = Date.now();
@@ -215,7 +299,7 @@ SHIM = """
     x.send();
   }
   pull();
-  setInterval(pull, 1000);
+  startTimer(1000);
 })();
 </script>
 """
@@ -250,7 +334,9 @@ CONTAINER = """<!DOCTYPE html>
   <span class="seg" id="disp">
     <a data-v="1" class="on">一直显示</a><a data-v="0">只桌面显示</a>
   </span>
+  <label class="ctl"><input type="checkbox" id="autospd" checked>自动速度</label>
   <label class="ctl">车速<input type="range" id="spd" min="0" max="180" step="1" value="90"><b id="spdv">90</b></label>
+  <label class="ctl">快进<input type="range" id="fwd" min="1" max="20" step="1" value="1"><b id="fwdv">1&times;</b></label>
   <label class="ctl">电量<input type="range" id="soc" min="0" max="100" step="1" value="78"><b id="socv">78</b></label>
   <label class="ctl">电耗<input type="range" id="aec" min="0" max="40" step="1" value="15"><b id="aecv2">15</b></label>
   <span id="st">热重载中…</span>
@@ -280,14 +366,21 @@ CONTAINER = """<!DOCTYPE html>
     var spd = document.getElementById('spd').value;
     var soc = document.getElementById('soc').value;
     var aec = document.getElementById('aec').value;
+    var auto = document.getElementById('autospd').checked;
+    var mul = +document.getElementById('fwd').value;
     document.getElementById('spdv').textContent = spd;
     document.getElementById('socv').textContent = soc;
     document.getElementById('aecv2').textContent = aec;
+    document.getElementById('fwdv').innerHTML = mul + '&times;';
     if (!f.contentWindow) return;
-    f.contentWindow.postMessage({ __ovdash: {
-      speed: spd, soc: soc, aec: aec,
-      desk: SCENE === 'desk' ? 1 : 0
-    } }, '*');
+    f.contentWindow.postMessage({
+      __ovdash: {
+        speed: auto ? null : spd,   /* 勾了自动就不传，让服务端走行程曲线 */
+        soc: soc, aec: aec,
+        desk: SCENE === 'desk' ? 1 : 0
+      },
+      interval: Math.round(1000 / mul)
+    }, '*');
   }
 
   function render() {
@@ -312,7 +405,7 @@ CONTAINER = """<!DOCTYPE html>
   });
 
   f.onload = function () { render(); };
-  ['spd', 'soc', 'aec'].forEach(function (id) {
+  ['spd', 'soc', 'aec', 'fwd', 'autospd'].forEach(function (id) {
     document.getElementById(id).addEventListener('input', push);
   });
   render();
@@ -482,6 +575,27 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 html += shim
             self.send_text(html)
             return
+
+        # 兑底：页面里的相对资源（car.png、style.css 之类）
+        # /raw 的 URL 路径是 /raw，所以 car.png 会解析成 /car.png，这里补上
+        base = os.path.basename(path)
+        if base and "." in base and "/" not in path.strip("/"):
+            for d in (EXTRA, ASSETS):
+                f = os.path.join(d, base)
+                if os.path.isfile(f):
+                    try:
+                        with open(f, "rb") as fh:
+                            data = fh.read()
+                    except OSError:
+                        break
+                    ctype = MIME.get(os.path.splitext(base)[1].lower(), "application/octet-stream")
+                    self.send_response(200)
+                    self.send_header("Content-Type", ctype)
+                    self.send_header("Content-Length", str(len(data)))
+                    self.send_header("Cache-Control", "no-store")
+                    self.end_headers()
+                    self.wfile.write(data)
+                    return
 
         self.send_text("404", code=404)
 
